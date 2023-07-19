@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="test_resource">
+        <item>@string/icon_home</item>
+        <item>@string/icon_search</item>
+        <item>@string/icon_like</item>
+        <item>@string/icon_setting</item>
+    </array>
+</resources>

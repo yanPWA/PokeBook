@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">PokeBook</string>
+    <string name="icon_home">home</string>
+    <string name="icon_search">search</string>
+    <string name="icon_like">like</string>
+    <string name="icon_setting">setting</string>
 </resources>
