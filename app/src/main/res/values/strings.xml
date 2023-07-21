@@ -4,4 +4,6 @@
     <string name="icon_search">search</string>
     <string name="icon_like">like</string>
     <string name="icon_setting">setting</string>
+    <string name="loading">loading</string>
+    <string name="loading_failed">Failed to load</string>
 </resources>
