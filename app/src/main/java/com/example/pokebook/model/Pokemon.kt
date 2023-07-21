@@ -27,30 +27,7 @@ data class PokemonListItem(
  */
 @Serializable
 data class PokemonPersonalData(
-//    val abilities: List<Ability>,
-//    @SerialName("base_experience")
-//    val baseExperience: Int,
-//    val forms: List<Form>,
-//    @SerialName("game_indices")
-//    val gameIndices: List<GameIndex>,
-//    val height: Int,
-//    @SerialName("held_items")
-//    val heldItems: List<Object>,
-//    val id: Int,
-//    @SerialName("is_default")
-//    val isDefault: Boolean,
-//    @SerialName("location_area_encounters")
-//    val areaEncounters: String,
-//    val moves: List<Moves>,
-//    val name: String,
-//    val order: Int,
-//    @SerialName("past_types")
-//    val pastTypes: List<Object>,
-//    val species: Species,
     val sprites: Sprites,
-//    val stats: List<Stats>,
-//    val types: List<Type>,
-//    val weight:Int
 )
 @Serializable
 data class Sprites(

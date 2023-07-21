@@ -1,6 +1,6 @@
 package com.example.pokebook.ui.screen
 
-import androidx.compose.foundation.Image
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -19,23 +19,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.pokebook.R
-import com.example.pokebook.model.PokemonListItem
-import com.example.pokebook.ui.viewModel.ApiState
-import com.example.pokebook.ui.viewModel.HomeViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.pokebook.ui.viewModel.PokemonUiData
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun HomeScreen(
     uiState: StateFlow<List<PokemonUiData>>,
-//    apiState: ApiState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    //    apiState: ApiState
 ) {
     val state by uiState.collectAsState(emptyList())
     PokeList(state)
@@ -64,12 +61,14 @@ private fun PokeList(
 private fun PokeCard(pokemon: PokemonUiData, modifier: Modifier = Modifier) {
     Card(modifier = modifier.padding(8.dp), elevation = cardElevation(4.dp)) {
         Box(contentAlignment = Alignment.BottomCenter) {
-            Image(
-                modifier = Modifier
-                    .padding(bottom = 20.dp),
-                painter = painterResource(id = R.drawable.poke),
-                contentDescription = null,
+            AsyncImage(
+                model = ImageRequest.Builder(context = LocalContext.current)
+                    .data(pokemon.imageUri).apply { Log.d("test","pokemon.imageUri:${pokemon.imageUri}") }
+                    .crossfade(true)
+                    .build(),
+                modifier = Modifier.padding(bottom = 20.dp),
                 contentScale = ContentScale.Crop,
+                contentDescription = null
             )
             Text(
                 text = pokemon.name,
