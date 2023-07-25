@@ -4,76 +4,125 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pokebook.model.Pokemon
 import com.example.pokebook.repository.DefaultHomeRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
-    private var _pokeListUiState: MutableStateFlow<MutableList<PokemonUiData>> =
-        MutableStateFlow(mutableListOf())
-    val pokeListUiState = _pokeListUiState.asStateFlow()
-    private val repository = DefaultHomeRepository()
+    private var _uiState: MutableStateFlow<HomeUiState> =
+        MutableStateFlow(HomeUiState.InitialState)
+    val uiState = _uiState.asStateFlow()
 
-//    var apiState: ApiState by mutableStateOf(ApiState.Loading)
-//        private set
+    private var _conditionState: MutableStateFlow<HomeScreenConditionState> =
+        MutableStateFlow(HomeScreenConditionState())
+    val conditionState = _conditionState.asStateFlow()
+
+// -----  TODO エラー画面実装 ----------------------------
+//    private val _uiEvent: MutableStateFlow<List<HomeUiEvent>> = MutableStateFlow(listOf())
+//    val uiEvent: Flow<HomeUiEvent?>
+//        get() = _uiEvent.map { it.firstOrNull() }
+//
+//    // イベントの通知
+//    private fun send(event: HomeUiEvent) = viewModelScope.launch {
+//        _uiEvent.emit(_uiEvent.value + event)
+//    }
+//
+//    // イベントの消費
+//    fun processed(event: HomeUiEvent) = viewModelScope.launch {
+//        _uiEvent.emit(_uiEvent.value.filterNot { it == event })
+//    }
+// ----------------------------------------------------
+
+    private val repository = DefaultHomeRepository()
+    private val uiDataList = mutableListOf<HomeScreenUiData>()
 
     init {
-        getPokemonList()
+        getPokemonList(true)
     }
 
     /**
      * ポケモンリスト取得
      */
-    private fun getPokemonList() {
+    private fun getPokemonList(isFirst: Boolean, isBackButton: Boolean = false) {
         viewModelScope.launch {
+            _uiState.emit(HomeUiState.Loading)
             runCatching {
-                repository.getPokemonList()
-//                PokeApi.retrofitService.getPokemonList()
+                if (isFirst) {
+                    repository.getPokemonList()
+                } else {
+                    when (isBackButton) {
+                        true -> repository.getPokemonList(conditionState.value.previous)
+                        false -> repository.getPokemonList(conditionState.value.offset)
+                    }
+                }
             }
                 .onSuccess {
-                    _pokeListUiState.value = it.results.map { listItem ->
-                        PokemonUiData(
-                            name = listItem.name,
-                            url = listItem.url
+                    uiDataList.clear()
+                    updateConditionState(it)
+                    uiDataList += it.results.map { item ->
+                        HomeScreenUiData(
+                            name = item.name,
+                            url = item.url
                         )
                     }.toMutableList()
-
-                    pokeListUiState.value.forEach { item ->
+                    val list = it.results.map { item ->
                         val pokemonNumber = Uri.parse(item.url).lastPathSegment
-
-                        // ポケモンNo.が取得できたらポケモン個体情報を取得する
-                        pokemonNumber?.let { number ->
-                            getPokemonPersonalData(
-                                number = number,
-                                pokemonUiData = item
-                            )
+                        async {
+                            pokemonNumber?.let { number ->
+                                // ポケモンのパーソナル情報を取得
+                                repository.getPokemonPersonalData(number)
+                            }
                         }
+                    }.awaitAll() //全てのコルーチンが終了するまでまちデータを受け取る
+                    uiDataList.onEachIndexed { index, item ->
+                        item.imageUri =
+                            list[index]?.sprites?.other?.officialArtwork?.imgUrl ?: ""
                     }
-//                    apiState = ApiState.Success(it)
+                    _uiState.emit(HomeUiState.Fetched(uiDataList = uiDataList))
                 }
                 .onFailure {
-//                    apiState = ApiState.Error
                     Log.d("error", "e[getPokemonList]:$it")
                 }
         }
     }
 
     /**
-     * 個別のポケモン情報取得
+     * 「次へ」ボタン押下してポケモンリスト取得
      */
-    private fun getPokemonPersonalData(number: String, pokemonUiData: PokemonUiData) {
-        viewModelScope.launch {
-            runCatching {
-                repository.getPokemonPersonalData(number)
-//                PokeApi.retrofitService.getPokemonPersonalData(number)
-            }
-                .onSuccess {
-                    pokemonUiData.imageUri = it.sprites.other.officialArtwork.imgUrl
-                }
-                .onFailure {
-                    Log.d("error", "e[getPokemonPersonalData]:$it")
-                }
+    fun onClickNext() {
+        getPokemonList(false)
+    }
+
+    /**
+     * 「戻る」ボタン押下して一つ前のポケモンリストを取得
+     */
+    fun onClickBack() {
+        getPokemonList(isFirst = false, isBackButton = true)
+    }
+
+
+    /**
+     * nextUrlからクエリを取得してOffsetを更新する
+     */
+    private fun updateConditionState(pokemon: Pokemon) {
+        val offsetValue = Uri.parse(pokemon.next).getQueryParameter("offset") ?: return
+        val previousValue = pokemon.previous?.let {
+            Uri.parse(it).getQueryParameter("offset")
+        }
+        _conditionState.update { currentState ->
+            currentState.copy(
+                count = pokemon.count,
+                offset = offsetValue,
+                previous = previousValue ?: "",
+                currentNumberStart = offsetValue.toInt().minus(19).toString()
+            )
         }
     }
 }

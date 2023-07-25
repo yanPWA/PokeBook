@@ -12,6 +12,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 private const val BASE_URL = "https://pokeapi.co/api/v2/"
 
@@ -19,7 +20,9 @@ class RetrofitInstance {
     companion object {
         fun getRetrofitInstance(): Retrofit {
             return Retrofit.Builder()
-                .addConverterFactory(Json{ignoreUnknownKeys = true}.asConverterFactory("application/json".toMediaType()))
+                .addConverterFactory(Json {
+                    ignoreUnknownKeys = true
+                }.asConverterFactory("application/json".toMediaType()))
                 .baseUrl(BASE_URL)
                 .build()
         }
@@ -27,9 +30,24 @@ class RetrofitInstance {
 }
 
 interface PokeApiService {
+    /**
+     * ポケモン一覧取得（クエリなし）
+     */
     @GET("pokemon")
     suspend fun getPokemonList(): Pokemon
 
+    /**
+     * ポケモン一覧取得（クエリあり）
+     */
+    @GET("pokemon")
+    suspend fun getPokemonList(
+        @Query("offset") offset: String,
+        @Query("limit") limit: String
+    ): Pokemon
+
+    /**
+     * ポケモン個体情報取得
+     */
     @GET("pokemon/{path}")
     suspend fun getPokemonPersonalData(@Path("path") number: String): PokemonPersonalData
 }

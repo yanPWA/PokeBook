@@ -13,6 +13,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.pokebook.R
 
+/**
+ * Loading画面
+ */
 @Composable
 fun LoadingScreen(modifier: Modifier = Modifier) {
     Box(
@@ -27,6 +30,9 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * エラー画面
+ */
 @Composable
 fun ErrorScreen(modifier: Modifier = Modifier) {
     Box(

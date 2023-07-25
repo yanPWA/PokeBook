@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Pokemon(
     val count: Int,
-    val next: String,
+    val next: String? = null,
     val previous: String? = null,
     val results: List<PokemonListItem>
 )
@@ -20,7 +20,6 @@ data class PokemonListItem(
     val name: String = "",
     val url: String = ""
 )
-
 
 /**
  * ポケモン個体の情報

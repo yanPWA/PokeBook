@@ -23,10 +23,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val homeViewModel: HomeViewModel = viewModel()
-                    HomeScreen(
-                        uiState = homeViewModel.pokeListUiState,
-//                        apiState = homeViewModel.apiState
-                    )
+                    HomeScreen(homeViewModel)
                 }
             }
         }
