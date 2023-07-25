@@ -4,4 +4,9 @@
     <string name="icon_search">search</string>
     <string name="icon_like">like</string>
     <string name="icon_setting">setting</string>
+    <string name="loading">loading</string>
+    <string name="loading_failed">Failed to load</string>
+    <string name="displayedNumber">No.%s - No.%s</string>
+    <string name="back_button">◀︎戻る︎</string>
+    <string name="next_button">次へ ▶︎︎</string>
 </resources>
