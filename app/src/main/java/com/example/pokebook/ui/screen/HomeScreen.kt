@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardElevation
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -45,13 +46,15 @@ import kotlinx.coroutines.flow.StateFlow
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    onClickCard: () -> Unit
 ) {
     HomeScreen(
         uiState = viewModel.uiState,
         conditionState = viewModel.conditionState,
         onClickNext = viewModel::onClickNext,
-        onClickBack = viewModel::onClickBack
+        onClickBack = viewModel::onClickBack,
+        onClickCard = onClickCard
     )
 }
 
@@ -61,7 +64,8 @@ private fun HomeScreen(
     uiState: StateFlow<HomeUiState>,
     conditionState: StateFlow<HomeScreenConditionState>,
     onClickNext: () -> Unit,
-    onClickBack: () -> Unit
+    onClickBack: () -> Unit,
+    onClickCard: () -> Unit
 ) {
     val state by uiState.collectAsState()
 
@@ -72,7 +76,8 @@ private fun HomeScreen(
                 currentNumberEnd = conditionState.value.offset,
                 pokemonUiDataList = (state as HomeUiState.Fetched).uiDataList,
                 onClickNext = onClickNext,
-                onClickBack = onClickBack
+                onClickBack = onClickBack,
+                onClickCard = onClickCard
             )
         }
 
@@ -88,6 +93,7 @@ private fun PokeList(
     pokemonUiDataList: List<HomeScreenUiData>,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
+    onClickCard: () -> Unit
 ) {
     Column {
         Text(
@@ -148,7 +154,10 @@ private fun PokeList(
                 )
             }
         }
-        PokeList(pokemonUiDataList = pokemonUiDataList)
+        PokeList(
+            pokemonUiDataList = pokemonUiDataList,
+            onClickCard = onClickCard
+        )
     }
 }
 
@@ -156,21 +165,38 @@ private fun PokeList(
  * ポケモン画像一覧
  */
 @Composable
-private fun PokeList(pokemonUiDataList: List<HomeScreenUiData>) {
+private fun PokeList(
+    pokemonUiDataList: List<HomeScreenUiData>,
+    onClickCard: () -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
     ) {
         items(pokemonUiDataList) { listItem ->
-            PokeCard(listItem)
+            PokeCard(
+                pokemon = listItem,
+                onClickCard = onClickCard
+            )
         }
         item { EmptySpace() }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PokeCard(pokemon: HomeScreenUiData, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.padding(8.dp), elevation = cardElevation(4.dp)) {
-        Box(contentAlignment = Alignment.BottomCenter) {
+private fun PokeCard(
+    pokemon: HomeScreenUiData,
+    onClickCard: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.padding(8.dp),
+        elevation = cardElevation(4.dp),
+        onClick = { onClickCard.invoke() }
+    ) {
+        Box(
+            contentAlignment = Alignment.BottomCenter
+        ) {
             AsyncImage(
                 model = ImageRequest.Builder(context = LocalContext.current)
                     .data(pokemon.imageUri)
@@ -205,6 +231,7 @@ private fun EmptySpace() {
 @Composable
 private fun PokeCardPreview() {
     PokeCard(
-        HomeScreenUiData(name = "ピカチュウ")
+        pokemon = HomeScreenUiData(name = "ピカチュウ"),
+        onClickCard = {}
     )
 }
