@@ -31,20 +31,27 @@ class PokemonDetailViewModel : ViewModel() {
             repository.getPokemonDescription(pokeName)
         }
             .onSuccess {
+                // ポケモン個体情報取得
+                val pokemonPersonalData = repository.getPokemonPersonalData(pokeName)
+
+                // 名前
                 val name = it.names.firstOrNull { names -> names.language.name == "ja" }?.name ?: ""
 
+                // 説明
                 val description = it.flavorTextEntries.firstOrNull { flavorTextEntries ->
                     flavorTextEntries.language.name == "ja"
                 }?.flavorText ?: ""
 
+                // 分類
                 val genus =
-                    it.genera.firstOrNull { genera -> genera.language.name == "ja" }?.language?.name
-                        ?: ""
+                    it.genera.firstOrNull { genera -> genera.language.name == "ja" }?.genus ?: ""
 
-                val pokemonPersonalData = repository.getPokemonPersonalData(pokeName)
-
+                // タイプ
                 val type: MutableList<String> =
                     pokemonPersonalData.types.map { type -> type.type.name }.toMutableList()
+
+                // 画像
+                val imageUri = pokemonPersonalData.sprites.other.officialArtwork.imgUrl
 
                 pokemonPersonalData.stats.onEach { stats ->
                     _conditionState.update { currentState ->
@@ -68,6 +75,7 @@ class PokemonDetailViewModel : ViewModel() {
                             "speed" -> currentState.copy(
                                 speed = stats.baseStat
                             )
+
                             else -> currentState
                         }
                     }
@@ -80,7 +88,8 @@ class PokemonDetailViewModel : ViewModel() {
                         name = name,
                         type = type,
                         description = description,
-                        genus = genus
+                        genus = genus,
+                        imageUri = imageUri
                     )
                 }
                 _uiState.emit(PokemonDetailUiState.Fetched)
