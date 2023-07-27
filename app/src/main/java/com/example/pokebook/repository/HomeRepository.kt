@@ -12,7 +12,7 @@ interface HomeRepository {
 
     suspend fun getPokemonList(offset: String): Pokemon
 
-    suspend fun getPokemonSpecies(number: String): PokemonPersonalData
+    suspend fun getPokemonPersonalData(number: String): PokemonPersonalData
 }
 
 class DefaultHomeRepository : HomeRepository {
@@ -27,7 +27,7 @@ class DefaultHomeRepository : HomeRepository {
         )
     }
 
-    override suspend fun getPokemonSpecies(number: String): PokemonPersonalData {
+    override suspend fun getPokemonPersonalData(number: String): PokemonPersonalData {
         return PokeApi.retrofitService.getPokemonPersonalData(number)
     }
 }

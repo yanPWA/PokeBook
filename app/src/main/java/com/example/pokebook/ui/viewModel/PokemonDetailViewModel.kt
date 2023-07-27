@@ -1,16 +1,13 @@
 package com.example.pokebook.ui.viewModel
 
 import android.util.Log
-import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pokebook.model.StatType
 import com.example.pokebook.repository.DefaultPokemonDetailRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 class PokemonDetailViewModel : ViewModel() {
     private var _uiState: MutableStateFlow<PokemonDetailUiState> =
@@ -28,7 +25,7 @@ class PokemonDetailViewModel : ViewModel() {
     fun getPokemonDescription(pokeName: String) = viewModelScope.launch {
         _uiState.emit(PokemonDetailUiState.Loading)
         runCatching {
-            repository.getPokemonDescription(pokeName)
+            repository.getPokemonSpecies(pokeName)
         }
             .onSuccess {
                 // ポケモン個体情報取得
