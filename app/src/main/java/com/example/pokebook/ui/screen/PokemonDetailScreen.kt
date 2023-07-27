@@ -200,13 +200,13 @@ private fun BaseInfo(
                 .padding(bottom = 10.dp)
         ) {
             Text(
-                text = "重さ：6.0kg", // TODO API確認
+                text = String.format(stringResource(R.string.pokemon_weight), uiData.weight),
                 fontSize = 20.sp,
                 modifier = modifier
                     .padding(start = 10.dp, end = 10.dp, top = 5.dp)
             )
             Text(
-                text = "高さ：0.4m", // TODO API確認
+                text = String.format(stringResource(R.string.pokemon_height), uiData.height),
                 fontSize = 20.sp,
                 modifier = modifier
                     .padding(start = 10.dp, end = 10.dp, top = 5.dp)

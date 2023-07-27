@@ -12,7 +12,9 @@ data class PokemonPersonalData(
     val species: Species,
     val sprites: Sprites,
     val stats: List<Stats>,
-    val types: List<Types>
+    val types: List<Types>,
+    val height:Int,
+    val weight: Int
 )
 
 @Serializable

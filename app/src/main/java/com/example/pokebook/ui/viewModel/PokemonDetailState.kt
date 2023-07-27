@@ -7,7 +7,7 @@ import java.util.UUID
  */
 sealed class PokemonDetailUiState {
     object Loading : PokemonDetailUiState()
-    object Fetched: PokemonDetailUiState()
+    object Fetched : PokemonDetailUiState()
     object InitialState : PokemonDetailUiState()
 }
 
@@ -35,9 +35,9 @@ data class PokemonDetailScreenUiData(
     val attack: Int = 0,
     val defense: Int = 0,
     val speed: Int = 0,
-    val imageUri: String = ""
-    //TODO 身長
-    //TODO 体重
+    val imageUri: String = "",
+    val height: Int = 0,
+    val weight: Int = 0
 )
 
 /**
