@@ -21,7 +21,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,7 +86,18 @@ private fun HomeScreen(
             )
         }
 
-        HomeUiState.Loading -> LoadingScreen()
+        HomeUiState.Loading -> {
+            Column {
+                DefaultHeader(
+                    currentNumberStart = conditionState.value.currentNumberStart,
+                    currentNumberEnd = conditionState.value.offset,
+                    onClickNext = onClickNext,
+                    onClickBack = onClickBack,
+                )
+                LoadingScreen()
+            }
+        }
+
         else -> {}
     }
 }
@@ -103,64 +113,12 @@ private fun PokeList(
     getPokemonDescription: (String) -> Unit
 ) {
     Column {
-        Text(
-            text = String.format(
-                stringResource(id = R.string.displayedNumber),
-                currentNumberStart,
-                currentNumberEnd
-            ),
-            color = Color.Black,
-            fontSize = 25.sp,
-            modifier = Modifier
-                .padding(2.dp)
-                .align(Alignment.CenterHorizontally)
-                .background(Color.White)
+        DefaultHeader(
+            currentNumberStart = currentNumberStart,
+            currentNumberEnd = currentNumberEnd,
+            onClickNext = onClickNext,
+            onClickBack = onClickBack,
         )
-        Row(
-            modifier = Modifier
-                .padding(bottom = 6.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(1F)
-                    .wrapContentHeight()
-                    .clickable { onClickBack.invoke() },
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Text(
-                    text = stringResource(R.string.back_button),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = Color.DarkGray,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .padding(4.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .weight(1F)
-                    .wrapContentHeight()
-                    .clickable { onClickNext.invoke() },
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Text(
-                    text = stringResource(R.string.next_button),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = Color.DarkGray,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .padding(4.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
         PokeList(
             pokemonUiDataList = pokemonUiDataList,
             onClickCard = onClickCard,
@@ -235,6 +193,79 @@ private fun PokeCard(
         }
     }
 }
+
+@Composable
+private fun DefaultHeader(
+    currentNumberStart: String,
+    currentNumberEnd: String,
+    onClickNext: () -> Unit,
+    onClickBack: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .padding(bottom = 5.dp)
+    ) {
+        Text(
+            text = String.format(
+                stringResource(id = R.string.displayedNumber),
+                currentNumberStart,
+                currentNumberEnd
+            ),
+            color = Color.Black,
+            fontSize = 25.sp,
+            modifier = Modifier
+                .padding(2.dp)
+                .align(Alignment.CenterHorizontally)
+                .background(Color.White)
+        )
+        Row(
+            modifier = Modifier
+                .padding(bottom = 6.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1F)
+                    .wrapContentHeight()
+                    .clickable { onClickBack.invoke() },
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Text(
+                    text = stringResource(R.string.back_button),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(
+                            width = 1.dp,
+                            color = Color.DarkGray,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(4.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1F)
+                    .wrapContentHeight()
+                    .clickable { onClickNext.invoke() },
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Text(
+                    text = stringResource(R.string.next_button),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(
+                            width = 1.dp,
+                            color = Color.DarkGray,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(4.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 private fun EmptySpace() {

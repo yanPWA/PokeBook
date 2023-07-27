@@ -27,7 +27,7 @@ data class HomeScreenUiData(
 
 data class HomeScreenConditionState(
     val count: Int = 0,
-    val offset: String = "",
+    val offset: String = "20",
     val previous: String = "",
     val currentNumberStart: String = "1",
 )
