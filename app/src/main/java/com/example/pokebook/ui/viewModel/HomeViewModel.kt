@@ -86,7 +86,7 @@ class HomeViewModel : ViewModel() {
                     }
 
                     // 一覧に表示するポケモンの日本語名を取得
-                    val japanesePokemonNameList = it.results.map { item ->
+                    val pokemonSpeciesList = it.results.map { item ->
                         val pokemonNumber = Uri.parse(item.url).lastPathSegment
                         async {
                             pokemonNumber?.let { number ->
@@ -96,8 +96,9 @@ class HomeViewModel : ViewModel() {
                     }.awaitAll()
                     uiDataList.onEachIndexed { index, item ->
                         item.displayName =
-                            japanesePokemonNameList[index]?.names?.firstOrNull { name -> name.language.name == "ja" }?.name
+                            pokemonSpeciesList[index]?.names?.firstOrNull { name -> name.language.name == "ja" }?.name
                                 ?: ""
+                        item.id = pokemonSpeciesList[index]?.id ?: 0
                     }
                     _uiState.emit(HomeUiState.Fetched(uiDataList = uiDataList))
                 }

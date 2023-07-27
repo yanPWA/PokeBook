@@ -20,8 +20,9 @@ sealed class HomeUiState {
  *　画像URL　
  */
 data class HomeScreenUiData(
+    var id: Int = 0,
     val name: String = "",
-    var displayName: String ="",
+    var displayName: String = "",
     val url: String = "",
     var imageUri: String = ""
 )

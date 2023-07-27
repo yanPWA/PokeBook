@@ -17,4 +17,5 @@
     <string name="pokemon_speed">ＳＰＥＥＤ：%s</string>
     <string name="pokemon_weight">重さ：%s kg</string>
     <string name="pokemon_height">高さ：%s m</string>
+    <string name="pokemon_name">#%d %s</string>
 </resources>
