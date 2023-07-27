@@ -8,10 +8,8 @@ import com.example.pokebook.model.Pokemon
 import com.example.pokebook.repository.DefaultHomeRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -77,7 +75,7 @@ class HomeViewModel : ViewModel() {
                         async {
                             pokemonNumber?.let { number ->
                                 // ポケモンのパーソナル情報を取得
-                                repository.getPokemonPersonalData(number)
+                                repository.getPokemonSpecies(number)
                             }
                         }
                     }.awaitAll() //全てのコルーチンが終了するまでまちデータを受け取る

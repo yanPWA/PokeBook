@@ -1,11 +1,8 @@
 package com.example.pokebook.repository
 
-import android.util.Log
 import com.example.pokebook.model.Pokemon
 import com.example.pokebook.model.PokemonPersonalData
 import com.example.pokebook.network.PokeApi
-import com.example.pokebook.network.PokeApiService
-import retrofit2.http.Path
 
 /**
  * 一覧画面取得に関するリポジトリー
@@ -15,10 +12,10 @@ interface HomeRepository {
 
     suspend fun getPokemonList(offset: String): Pokemon
 
-    suspend fun getPokemonPersonalData(number: String): PokemonPersonalData
+    suspend fun getPokemonSpecies(number: String): PokemonPersonalData
 }
 
-class DefaultHomeRepository() : HomeRepository {
+class DefaultHomeRepository : HomeRepository {
     override suspend fun getPokemonList(): Pokemon {
         return PokeApi.retrofitService.getPokemonList()
     }
@@ -30,7 +27,7 @@ class DefaultHomeRepository() : HomeRepository {
         )
     }
 
-    override suspend fun getPokemonPersonalData(number: String): PokemonPersonalData {
+    override suspend fun getPokemonSpecies(number: String): PokemonPersonalData {
         return PokeApi.retrofitService.getPokemonPersonalData(number)
     }
 }

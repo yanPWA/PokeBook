@@ -2,6 +2,7 @@ package com.example.pokebook.network
 
 import com.example.pokebook.model.Pokemon
 import com.example.pokebook.model.PokemonPersonalData
+import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.network.RetrofitInstance.Companion.getRetrofitInstance
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -50,6 +51,12 @@ interface PokeApiService {
      */
     @GET("pokemon/{path}")
     suspend fun getPokemonPersonalData(@Path("path") number: String): PokemonPersonalData
+
+    /**
+     * ポケモン個体説明取得
+     */
+    @GET("pokemon-species/{path}")
+    suspend fun getPokemonDescription(@Path("path") number: String): PokemonSpecies
 }
 
 object PokeApi {
