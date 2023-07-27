@@ -7,7 +7,7 @@ import retrofit2.http.Path
 
 interface PokemonDetailRepository {
     suspend fun getPokemonPersonalData(@Path("path") number: String): PokemonPersonalData
-    suspend fun getPokemonDescription(@Path("path") number: String): PokemonSpecies
+    suspend fun getPokemonSpecies(@Path("path") number: String): PokemonSpecies
 }
 
 class DefaultPokemonDetailRepository: PokemonDetailRepository{
@@ -15,7 +15,7 @@ class DefaultPokemonDetailRepository: PokemonDetailRepository{
         return PokeApi.retrofitService.getPokemonPersonalData(number)
     }
 
-    override suspend fun getPokemonDescription(number: String): PokemonSpecies {
-        return PokeApi.retrofitService.getPokemonDescription(number)
+    override suspend fun getPokemonSpecies(number: String): PokemonSpecies {
+        return PokeApi.retrofitService.getPokemonSpecies(number)
     }
 }

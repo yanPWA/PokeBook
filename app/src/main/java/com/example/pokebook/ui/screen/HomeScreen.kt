@@ -179,7 +179,7 @@ private fun PokeCard(
                 contentDescription = null
             )
             Text(
-                text = pokemon.name,
+                text = pokemon.displayName,
                 fontSize = 13.sp,
                 modifier = Modifier
                     .shadow(
