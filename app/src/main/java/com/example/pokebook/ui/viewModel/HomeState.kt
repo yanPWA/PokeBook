@@ -21,6 +21,7 @@ sealed class HomeUiState {
  */
 data class HomeScreenUiData(
     val name: String = "",
+    var displayName: String ="",
     val url: String = "",
     var imageUri: String = ""
 )

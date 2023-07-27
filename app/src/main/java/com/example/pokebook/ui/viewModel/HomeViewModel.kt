@@ -70,7 +70,8 @@ class HomeViewModel : ViewModel() {
                             url = item.url
                         )
                     }.toMutableList()
-                    val list = it.results.map { item ->
+                    // 一覧に表示する画像を取得
+                    val imageUriList = it.results.map { item ->
                         val pokemonNumber = Uri.parse(item.url).lastPathSegment
                         async {
                             pokemonNumber?.let { number ->
@@ -78,10 +79,25 @@ class HomeViewModel : ViewModel() {
                                 repository.getPokemonPersonalData(number)
                             }
                         }
-                    }.awaitAll() //全てのコルーチンが終了するまでまちデータを受け取る
+                    }.awaitAll()
                     uiDataList.onEachIndexed { index, item ->
                         item.imageUri =
-                            list[index]?.sprites?.other?.officialArtwork?.imgUrl ?: ""
+                            imageUriList[index]?.sprites?.other?.officialArtwork?.imgUrl ?: ""
+                    }
+
+                    // 一覧に表示するポケモンの日本語名を取得
+                    val japanesePokemonNameList = it.results.map { item ->
+                        val pokemonNumber = Uri.parse(item.url).lastPathSegment
+                        async {
+                            pokemonNumber?.let { number ->
+                                repository.getPokemonSpecies(number)
+                            }
+                        }
+                    }.awaitAll()
+                    uiDataList.onEachIndexed { index, item ->
+                        item.displayName =
+                            japanesePokemonNameList[index]?.names?.firstOrNull { name -> name.language.name == "ja" }?.name
+                                ?: ""
                     }
                     _uiState.emit(HomeUiState.Fetched(uiDataList = uiDataList))
                 }
