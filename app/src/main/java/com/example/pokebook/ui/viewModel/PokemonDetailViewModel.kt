@@ -89,7 +89,9 @@ class PokemonDetailViewModel : ViewModel() {
                         type = type,
                         description = description,
                         genus = genus,
-                        imageUri = imageUri
+                        imageUri = imageUri,
+                        height = pokemonPersonalData.height,
+                        weight = pokemonPersonalData.weight
                     )
                 }
                 _uiState.emit(PokemonDetailUiState.Fetched)
