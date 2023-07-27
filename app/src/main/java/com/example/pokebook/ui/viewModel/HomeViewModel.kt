@@ -75,7 +75,7 @@ class HomeViewModel : ViewModel() {
                         async {
                             pokemonNumber?.let { number ->
                                 // ポケモンのパーソナル情報を取得
-                                repository.getPokemonSpecies(number)
+                                repository.getPokemonPersonalData(number)
                             }
                         }
                     }.awaitAll() //全てのコルーチンが終了するまでまちデータを受け取る
