@@ -67,7 +67,7 @@ private fun HomeScreen(
     onClickBack: () -> Unit,
     onClickCard: () -> Unit
 ) {
-    val state by uiState.collectAsState()
+    val state by uiState.collectAsStateWithLifecycle()
 
     when (state) {
         is HomeUiState.Fetched -> {
