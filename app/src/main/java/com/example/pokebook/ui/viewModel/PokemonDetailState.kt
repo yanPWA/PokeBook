@@ -34,7 +34,8 @@ data class PokemonDetailScreenUiData(
     val hp: Int = 0,
     val attack: Int = 0,
     val defense: Int = 0,
-    val speed: Int = 0
+    val speed: Int = 0,
+    val imageUri: String = ""
     //TODO 身長
     //TODO 体重
 )

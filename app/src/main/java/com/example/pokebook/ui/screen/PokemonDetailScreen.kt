@@ -1,5 +1,6 @@
 package com.example.pokebook.ui.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,20 +18,68 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.pokebook.R
+import com.example.pokebook.ui.viewModel.PokemonDetailScreenUiData
+import com.example.pokebook.ui.viewModel.PokemonDetailUiState
+import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun PokemonDetailScreen(
+    pokemonDetailViewModel: PokemonDetailViewModel,
+    onClickCard: () -> Unit
+) {
+    PokemonDetailScreen(
+        uiState = pokemonDetailViewModel.uiState,
+        conditionState = pokemonDetailViewModel.conditionState,
+        onClickCard = onClickCard
+    )
+}
+
+@SuppressLint("StateFlowValueCalledInComposition")
+@Composable
+private fun PokemonDetailScreen(
+    uiState: StateFlow<PokemonDetailUiState>,
+    conditionState: StateFlow<PokemonDetailScreenUiData>,
+    onClickCard: () -> Unit,
+) {
+    val state by uiState.collectAsStateWithLifecycle()
+
+    when (state) {
+        is PokemonDetailUiState.Fetched -> {
+            PokemonDetailScreen(
+                uiData = conditionState.value,
+                onClickCard = onClickCard
+            )
+        }
+
+        PokemonDetailUiState.Loading -> LoadingScreen()
+        else -> {}
+    }
+}
+
+@Composable
+private fun PokemonDetailScreen(
+    uiData: PokemonDetailScreenUiData,
     onClickCard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -44,7 +93,9 @@ fun PokemonDetailScreen(
                 .align(Alignment.Start)
                 .clickable { onClickCard.invoke() }
         )
-        TitleImage()
+        TitleImage(
+            imageUri = uiData.imageUri
+        )
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -54,23 +105,25 @@ fun PokemonDetailScreen(
                 .padding(6.dp)
         ) {
             Text(
-                text = "ピカチュウ",
+                text = uiData.name,
                 fontSize = 50.sp,
                 modifier = modifier
                     .align(Alignment.CenterHorizontally),
             )
             Text(
-                text = "ほっぺたの　両側に\n小さい　電気袋を　持つ。\nピンチのときに　放電する。",
+                text = uiData.description,
                 fontSize = 15.sp,
                 modifier = modifier
                     .align(Alignment.CenterHorizontally),
             )
 
             BaseInfo(
+                uiData = uiData,
                 modifier = modifier
                     .align(Alignment.CenterHorizontally)
             )
             Ability(
+                uiData = uiData,
                 modifier = modifier
                     .align(Alignment.CenterHorizontally)
             )
@@ -80,10 +133,12 @@ fun PokemonDetailScreen(
 }
 
 @Composable
-private fun TitleImage() {
+private fun TitleImage(
+    imageUri: String
+) {
     Card(
         modifier = Modifier
-            .padding(start = 8.dp, end = 8.dp, top = 20.dp),
+            .padding(start = 8.dp, end = 8.dp, top = 20.dp, bottom = 5.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(
@@ -100,23 +155,16 @@ private fun TitleImage() {
                     .padding(5.dp)
                     .size(30.dp)
             )
-            //  TODO　後々こちらに置き換える
-            //            AsyncImage(
-//                model = ImageRequest.Builder(context = LocalContext.current)
-//                    .data(pokemon.imageUri)
-//                    .crossfade(true)
-//                    .build(),
-//                modifier = Modifier.padding(bottom = 20.dp),
-//                contentScale = ContentScale.Crop,
-//                contentDescription = null
-//            )
-            Image(
-                painter = painterResource(id = R.drawable.poke),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
+            AsyncImage(
+                model = ImageRequest.Builder(context = LocalContext.current)
+                    .data(imageUri)
+                    .crossfade(true)
+                    .build(),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
+                    .height(250.dp),
+                contentScale = ContentScale.Fit,
+                contentDescription = null
             )
         }
     }
@@ -125,6 +173,7 @@ private fun TitleImage() {
 
 @Composable
 private fun BaseInfo(
+    uiData: PokemonDetailScreenUiData,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -135,12 +184,14 @@ private fun BaseInfo(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Text(
-            text = "分類：ネズミポケモン",
+            text = String.format(
+                stringResource(R.string.pokemon_genus), uiData.genus
+            ),
             fontSize = 20.sp,
             modifier = modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp)
         )
         Text(
-            text = "タイプ：でんき",
+            text = String.format(stringResource(R.string.pokemon_type), uiData.type),
             fontSize = 20.sp,
             modifier = modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp)
         )
@@ -149,13 +200,13 @@ private fun BaseInfo(
                 .padding(bottom = 10.dp)
         ) {
             Text(
-                text = "重さ：6.0kg",
+                text = "重さ：6.0kg", // TODO API確認
                 fontSize = 20.sp,
                 modifier = modifier
                     .padding(start = 10.dp, end = 10.dp, top = 5.dp)
             )
             Text(
-                text = "高さ：0.4m",
+                text = "高さ：0.4m", // TODO API確認
                 fontSize = 20.sp,
                 modifier = modifier
                     .padding(start = 10.dp, end = 10.dp, top = 5.dp)
@@ -166,6 +217,7 @@ private fun BaseInfo(
 
 @Composable
 private fun Ability(
+    uiData: PokemonDetailScreenUiData,
     modifier: Modifier = Modifier
 ) {
     // TODO ゆくゆくはグラフ表示させたい
@@ -181,14 +233,14 @@ private fun Ability(
                 .padding(horizontal = 10.dp)
         ) {
             Text(
-                text = "ＨＰ：３５",
+                text = String.format(stringResource(R.string.pokemo_hp), uiData.hp),
                 fontSize = 20.sp,
                 modifier = modifier
                     .padding(start = 10.dp, end = 10.dp, top = 5.dp),
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "攻撃：５５",
+                text = String.format(stringResource(R.string.pokemon_attack), uiData.attack),
                 fontSize = 20.sp,
                 modifier = modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp)
             )
@@ -198,15 +250,24 @@ private fun Ability(
                 .padding(bottom = 10.dp)
         ) {
             Text(
-                text = "防御：４０",
+                text = String.format(stringResource(R.string.pokemon_defense), uiData.defense),
                 fontSize = 20.sp,
                 modifier = modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp)
             )
             Text(
-                text = "ＳＰＥＥＤ：９０",
+                text = String.format(stringResource(R.string.pokemon_speed), uiData.speed),
                 fontSize = 20.sp,
                 modifier = modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp)
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun PokemonDetailScreenPreview() {
+    PokemonDetailScreen(
+        uiData = PokemonDetailScreenUiData(),
+        onClickCard = {},
+    )
 }

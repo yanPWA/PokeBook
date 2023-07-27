@@ -15,22 +15,27 @@ import com.example.pokebook.ui.screen.HomeScreen
 import com.example.pokebook.ui.screen.PokemonDetailScreen
 import com.example.pokebook.ui.theme.PokeBookTheme
 import com.example.pokebook.ui.viewModel.HomeViewModel
+import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val homeViewModel = HomeViewModel()
+        val pokemonDetailViewModel = PokemonDetailViewModel()
+
         setContent {
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = "homeScreen") {
                 composable(route = "homeScreen") {
+
                     PokeBookTheme {
                         Surface(
                             modifier = Modifier.fillMaxSize(),
                             color = MaterialTheme.colorScheme.background
                         ) {
-                            val homeViewModel: HomeViewModel = viewModel()
                             HomeScreen(
-                                viewModel = homeViewModel,
+                                homeViewModel = homeViewModel,
+                                pokemonDetailViewModel = pokemonDetailViewModel,
                                 onClickCard = { navController.navigate("pokemonDetailScreen") }
                             )
                         }
@@ -43,22 +48,13 @@ class MainActivity : ComponentActivity() {
                             color = MaterialTheme.colorScheme.background
                         ) {
                             PokemonDetailScreen(
+                                pokemonDetailViewModel = pokemonDetailViewModel,
                                 onClickCard = { navController.navigateUp() }
                             )
                         }
                     }
                 }
             }
-//            PokeBookTheme {
-//                // A surface container using the 'background' color from the theme
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = MaterialTheme.colorScheme.background
-//                ) {
-//                    val homeViewModel: HomeViewModel = viewModel()
-//                    HomeScreen(homeViewModel)
-//                }
-//            }
         }
     }
 }

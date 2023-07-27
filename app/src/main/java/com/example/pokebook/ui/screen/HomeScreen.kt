@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
@@ -41,20 +42,23 @@ import com.example.pokebook.ui.viewModel.HomeScreenConditionState
 import com.example.pokebook.ui.viewModel.HomeScreenUiData
 import com.example.pokebook.ui.viewModel.HomeUiState
 import com.example.pokebook.ui.viewModel.HomeViewModel
+import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
 import kotlinx.coroutines.flow.StateFlow
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel,
+    homeViewModel: HomeViewModel,
+    pokemonDetailViewModel: PokemonDetailViewModel,
     onClickCard: () -> Unit
 ) {
     HomeScreen(
-        uiState = viewModel.uiState,
-        conditionState = viewModel.conditionState,
-        onClickNext = viewModel::onClickNext,
-        onClickBack = viewModel::onClickBack,
-        onClickCard = onClickCard
+        uiState = homeViewModel.uiState,
+        conditionState = homeViewModel.conditionState,
+        onClickNext = homeViewModel::onClickNext,
+        onClickBack = homeViewModel::onClickBack,
+        onClickCard = onClickCard,
+        getPokemonDescription = pokemonDetailViewModel::getPokemonDescription
     )
 }
 
@@ -65,9 +69,10 @@ private fun HomeScreen(
     conditionState: StateFlow<HomeScreenConditionState>,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
-    onClickCard: () -> Unit
+    onClickCard: () -> Unit,
+    getPokemonDescription: (String) -> Unit
 ) {
-    val state by uiState.collectAsState()
+    val state by uiState.collectAsStateWithLifecycle()
 
     when (state) {
         is HomeUiState.Fetched -> {
@@ -77,7 +82,8 @@ private fun HomeScreen(
                 pokemonUiDataList = (state as HomeUiState.Fetched).uiDataList,
                 onClickNext = onClickNext,
                 onClickBack = onClickBack,
-                onClickCard = onClickCard
+                onClickCard = onClickCard,
+                getPokemonDescription = getPokemonDescription
             )
         }
 
@@ -93,7 +99,8 @@ private fun PokeList(
     pokemonUiDataList: List<HomeScreenUiData>,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
-    onClickCard: () -> Unit
+    onClickCard: () -> Unit,
+    getPokemonDescription: (String) -> Unit
 ) {
     Column {
         Text(
@@ -156,7 +163,8 @@ private fun PokeList(
         }
         PokeList(
             pokemonUiDataList = pokemonUiDataList,
-            onClickCard = onClickCard
+            onClickCard = onClickCard,
+            getPokemonDescription = getPokemonDescription
         )
     }
 }
@@ -167,7 +175,8 @@ private fun PokeList(
 @Composable
 private fun PokeList(
     pokemonUiDataList: List<HomeScreenUiData>,
-    onClickCard: () -> Unit
+    onClickCard: () -> Unit,
+    getPokemonDescription: (String) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
@@ -175,7 +184,8 @@ private fun PokeList(
         items(pokemonUiDataList) { listItem ->
             PokeCard(
                 pokemon = listItem,
-                onClickCard = onClickCard
+                onClickCard = onClickCard,
+                getPokemonDescription = getPokemonDescription
             )
         }
         item { EmptySpace() }
@@ -187,12 +197,16 @@ private fun PokeList(
 private fun PokeCard(
     pokemon: HomeScreenUiData,
     onClickCard: () -> Unit,
+    getPokemonDescription: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = cardElevation(4.dp),
-        onClick = { onClickCard.invoke() }
+        onClick = {
+            getPokemonDescription.invoke(pokemon.name)
+            onClickCard.invoke()
+        }
     ) {
         Box(
             contentAlignment = Alignment.BottomCenter
@@ -232,6 +246,7 @@ private fun EmptySpace() {
 private fun PokeCardPreview() {
     PokeCard(
         pokemon = HomeScreenUiData(name = "ピカチュウ"),
-        onClickCard = {}
+        onClickCard = {},
+        getPokemonDescription = {}
     )
 }
