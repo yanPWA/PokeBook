@@ -105,7 +105,11 @@ private fun PokemonDetailScreen(
                 .padding(6.dp)
         ) {
             Text(
-                text = uiData.name,
+                text = String.format(
+                    stringResource(id = R.string.pokemon_name),
+                    uiData.id,
+                    uiData.name
+                ),
                 fontSize = 50.sp,
                 modifier = modifier
                     .align(Alignment.CenterHorizontally),
