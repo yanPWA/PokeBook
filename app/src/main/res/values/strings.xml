@@ -9,4 +9,10 @@
     <string name="displayedNumber">No.%s - No.%s</string>
     <string name="back_button">◀︎戻る︎</string>
     <string name="next_button">次へ ▶︎︎</string>
+    <string name="pokemon_genus">分類：%s</string>
+    <string name="pokemon_type">タイプ：%s</string>
+    <string name="pokemo_hp">ＨＰ：%s</string>
+    <string name="pokemon_attack">攻撃：%s</string>
+    <string name="pokemon_defense">防御：%s</string>
+    <string name="pokemon_speed">ＳＰＥＥＤ：%s</string>
 </resources>
