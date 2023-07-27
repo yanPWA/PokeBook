@@ -2,7 +2,9 @@ package com.example.pokebook.repository
 
 import com.example.pokebook.model.Pokemon
 import com.example.pokebook.model.PokemonPersonalData
+import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.network.PokeApi
+import retrofit2.http.Path
 
 /**
  * 一覧画面取得に関するリポジトリー
@@ -13,6 +15,7 @@ interface HomeRepository {
     suspend fun getPokemonList(offset: String): Pokemon
 
     suspend fun getPokemonPersonalData(number: String): PokemonPersonalData
+    suspend fun getPokemonSpecies(@Path("path") number: String): PokemonSpecies
 }
 
 class DefaultHomeRepository : HomeRepository {
@@ -29,5 +32,9 @@ class DefaultHomeRepository : HomeRepository {
 
     override suspend fun getPokemonPersonalData(number: String): PokemonPersonalData {
         return PokeApi.retrofitService.getPokemonPersonalData(number)
+    }
+
+    override suspend fun getPokemonSpecies(number: String): PokemonSpecies {
+        return PokeApi.retrofitService.getPokemonSpecies(number)
     }
 }

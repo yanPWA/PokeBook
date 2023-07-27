@@ -16,6 +16,6 @@ class DefaultPokemonDetailRepository: PokemonDetailRepository{
     }
 
     override suspend fun getPokemonSpecies(number: String): PokemonSpecies {
-        return PokeApi.retrofitService.getPokemonDescription(number)
+        return PokeApi.retrofitService.getPokemonSpecies(number)
     }
 }
