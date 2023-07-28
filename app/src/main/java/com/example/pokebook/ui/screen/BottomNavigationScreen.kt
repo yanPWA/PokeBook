@@ -41,3 +41,13 @@ fun MultipleItemsBottomNavigation() {
         }
     }
 }
+/**
+ * ステータスバーの背景色を変更
+ */
+@Composable
+fun StatusBarColorSample() {
+    val systemUiController = rememberSystemUiController()
+    SideEffect {
+        systemUiController.setStatusBarColor(Color(0xFF0057CC))
+    }
+}
