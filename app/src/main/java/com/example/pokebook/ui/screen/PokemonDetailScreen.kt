@@ -14,12 +14,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -83,7 +87,13 @@ private fun PokemonDetailScreen(
     onClickCard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column {
+    Column(
+        modifier = Modifier
+            .verticalScroll(
+                state = rememberScrollState(),
+                reverseScrolling = true
+            )
+    ) {
         Image(
             imageVector = ImageVector.vectorResource(
                 id = R.drawable.arrow_back_fill0_wght400_grad0_opsz48
@@ -131,7 +141,8 @@ private fun PokemonDetailScreen(
                 modifier = modifier
                     .align(Alignment.CenterHorizontally)
             )
-            Spacer(modifier = modifier.height(10.dp))
+            // 下部がボトムナビゲーションとかぶってしまった為
+            Spacer(modifier = Modifier.height(70.dp))
         }
     }
 }
