@@ -198,7 +198,7 @@ private fun PokeCard(
                     pokemon.displayName
                 ),
                 fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onSecondary,
                         modifier = Modifier
                     .shadow(
                         elevation = 1.dp,
@@ -206,7 +206,7 @@ private fun PokeCard(
                     )
                     .padding(bottom = 2.dp)
                     .background(
-                        color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
+                        color = MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(8.dp))
                     .padding(3.dp)
             )
         }
