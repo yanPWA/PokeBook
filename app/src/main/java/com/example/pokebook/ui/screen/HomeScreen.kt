@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.Card
@@ -72,6 +74,7 @@ private fun HomeScreen(
     getPokemonDescription: (String) -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
+    val lazyGridState = rememberLazyGridState()
 
     when (state) {
         is HomeUiState.Fetched -> {
@@ -82,7 +85,8 @@ private fun HomeScreen(
                 onClickNext = onClickNext,
                 onClickBack = onClickBack,
                 onClickCard = onClickCard,
-                getPokemonDescription = getPokemonDescription
+                getPokemonDescription = getPokemonDescription,
+                lazyListState = lazyGridState
             )
         }
 
@@ -110,7 +114,8 @@ private fun PokeList(
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
-    getPokemonDescription: (String) -> Unit
+    getPokemonDescription: (String) -> Unit,
+    lazyListState: LazyGridState
 ) {
     Column {
         DefaultHeader(
@@ -122,7 +127,8 @@ private fun PokeList(
         PokeList(
             pokemonUiDataList = pokemonUiDataList,
             onClickCard = onClickCard,
-            getPokemonDescription = getPokemonDescription
+            getPokemonDescription = getPokemonDescription,
+            lazyListState = lazyListState
         )
     }
 }
@@ -134,9 +140,11 @@ private fun PokeList(
 private fun PokeList(
     pokemonUiDataList: List<HomeScreenUiData>,
     onClickCard: () -> Unit,
-    getPokemonDescription: (String) -> Unit
+    getPokemonDescription: (String) -> Unit,
+    lazyListState: LazyGridState
 ) {
     LazyVerticalGrid(
+        state = lazyListState,
         columns = GridCells.Adaptive(minSize = 150.dp),
     ) {
         items(pokemonUiDataList) { listItem ->
@@ -146,7 +154,8 @@ private fun PokeList(
                 getPokemonDescription = getPokemonDescription
             )
         }
-        item { EmptySpace() }
+        // 下部がボトムナビゲーションとかぶってしまった為
+        item { Spacer(modifier = Modifier.height(70.dp)) }
     }
 }
 
@@ -268,12 +277,6 @@ private fun DefaultHeader(
             }
         }
     }
-}
-
-
-@Composable
-private fun EmptySpace() {
-    Spacer(modifier = Modifier.size(20.dp))
 }
 
 @Preview
