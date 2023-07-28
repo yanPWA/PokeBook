@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -146,7 +147,8 @@ private fun PokeList(
                 getPokemonDescription = getPokemonDescription
             )
         }
-        item { EmptySpace() }
+        // 下部がボトムナビゲーションとかぶってしまった為
+        item { Spacer(modifier = Modifier.height(70.dp)) }
     }
 }
 
@@ -268,12 +270,6 @@ private fun DefaultHeader(
             }
         }
     }
-}
-
-
-@Composable
-private fun EmptySpace() {
-    Spacer(modifier = Modifier.size(20.dp))
 }
 
 @Preview
