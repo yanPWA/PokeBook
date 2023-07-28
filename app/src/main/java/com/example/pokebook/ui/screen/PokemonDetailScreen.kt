@@ -19,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -89,6 +90,7 @@ private fun PokemonDetailScreen(
 ) {
     Column(
         modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(
                 state = rememberScrollState(),
                 reverseScrolling = true
@@ -110,8 +112,8 @@ private fun PokemonDetailScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
-                .background(Color.White)
                 .padding(6.dp)
         ) {
             Text(
@@ -120,6 +122,7 @@ private fun PokemonDetailScreen(
                     uiData.id,
                     uiData.name
                 ),
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 50.sp,
                 modifier = modifier
                     .align(Alignment.CenterHorizontally),
@@ -129,6 +132,7 @@ private fun PokemonDetailScreen(
                 fontSize = 15.sp,
                 modifier = modifier
                     .align(Alignment.CenterHorizontally),
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             BaseInfo(
