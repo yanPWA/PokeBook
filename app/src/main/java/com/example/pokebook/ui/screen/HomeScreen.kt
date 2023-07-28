@@ -22,6 +22,7 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -117,7 +118,10 @@ private fun PokeList(
     getPokemonDescription: (String) -> Unit,
     lazyListState: LazyGridState
 ) {
-    Column {
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         DefaultHeader(
             currentNumberStart = currentNumberStart,
             currentNumberEnd = currentNumberEnd,
@@ -194,13 +198,15 @@ private fun PokeCard(
                     pokemon.displayName
                 ),
                 fontSize = 13.sp,
-                modifier = Modifier
+                color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier
                     .shadow(
                         elevation = 1.dp,
                         shape = RoundedCornerShape(8.dp)
                     )
                     .padding(bottom = 2.dp)
-                    .background(Color.White, shape = RoundedCornerShape(8.dp))
+                    .background(
+                        color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
                     .padding(3.dp)
             )
         }
@@ -216,6 +222,7 @@ private fun DefaultHeader(
 ) {
     Column(
         modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
             .padding(bottom = 5.dp)
     ) {
         Text(
@@ -224,12 +231,12 @@ private fun DefaultHeader(
                 currentNumberStart,
                 currentNumberEnd
             ),
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 25.sp,
             modifier = Modifier
                 .padding(2.dp)
                 .align(Alignment.CenterHorizontally)
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
         )
         Row(
             modifier = Modifier
@@ -244,6 +251,7 @@ private fun DefaultHeader(
             ) {
                 Text(
                     text = stringResource(R.string.back_button),
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
                         .fillMaxWidth()
                         .border(
@@ -264,6 +272,7 @@ private fun DefaultHeader(
             ) {
                 Text(
                     text = stringResource(R.string.next_button),
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
                         .fillMaxWidth()
                         .border(
