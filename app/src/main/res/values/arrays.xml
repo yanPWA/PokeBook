@@ -6,4 +6,31 @@
         <item>@string/icon_like</item>
         <item>@string/icon_setting</item>
     </array>
+
+    <string-array name="all_types">
+        <item>@string/type_name_fire</item>
+        <item>@string/type_name_poison</item>
+        <item>@string/type_name_ground</item>
+        <item>@string/type_name_flying</item>
+        <item>@string/type_name_psychic</item>
+        <item>@string/type_name_bug</item>
+        <item>@string/type_name_rock</item>
+        <item>@string/type_name_ghost</item>
+        <item>@string/type_name_dragon</item>
+        <item>@string/type_name_dark</item>
+        <item>@string/type_name_steel</item>
+        <item>@string/type_name_fairy</item>
+        <item>@string/type_name_fire</item>
+        <item>@string/type_name_water</item>
+        <item>@string/type_name_electric</item>
+        <item>@string/type_name_grass</item>
+        <item>@string/type_name_shadow</item>
+        <item>@string/type_name_ice</item>
+        <item>@string/type_name_normal</item>
+        <item>@string/type_name_unknown</item>
+    </string-array>
+
+
+
+
 </resources>
