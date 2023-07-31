@@ -10,7 +10,7 @@
     <string name="back_button">◀︎戻る︎</string>
     <string name="next_button">次へ ▶︎︎</string>
     <string name="pokemon_genus">分類：%s</string>
-    <string name="pokemon_type">タイプ：%s</string>
+    <string name="pokemon_type">タイプ：</string>
     <string name="pokemo_hp">ＨＰ：%s</string>
     <string name="pokemon_attack">攻撃：%s</string>
     <string name="pokemon_defense">防御：%s</string>
@@ -18,4 +18,24 @@
     <string name="pokemon_weight">重さ：%s g</string>
     <string name="pokemon_height">高さ：%s cm</string>
     <string name="pokemon_name">#%d %s</string>
+    <string name="type_name_fighting">かくとう</string>
+    <string name="type_name_poison">どく</string>
+    <string name="type_name_ground">くさ</string>
+    <string name="type_name_flying">ひこう</string>
+    <string name="type_name_bug">むし</string>
+    <string name="type_name_psychic">エスパー</string>
+    <string name="type_name_rock">いわ</string>
+    <string name="type_name_ghost">ゴースト</string>
+    <string name="type_name_dragon">ドラゴン</string>
+    <string name="type_name_dark">あく</string>
+    <string name="type_name_steel">はがね</string>
+    <string name="type_name_fairy">フェアリー</string>
+    <string name="type_name_fire">ほのお</string>
+    <string name="type_name_water">みず</string>
+    <string name="type_name_electric">でんき</string>
+    <string name="type_name_grass">くさ</string>
+    <string name="type_name_shadow">ダーク</string>
+    <string name="type_name_ice">こおり</string>
+    <string name="type_name_normal">ノーマル</string>
+    <string name="type_name_unknown">未知</string>
 </resources>
