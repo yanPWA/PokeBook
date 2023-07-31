@@ -102,7 +102,8 @@ private fun PokemonDetailScreen(
                 .clickable { onClickCard.invoke() }
         )
         TitleImage(
-            imageUri = uiData.imageUri
+            imageUri = uiData.imageUri,
+            type = uiData.type.firstOrNull() ?: ""
         )
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -149,7 +150,8 @@ private fun PokemonDetailScreen(
 
 @Composable
 private fun TitleImage(
-    imageUri: String
+    imageUri: String,
+    type: String
 ) {
     Card(
         modifier = Modifier
@@ -159,7 +161,29 @@ private fun TitleImage(
         Box(
             contentAlignment = Alignment.TopEnd,
             modifier = Modifier
-                .background(Color.Yellow)
+                .background(
+                    when (type) {
+                        TypeName.FIGHTING.typeName -> Color(color = 0xFFEE6969)
+                        TypeName.POISON.typeName -> Color(color = 0xFFAB7ACA)
+                        TypeName.GROUND.typeName -> Color(color = 0xFFC8A841)
+                        TypeName.FLYING.typeName -> Color(color = 0xFF64A7F1)
+                        TypeName.PSYCHIC.typeName -> Color(color = 0xFF9AC30E)
+                        TypeName.BUG.typeName -> Color(color = 0xFF51CB5A)
+                        TypeName.ROCK.typeName -> Color(color = 0xFFFAC727)
+                        TypeName.GHOST.typeName -> Color(color = 0xFF756EB4)
+                        TypeName.DRAGON.typeName -> Color(color = 0xFF9AC30E)
+                        TypeName.DARK.typeName -> Color(color = 0xFFFF8859)
+                        TypeName.STEEL.typeName -> Color(color = 0xFF818AA4)
+                        TypeName.FAIRY.typeName -> Color(color = 0xFFFC7799)
+                        TypeName.FIRE.typeName -> Color(color = 0xFFFFA766)
+                        TypeName.WATER.typeName -> Color(color = 0xFF64C5F7)
+                        TypeName.ELECTRIC.typeName -> Color(color = 0xFFE7D400)
+                        TypeName.GRASS.typeName -> Color(color = 0xFF9AC30E)
+                        TypeName.SHADOW.typeName -> Color(color = 0xFF333333)
+                        TypeName.ICE.typeName -> Color(color = 0xFF60E9F5)
+                        else -> Color(color = 0xFFAEAEAE) //NORMAL,UNKNOWN
+                    }
+                )
         ) {
             Image(
                 imageVector = ImageVector.vectorResource(
@@ -205,11 +229,7 @@ private fun BaseInfo(
             fontSize = 20.sp,
             modifier = modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp)
         )
-        Text(
-            text = String.format(stringResource(R.string.pokemon_type), uiData.type),
-            fontSize = 20.sp,
-            modifier = modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp)
-        )
+        TypeTag(typeList = uiData.type, modifier = modifier)
         Row(
             modifier = modifier
                 .padding(bottom = 10.dp)
