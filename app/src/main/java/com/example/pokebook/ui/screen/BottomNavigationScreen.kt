@@ -39,6 +39,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.pokebook.R
+import com.example.pokebook.ui.theme.PokeBookTheme
 import com.example.pokebook.ui.viewModel.HomeViewModel
 import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -102,7 +103,10 @@ private fun NavigationHost(
             }
         }
         composable(BottomNavItems.Search.route) {
-            // TODO 検索画面
+            // TODO viewModel実装後反映
+            SearchScreen(
+                onClickType = {},
+                onClickSearch = {})
         }
         composable(BottomNavItems.Like.route) {
             // TODO お気に入り画面
