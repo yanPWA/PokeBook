@@ -8,8 +8,8 @@ https://pokeapi.co/
 
 ２０２３.０７.３１時点
 
-material3
-jetpack compose
-kotlin serialization
-navigation compose
-coroutines
+* material3
+* jetpack compose
+* kotlin serialization
+* navigation compose
+* coroutines
