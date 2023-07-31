@@ -123,25 +123,25 @@ fun TypeTag(
  * こおり
  * 未知
  */
-enum class TypeName(val typeName: String) {
-    NORMAL("normal"),
-    FIGHTING("fighting"),
-    POISON("poison"),
-    GROUND("ground"),
-    FLYING("flying"),
-    PSYCHIC("psychic"),
-    BUG("bug"),
-    ROCK("rock"),
-    GHOST("ghost"),
-    DRAGON("dragon"),
-    DARK("dark"),
-    STEEL("steel"),
-    FAIRY("fairy"),
-    FIRE("fire"),
-    WATER("water"),
-    ELECTRIC("electric"),
-    GRASS("grass"),
-    SHADOW("shadow"),
-    ICE("ice"),
-    UNKNOWN("unknown")
+enum class TypeName(val typeName: String, val jaTypeName: String, val number:String) {
+    NORMAL("normal","ノーマル","1"),
+    FIGHTING("fighting","かくとう","2"),
+    POISON("poison","どく","4"),
+    GROUND("ground","じめん","5"),
+    FLYING("flying","ひこう","3"),
+    PSYCHIC("psychic","エスパー","14"),
+    BUG("bug","むし","7"),
+    ROCK("rock","いわ","6"),
+    GHOST("ghost","ゴースト","8"),
+    DRAGON("dragon","ドラゴン","16"),
+    DARK("dark","あく","17"),
+    STEEL("steel","はがね","9"),
+    FAIRY("fairy","フェアリー","18"),
+    FIRE("fire","ほのお","10"),
+    WATER("water","みず","11"),
+    ELECTRIC("electric","でんき","13"),
+    GRASS("grass","くさ","12"),
+    SHADOW("shadow","ダーク","10002"),
+    ICE("ice","こおり","15"),
+    UNKNOWN("unknown","未知","10001")
 }
