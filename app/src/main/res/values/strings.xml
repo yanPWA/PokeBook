@@ -20,7 +20,7 @@
     <string name="pokemon_name">#%d %s</string>
     <string name="type_name_fighting">かくとう</string>
     <string name="type_name_poison">どく</string>
-    <string name="type_name_ground">くさ</string>
+    <string name="type_name_ground">じめん</string>
     <string name="type_name_flying">ひこう</string>
     <string name="type_name_bug">むし</string>
     <string name="type_name_psychic">エスパー</string>
@@ -38,4 +38,9 @@
     <string name="type_name_ice">こおり</string>
     <string name="type_name_normal">ノーマル</string>
     <string name="type_name_unknown">未知</string>
+    <string name="type_search_title">タイプ別検索</string>
+    <string name="search_name_label">ひらがなで検索</string>
+    <string name="search_button">検索</string>
+    <string name="search_name_title">ポケモン名検索</string>
+    <string name="search_number">図鑑番号で検索</string>
 </resources>
