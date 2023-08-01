@@ -8,7 +8,7 @@
     </array>
 
     <string-array name="all_types">
-        <item>@string/type_name_fire</item>
+        <item>@string/type_name_fighting</item>
         <item>@string/type_name_poison</item>
         <item>@string/type_name_ground</item>
         <item>@string/type_name_flying</item>

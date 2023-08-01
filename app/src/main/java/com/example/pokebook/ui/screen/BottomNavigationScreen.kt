@@ -2,20 +2,11 @@ package com.example.pokebook.ui.screen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
@@ -23,25 +14,19 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.pokebook.R
-import com.example.pokebook.ui.theme.PokeBookTheme
 import com.example.pokebook.ui.viewModel.HomeViewModel
 import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.SearchViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 /**
@@ -75,38 +60,64 @@ private fun NavigationHost(
     navController: NavHostController
 ) {
     val childNavController = rememberNavController()
+    val searchNavController = rememberNavController()
+
     NavHost(
         navController = navController,
         startDestination = BottomNavItems.Home.route
     ) {
+        val homeViewModel = HomeViewModel()
+        val pokemonDetailViewModel = PokemonDetailViewModel()
+        val searchViewModel = SearchViewModel()
         composable(BottomNavItems.Home.route) {
             NavHost(
                 navController = childNavController,
-                startDestination = "homeScreen"
+                startDestination = "pokemonListScreen"
             ) {
-                val homeViewModel = HomeViewModel()
-                val pokemonDetailViewModel = PokemonDetailViewModel()
-                composable("homeScreen") {
+                composable("pokemonListScreen") {
                     HomeScreen(
                         homeViewModel = homeViewModel,
                         pokemonDetailViewModel = pokemonDetailViewModel,
                         onClickCard = { childNavController.navigate("pokemonDetailScreen") }
                     )
                 }
-
                 composable("pokemonDetailScreen") {
                     PokemonDetailScreen(
                         pokemonDetailViewModel = pokemonDetailViewModel,
-                        onClickCard = { childNavController.navigateUp() }
+                        onClickBackButton = { childNavController.navigateUp() }
                     )
                 }
             }
         }
         composable(BottomNavItems.Search.route) {
-            // TODO viewModel実装後反映
-            SearchScreen(
-                onClickType = {},
-                onClickSearch = {})
+            NavHost(
+                navController = searchNavController,
+                startDestination = "searchScreen"
+            ) {
+                composable("searchScreen") {
+                    SearchScreen(
+                        searchViewModel = searchViewModel,
+                        onClickSearchTypeButton = { searchNavController.navigate("pokemonListScreen") },
+//                        onClickBackButton = { searchNavController.navigateUp() }
+//                    TODO 検索たぶでバックボタンおストクラッシュする
+                    )
+                }
+                composable("pokemonListScreen") {
+                    SearchListScreen(
+                        searchViewModel = searchViewModel,
+                        pokemonDetailViewModel = pokemonDetailViewModel,
+                        onClickCard = { searchNavController.navigate("pokemonDetailScreen") },
+                        onClickBackButton = { searchNavController.navigateUp() }
+                    )
+
+                }
+                composable("pokemonDetailScreen") {
+                    PokemonDetailScreen(
+                        pokemonDetailViewModel = pokemonDetailViewModel,
+                        onClickBackButton = { searchNavController.navigateUp() }
+                    )
+                }
+            }
         }
         composable(BottomNavItems.Like.route) {
             // TODO お気に入り画面

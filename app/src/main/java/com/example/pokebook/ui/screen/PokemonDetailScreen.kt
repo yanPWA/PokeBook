@@ -47,12 +47,12 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun PokemonDetailScreen(
     pokemonDetailViewModel: PokemonDetailViewModel,
-    onClickCard: () -> Unit
+    onClickBackButton: () -> Unit
 ) {
     PokemonDetailScreen(
         uiState = pokemonDetailViewModel.uiState,
         conditionState = pokemonDetailViewModel.conditionState,
-        onClickCard = onClickCard
+        onClickBackButton = onClickBackButton
     )
 }
 
@@ -61,7 +61,7 @@ fun PokemonDetailScreen(
 private fun PokemonDetailScreen(
     uiState: StateFlow<PokemonDetailUiState>,
     conditionState: StateFlow<PokemonDetailScreenUiData>,
-    onClickCard: () -> Unit,
+    onClickBackButton: () -> Unit,
 ) {
     val state by uiState.collectAsStateWithLifecycle()
 
@@ -69,7 +69,7 @@ private fun PokemonDetailScreen(
         is PokemonDetailUiState.Fetched -> {
             PokemonDetailScreen(
                 uiData = conditionState.value,
-                onClickCard = onClickCard
+                onClickBackButton = onClickBackButton
             )
         }
 
@@ -81,7 +81,7 @@ private fun PokemonDetailScreen(
 @Composable
 private fun PokemonDetailScreen(
     uiData: PokemonDetailScreenUiData,
-    onClickCard: () -> Unit,
+    onClickBackButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -99,7 +99,7 @@ private fun PokemonDetailScreen(
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.Start)
-                .clickable { onClickCard.invoke() }
+                .clickable { onClickBackButton.invoke() }
         )
         TitleImage(
             imageUri = uiData.imageUri,
@@ -303,6 +303,6 @@ private fun Ability(
 private fun PokemonDetailScreenPreview() {
     PokemonDetailScreen(
         uiData = PokemonDetailScreenUiData(),
-        onClickCard = {},
+        onClickBackButton = {},
     )
 }

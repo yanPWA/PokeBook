@@ -8,23 +8,25 @@ import java.util.UUID
 sealed class HomeUiState {
     object Loading : HomeUiState()
     data class Fetched(
-        val uiDataList: MutableList<HomeScreenUiData>
+        val uiDataList: MutableList<PokemonListUiData>
     ) : HomeUiState()
 
     object InitialState : HomeUiState()
 }
 
 /**
+ *　id
  *　名前
+ *　ポケモンの説明
  *　ポケモン個体情報取得用URL
  *　画像URL　
  */
-data class HomeScreenUiData(
+data class PokemonListUiData(
     var id: Int = 0,
     val name: String = "",
     var displayName: String = "",
     val url: String = "",
-    var imageUri: String = ""
+    var imageUri: String? = ""
 )
 
 data class HomeScreenConditionState(

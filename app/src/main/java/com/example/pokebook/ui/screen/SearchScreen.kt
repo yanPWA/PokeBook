@@ -7,14 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -34,12 +33,49 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.pokebook.R
+import com.example.pokebook.ui.viewModel.SearchConditionState
+import com.example.pokebook.ui.viewModel.SearchUiState
+import com.example.pokebook.ui.viewModel.SearchViewModel
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun SearchScreen(
-    onClickType: (String) -> Unit,
-    onClickSearch: (String) -> Unit,
+    searchViewModel: SearchViewModel,
+    onClickSearchTypeButton: () -> Unit,
+//    onClickBackButton: () -> Unit
+) {
+    SearchScreen(
+        onClickSearchType = searchViewModel::getPokemonByType,
+        onClickSearchName = searchViewModel::getPokemonByName,
+        onClickSearchNumber = searchViewModel::getPokemonByNumber,
+        onClickSearchTypeButton = onClickSearchTypeButton
+    )
+}
+
+@Composable
+private fun SearchScreen(
+    onClickSearchType: (String) -> Unit,
+    onClickSearchName: (String) -> Unit,
+    onClickSearchNumber: (String) -> Unit,
+    onClickSearchTypeButton: () -> Unit
+) {
+    SearchScreen(
+        onClickSearchType = onClickSearchType,
+        onClickSearchName = onClickSearchName,
+        onClickSearchNumber = onClickSearchNumber,
+        onClickSearchTypeButton = onClickSearchTypeButton,
+        modifier = Modifier
+    )
+}
+
+@Composable
+private fun SearchScreen(
+    onClickSearchType: (String) -> Unit,
+    onClickSearchName: (String) -> Unit,
+    onClickSearchNumber: (String) -> Unit,
+    onClickSearchTypeButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var valueName by remember { mutableStateOf("") }
@@ -52,16 +88,20 @@ fun SearchScreen(
             .fillMaxSize()
             .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
     ) {
-        SearchType(onClickType = onClickType)
+        SearchType(
+            onClickType = onClickSearchType,
+            onClickSearchTypeButton = onClickSearchTypeButton
+        )
         SearchName(
             value = valueName,
             onValueChange = { valueName = it },
+            onClickSearchName = onClickSearchName,
             modifier = modifier
         )
         SearchNumber(
             value = valueNumber,
             onValueChange = { valueNumber = it },
-            onClickSearch = onClickSearch,
+            onClickSearchNumber = onClickSearchNumber,
             modifier = modifier
         )
     }
@@ -74,6 +114,7 @@ fun SearchScreen(
 @Composable
 private fun SearchType(
     onClickType: (String) -> Unit,
+    onClickSearchTypeButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -127,7 +168,33 @@ private fun SearchType(
                             shape = RoundedCornerShape(5.dp),
                         )
                         .padding(2.dp)
-                        .clickable { onClickType.invoke(item) }
+                        .clickable {
+                            val typeNumber = when (item) {
+                                TypeName.FIGHTING.jaTypeName -> TypeName.FIGHTING.number
+                                TypeName.POISON.jaTypeName -> TypeName.POISON.number
+                                TypeName.GROUND.jaTypeName -> TypeName.GROUND.number
+                                TypeName.FLYING.jaTypeName -> TypeName.FLYING.number
+                                TypeName.PSYCHIC.jaTypeName -> TypeName.PSYCHIC.number
+                                TypeName.BUG.jaTypeName -> TypeName.BUG.number
+                                TypeName.ROCK.jaTypeName -> TypeName.ROCK.number
+                                TypeName.GHOST.jaTypeName -> TypeName.GHOST.number
+                                TypeName.DRAGON.jaTypeName -> TypeName.DRAGON.number
+                                TypeName.DARK.jaTypeName -> TypeName.DARK.number
+                                TypeName.STEEL.jaTypeName -> TypeName.STEEL.number
+                                TypeName.FAIRY.jaTypeName -> TypeName.FAIRY.number
+                                TypeName.FIRE.jaTypeName -> TypeName.FIRE.number
+                                TypeName.WATER.jaTypeName -> TypeName.WATER.number
+                                TypeName.ELECTRIC.jaTypeName -> TypeName.ELECTRIC.number
+                                TypeName.GRASS.jaTypeName -> TypeName.GRASS.number
+                                TypeName.SHADOW.jaTypeName -> TypeName.SHADOW.number
+                                TypeName.ICE.jaTypeName -> TypeName.ICE.number
+                                TypeName.NORMAL.jaTypeName -> TypeName.NORMAL.number
+                                TypeName.UNKNOWN.jaTypeName -> TypeName.UNKNOWN.number
+                                else -> ""
+                            }
+                            onClickType.invoke(typeNumber)
+                            onClickSearchTypeButton.invoke()
+                        }
                 )
             }
         }
@@ -143,6 +210,7 @@ private fun SearchType(
 private fun SearchName(
     value: String,
     onValueChange: (String) -> Unit,
+    onClickSearchName: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -172,9 +240,7 @@ private fun SearchName(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
             Button(
-                onClick = {
-                    // TODO 名前で検索
-                },
+                onClick = { onClickSearchName.invoke(value) },
                 modifier = modifier
                     .padding(2.dp),
                 shape = RoundedCornerShape(4.dp)
@@ -197,7 +263,7 @@ private fun SearchName(
 private fun SearchNumber(
     value: String,
     onValueChange: (String) -> Unit,
-    onClickSearch: (String) -> Unit,
+    onClickSearchNumber: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -227,7 +293,7 @@ private fun SearchNumber(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
             Button(
-                onClick = { onClickSearch.invoke(value) },
+                onClick = { onClickSearchNumber.invoke(value) },
                 modifier = modifier
                     .padding(2.dp),
                 shape = RoundedCornerShape(4.dp)
@@ -243,19 +309,6 @@ private fun SearchNumber(
 
 @Preview(showBackground = true)
 @Composable
-private fun SearchTypePreview() {
-    SearchType({})
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun SearchNamePreview() {
-    SearchName("ピカチュウ", {})
-}
-
-@Preview(showBackground = true)
-@Composable
 private fun SearchNumberPreview() {
     SearchNumber("25", {}, {})
 }
-

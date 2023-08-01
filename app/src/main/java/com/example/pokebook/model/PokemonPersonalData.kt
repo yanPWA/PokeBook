@@ -31,13 +31,13 @@ data class Other(
 @Serializable
 data class OfficialArtwork(
     @SerialName("front_default")
-    val imgUrl: String
+    val imgUrl: String?
 )
 
 @Serializable
 data class Species(
     val name: String,
-    val url: String  // ※1
+    val url: String?  // ※1
 )
 
 @Serializable

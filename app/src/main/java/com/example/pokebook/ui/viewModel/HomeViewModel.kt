@@ -39,7 +39,7 @@ class HomeViewModel : ViewModel() {
 // ----------------------------------------------------
 
     private val repository = DefaultHomeRepository()
-    private val uiDataList = mutableListOf<HomeScreenUiData>()
+    private val uiDataList = mutableListOf<PokemonListUiData>()
 
     init {
         getPokemonList(true)
@@ -65,7 +65,7 @@ class HomeViewModel : ViewModel() {
                     uiDataList.clear()
                     updateConditionState(it)
                     uiDataList += it.results.map { item ->
-                        HomeScreenUiData(
+                        PokemonListUiData(
                             name = item.name,
                             url = item.url
                         )
@@ -141,3 +141,4 @@ class HomeViewModel : ViewModel() {
         }
     }
 }
+
