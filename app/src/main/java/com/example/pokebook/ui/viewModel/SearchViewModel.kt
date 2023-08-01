@@ -126,18 +126,4 @@ class SearchViewModel : ViewModel() {
             Log.d("error", "e[getPokemonList]:$it")
         }
     }
-
-    /**
-     * 図鑑番号検索
-     */
-    fun getPokemonByNumber(number: String) = viewModelScope.launch {
-        _uiState.emit(SearchUiState.Loading)
-        runCatching {
-            repository.getPokemonPersonalData(number)
-        }.onSuccess {
-            // TODO 返ってきたURLから個別情報取得する
-        }.onFailure {
-            Log.d("error", "e[getPokemonList]:$it")
-        }
-    }
 }
