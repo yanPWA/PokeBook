@@ -15,8 +15,8 @@
     <string name="pokemon_attack">攻撃：%s</string>
     <string name="pokemon_defense">防御：%s</string>
     <string name="pokemon_speed">ＳＰＥＥＤ：%s</string>
-    <string name="pokemon_weight">重さ：%s g</string>
-    <string name="pokemon_height">高さ：%s cm</string>
+    <string name="pokemon_weight">重さ：%.1f kg</string>
+    <string name="pokemon_height">高さ：%.1f m</string>
     <string name="pokemon_name">#%d %s</string>
     <string name="type_name_fighting">かくとう</string>
     <string name="type_name_poison">どく</string>
