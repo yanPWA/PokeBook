@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,7 +43,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
 import com.example.pokebook.ui.viewModel.HomeScreenConditionState
-import com.example.pokebook.ui.viewModel.HomeScreenUiData
+import com.example.pokebook.ui.viewModel.PokemonListUiData
 import com.example.pokebook.ui.viewModel.HomeUiState
 import com.example.pokebook.ui.viewModel.HomeViewModel
 import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
@@ -61,7 +62,7 @@ fun HomeScreen(
         onClickNext = homeViewModel::onClickNext,
         onClickBack = homeViewModel::onClickBack,
         onClickCard = onClickCard,
-        getPokemonDescription = pokemonDetailViewModel::getPokemonDescription
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpecies
     )
 }
 
@@ -73,7 +74,7 @@ private fun HomeScreen(
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
-    getPokemonDescription: (String) -> Unit
+    getPokemonSpecies: (String) -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val lazyGridState = rememberLazyGridState()
@@ -87,8 +88,8 @@ private fun HomeScreen(
                 onClickNext = onClickNext,
                 onClickBack = onClickBack,
                 onClickCard = onClickCard,
-                getPokemonDescription = getPokemonDescription,
-                lazyListState = lazyGridState
+                getPokemonSpecies = getPokemonSpecies,
+                lazyGridState = lazyGridState
             )
         }
 
@@ -112,12 +113,12 @@ private fun HomeScreen(
 private fun PokeList(
     currentNumberStart: String,
     currentNumberEnd: String,
-    pokemonUiDataList: List<HomeScreenUiData>,
+    pokemonUiDataList: List<PokemonListUiData>,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
-    getPokemonDescription: (String) -> Unit,
-    lazyListState: LazyGridState
+    getPokemonSpecies: (String) -> Unit,
+    lazyGridState: LazyGridState
 ) {
     Column(
         modifier = Modifier
@@ -132,8 +133,8 @@ private fun PokeList(
         PokeList(
             pokemonUiDataList = pokemonUiDataList,
             onClickCard = onClickCard,
-            getPokemonDescription = getPokemonDescription,
-            lazyListState = lazyListState
+            getPokemonSpecies = getPokemonSpecies,
+            lazyGridState = lazyGridState
         )
     }
 }
@@ -142,21 +143,21 @@ private fun PokeList(
  * ポケモン画像一覧
  */
 @Composable
-private fun PokeList(
-    pokemonUiDataList: List<HomeScreenUiData>,
+fun PokeList(
+    pokemonUiDataList: List<PokemonListUiData>,
     onClickCard: () -> Unit,
-    getPokemonDescription: (String) -> Unit,
-    lazyListState: LazyGridState
+    getPokemonSpecies: (String) -> Unit,
+    lazyGridState: LazyGridState
 ) {
     LazyVerticalGrid(
-        state = lazyListState,
+        state = lazyGridState,
         columns = GridCells.Adaptive(minSize = 150.dp),
     ) {
         items(pokemonUiDataList) { listItem ->
             PokeCard(
                 pokemon = listItem,
                 onClickCard = onClickCard,
-                getPokemonDescription = getPokemonDescription
+                getPokemonSpecies = getPokemonSpecies
             )
         }
         // 下部がボトムナビゲーションとかぶってしまった為
@@ -166,17 +167,17 @@ private fun PokeList(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PokeCard(
-    pokemon: HomeScreenUiData,
+fun PokeCard(
+    pokemon: PokemonListUiData,
     onClickCard: () -> Unit,
-    getPokemonDescription: (String) -> Unit,
+    getPokemonSpecies: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = cardElevation(4.dp),
         onClick = {
-            getPokemonDescription.invoke(pokemon.name)
+            getPokemonSpecies.invoke(pokemon.name)
             onClickCard.invoke()
         }
     ) {
@@ -218,21 +219,31 @@ private fun PokeCard(
     }
 }
 
+/**
+ * ポケモン一覧のヘッダー領域
+ */
 @Composable
-private fun DefaultHeader(
-    currentNumberStart: String,
-    currentNumberEnd: String,
-    onClickNext: () -> Unit,
-    onClickBack: () -> Unit,
+fun DefaultHeader(
+    currentNumberStart: String = "",
+    currentNumberEnd: String = "",
+    isSearchListScreen: Boolean = false,
+    searchWord: String = "",
+    onClickNext: () -> Unit = {},
+    onClickBack: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
+            .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
-            .padding(bottom = 5.dp)
+            .padding(bottom = 5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = String.format(
-                stringResource(id = R.string.displayedNumber),
+            text = if (isSearchListScreen) String.format(
+                stringResource(R.string.header_title_search_list), searchWord
+            )
+            else String.format(
+                stringResource(id = R.string.header_title_displayed_number),
                 currentNumberStart,
                 currentNumberEnd
             ),
@@ -243,51 +254,53 @@ private fun DefaultHeader(
                 .align(Alignment.CenterHorizontally)
                 .background(MaterialTheme.colorScheme.background)
         )
-        Row(
-            modifier = Modifier
-                .padding(bottom = 6.dp)
-        ) {
-            Box(
+        if (!isSearchListScreen) {
+            Row(
                 modifier = Modifier
-                    .weight(1F)
-                    .wrapContentHeight()
-                    .clickable { onClickBack.invoke() },
-                contentAlignment = Alignment.CenterEnd
+                    .padding(bottom = 6.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.back_button),
-                    color = MaterialTheme.colorScheme.onBackground,
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = Color.DarkGray,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .padding(4.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .weight(1F)
-                    .wrapContentHeight()
-                    .clickable { onClickNext.invoke() },
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Text(
-                    text = stringResource(R.string.next_button),
-                    color = MaterialTheme.colorScheme.onBackground,
+                        .weight(1F)
+                        .wrapContentHeight()
+                        .clickable { onClickBack.invoke() },
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Text(
+                        text = stringResource(R.string.back_button),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                width = 1.dp,
+                                color = Color.DarkGray,
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(4.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = Color.DarkGray,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .padding(4.dp),
-                    textAlign = TextAlign.Center
-                )
+                        .weight(1F)
+                        .wrapContentHeight()
+                        .clickable { onClickNext.invoke() },
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Text(
+                        text = stringResource(R.string.next_button),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                width = 1.dp,
+                                color = Color.DarkGray,
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(4.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
@@ -297,8 +310,8 @@ private fun DefaultHeader(
 @Composable
 private fun PokeCardPreview() {
     PokeCard(
-        pokemon = HomeScreenUiData(name = "ピカチュウ"),
+        pokemon = PokemonListUiData(name = "ピカチュウ"),
         onClickCard = {},
-        getPokemonDescription = {}
+        getPokemonSpecies = {}
     )
 }
