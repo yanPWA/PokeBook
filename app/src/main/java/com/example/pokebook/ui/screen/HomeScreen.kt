@@ -184,17 +184,19 @@ fun PokeCard(
         Box(
             contentAlignment = Alignment.BottomCenter
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(pokemon.imageUri)
-                    .crossfade(true)
-                    .build(),
-                modifier = Modifier
-                    .size(200.dp)
-                    .padding(bottom = 20.dp),
-                contentScale = ContentScale.Crop,
-                contentDescription = null
-            )
+            pokemon.imageUri?.let{
+                AsyncImage(
+                    model = ImageRequest.Builder(context = LocalContext.current)
+                        .data(pokemon.imageUri)
+                        .crossfade(true)
+                        .build(),
+                    modifier = Modifier
+                        .size(200.dp)
+                        .padding(bottom = 20.dp),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null
+                )
+            }
             Text(
                 text = String.format(
                     stringResource(R.string.pokemon_name),
