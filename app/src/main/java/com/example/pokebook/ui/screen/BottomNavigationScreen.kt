@@ -97,6 +97,9 @@ private fun NavigationHost(
                 composable("searchScreen") {
                     SearchScreen(
                         searchViewModel = searchViewModel,
+                        pokemonDetailViewModel =pokemonDetailViewModel,
+                        onClickSearchPokemonName = {searchNavController.navigate("pokemonDetailScreen")},
+                        onClickSearchPokemonNumber = {searchNavController.navigate("pokemonDetailScreen")},
                         onClickSearchTypeButton = { searchNavController.navigate("pokemonListScreen") },
 //                        onClickBackButton = { searchNavController.navigateUp() }
 //                    TODO 検索たぶでバックボタンおストクラッシュする
