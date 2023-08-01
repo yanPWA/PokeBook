@@ -22,79 +22,77 @@ class PokemonDetailViewModel : ViewModel() {
     /**
      *　ポケモンの種類に関する情報を取得
      */
-    fun getPokemonDescription(pokeName: String) = viewModelScope.launch {
+    fun getPokemonSpecies(pokeName: String) = viewModelScope.launch {
         _uiState.emit(PokemonDetailUiState.Loading)
         runCatching {
             repository.getPokemonSpecies(pokeName)
-        }
-            .onSuccess {
-                // ポケモン個体情報取得
-                val pokemonPersonalData = repository.getPokemonPersonalData(pokeName)
+        }.onSuccess {
+            // ポケモン個体情報取得
+            val pokemonPersonalData = repository.getPokemonPersonalData(pokeName)
 
-                // 名前
-                val name = it.names.firstOrNull { names -> names.language.name == "ja" }?.name ?: ""
+            // 名前
+            val name = it.names.firstOrNull { names -> names.language.name == "ja" }?.name ?: ""
 
-                // 説明
-                val description = it.flavorTextEntries.firstOrNull { flavorTextEntries ->
-                    flavorTextEntries.language.name == "ja"
-                }?.flavorText ?: ""
+            // 説明
+            val description = it.flavorTextEntries.firstOrNull { flavorTextEntries ->
+                flavorTextEntries.language.name == "ja"
+            }?.flavorText ?: ""
 
-                // 分類
-                val genus =
-                    it.genera.firstOrNull { genera -> genera.language.name == "ja" }?.genus ?: ""
+            // 分類
+            val genus =
+                it.genera.firstOrNull { genera -> genera.language.name == "ja" }?.genus ?: ""
 
-                // タイプ
-                val type: MutableList<String> =
-                    pokemonPersonalData.types.map { type -> type.type.name }.toMutableList()
+            // タイプ
+            val type: MutableList<String> =
+                pokemonPersonalData.types.map { type -> type.type.name }.toMutableList()
 
-                // 画像
-                val imageUri = pokemonPersonalData.sprites.other.officialArtwork.imgUrl
+            // 画像
+            val imageUri = pokemonPersonalData.sprites.other.officialArtwork.imgUrl
 
-                pokemonPersonalData.stats.onEach { stats ->
-                    _conditionState.update { currentState ->
+            pokemonPersonalData.stats.onEach { stats ->
+                _conditionState.update { currentState ->
 
-                        // TODO enumで分岐したい
-                        when (stats.stat.name) {
-                            "hp" -> {
-                                currentState.copy(
-                                    hp = stats.baseStat
-                                )
-                            }
-
-                            "attack" -> currentState.copy(
-                                attack = stats.baseStat
+                    // TODO enumで分岐したい
+                    when (stats.stat.name) {
+                        "hp" -> {
+                            currentState.copy(
+                                hp = stats.baseStat
                             )
-
-                            "defense" -> currentState.copy(
-                                defense = stats.baseStat
-                            )
-
-                            "speed" -> currentState.copy(
-                                speed = stats.baseStat
-                            )
-
-                            else -> currentState
                         }
+
+                        "attack" -> currentState.copy(
+                            attack = stats.baseStat
+                        )
+
+                        "defense" -> currentState.copy(
+                            defense = stats.baseStat
+                        )
+
+                        "speed" -> currentState.copy(
+                            speed = stats.baseStat
+                        )
+
+                        else -> currentState
                     }
                 }
+            }
 
-                // id 日本語名　説明　属性
-                _conditionState.update { currentState ->
-                    currentState.copy(
-                        id = it.id,
-                        name = name,
-                        type = type,
-                        description = description,
-                        genus = genus,
-                        imageUri = imageUri,
-                        height = pokemonPersonalData.height,
-                        weight = pokemonPersonalData.weight
-                    )
-                }
-                _uiState.emit(PokemonDetailUiState.Fetched)
+            // id 日本語名　説明　属性
+            _conditionState.update { currentState ->
+                currentState.copy(
+                    id = it.id,
+                    name = name,
+                    type = type,
+                    description = description,
+                    genus = genus,
+                    imageUri = imageUri ?: "",
+                    height = pokemonPersonalData.height,
+                    weight = pokemonPersonalData.weight
+                )
             }
-            .onFailure {
-                Log.d("error", "e[getPokemonList]:$it")
-            }
+            _uiState.emit(PokemonDetailUiState.Fetched)
+        }.onFailure {
+            Log.d("error", "e[getPokemonList]:$it")
+        }
     }
 }
