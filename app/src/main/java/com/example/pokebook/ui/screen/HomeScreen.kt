@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.Card
@@ -25,7 +26,9 @@ import androidx.compose.material3.CardDefaults.cardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -47,7 +50,10 @@ import com.example.pokebook.ui.viewModel.PokemonListUiData
 import com.example.pokebook.ui.viewModel.HomeUiState
 import com.example.pokebook.ui.viewModel.HomeViewModel
 import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -62,6 +68,7 @@ fun HomeScreen(
         onClickNext = homeViewModel::onClickNext,
         onClickBack = homeViewModel::onClickBack,
         onClickCard = onClickCard,
+        updateIsFirst = homeViewModel::updateIsFirst,
         getPokemonSpecies = pokemonDetailViewModel::getPokemonSpecies
     )
 }
@@ -74,10 +81,12 @@ private fun HomeScreen(
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
+    updateIsFirst: (Boolean) -> Unit,
     getPokemonSpecies: (String) -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val lazyGridState = rememberLazyGridState()
+    val coroutineScope = rememberCoroutineScope()
 
     when (state) {
         is HomeUiState.Fetched -> {
@@ -85,11 +94,14 @@ private fun HomeScreen(
                 currentNumberStart = conditionState.value.currentNumberStart,
                 currentNumberEnd = conditionState.value.offset,
                 pokemonUiDataList = (state as HomeUiState.Fetched).uiDataList,
+                isFirst = conditionState.value.isFirst,
                 onClickNext = onClickNext,
                 onClickBack = onClickBack,
                 onClickCard = onClickCard,
+                updateIsFirst = updateIsFirst,
                 getPokemonSpecies = getPokemonSpecies,
-                lazyGridState = lazyGridState
+                lazyGridState = lazyGridState,
+                coroutineScope = coroutineScope
             )
         }
 
@@ -114,11 +126,14 @@ private fun PokeList(
     currentNumberStart: String,
     currentNumberEnd: String,
     pokemonUiDataList: List<PokemonListUiData>,
+    isFirst: Boolean,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
+    updateIsFirst: (Boolean) -> Unit,
     getPokemonSpecies: (String) -> Unit,
-    lazyGridState: LazyGridState
+    lazyGridState: LazyGridState,
+    coroutineScope: CoroutineScope
 ) {
     Column(
         modifier = Modifier
@@ -132,9 +147,12 @@ private fun PokeList(
         )
         PokeList(
             pokemonUiDataList = pokemonUiDataList,
+            isFirst = isFirst,
             onClickCard = onClickCard,
+            updateIsFirst = updateIsFirst,
             getPokemonSpecies = getPokemonSpecies,
-            lazyGridState = lazyGridState
+            lazyGridState = lazyGridState,
+            coroutineScope = coroutineScope
         )
     }
 }
@@ -145,10 +163,21 @@ private fun PokeList(
 @Composable
 fun PokeList(
     pokemonUiDataList: List<PokemonListUiData>,
+    isFirst: Boolean,
     onClickCard: () -> Unit,
+    updateIsFirst: (Boolean) -> Unit,
     getPokemonSpecies: (String) -> Unit,
-    lazyGridState: LazyGridState
+    lazyGridState: LazyGridState,
+    coroutineScope: CoroutineScope
 ) {
+    LaunchedEffect(lazyGridState) {
+        coroutineScope.launch {
+            if (isFirst) {
+                lazyGridState.scrollToItem(0)
+                updateIsFirst.invoke(false)
+            }
+        }
+    }
     LazyVerticalGrid(
         state = lazyGridState,
         columns = GridCells.Adaptive(minSize = 150.dp),
@@ -184,7 +213,7 @@ fun PokeCard(
         Box(
             contentAlignment = Alignment.BottomCenter
         ) {
-            pokemon.imageUri?.let{
+            pokemon.imageUri?.let {
                 AsyncImage(
                     model = ImageRequest.Builder(context = LocalContext.current)
                         .data(pokemon.imageUri)
