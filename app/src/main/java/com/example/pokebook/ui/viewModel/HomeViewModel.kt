@@ -51,6 +51,7 @@ class HomeViewModel : ViewModel() {
     private fun getPokemonList(isFirst: Boolean, isBackButton: Boolean = false) {
         viewModelScope.launch {
             _uiState.emit(HomeUiState.Loading)
+            updateIsFirst(true)
             runCatching {
                 if (isFirst) {
                     repository.getPokemonList()
@@ -138,6 +139,15 @@ class HomeViewModel : ViewModel() {
                 previous = previousValue ?: "",
                 currentNumberStart = offsetValue.toInt().minus(19).toString()
             )
+        }
+    }
+
+    /**
+     * 初回取得時かどうか
+     */
+    fun updateIsFirst( isFirst: Boolean){
+        _conditionState.update { current ->
+            current.copy( isFirst = isFirst)
         }
     }
 }
