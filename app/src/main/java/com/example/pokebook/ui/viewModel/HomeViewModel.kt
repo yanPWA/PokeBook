@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel : ViewModel(), DefaultHeader {
     private var _uiState: MutableStateFlow<HomeUiState> =
         MutableStateFlow(HomeUiState.InitialState)
     val uiState = _uiState.asStateFlow()
@@ -112,17 +112,16 @@ class HomeViewModel : ViewModel() {
     /**
      * 「次へ」ボタン押下してポケモンリスト取得
      */
-    fun onClickNext() {
+    override fun onClickNext() {
         getPokemonList(false)
     }
 
     /**
      * 「戻る」ボタン押下して一つ前のポケモンリストを取得
      */
-    fun onClickBack() {
+    override fun onClickBack() {
         getPokemonList(isFirst = false, isBackButton = true)
     }
-
 
     /**
      * nextUrlからクエリを取得してOffsetを更新する

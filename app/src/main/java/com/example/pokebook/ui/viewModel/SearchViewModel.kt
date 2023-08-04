@@ -126,4 +126,17 @@ class SearchViewModel : ViewModel() {
             Log.d("error", "e[getPokemonList]:$it")
         }
     }
+    override fun onClickNext() {
+        val pagePosition = conditionState.value.pagePosition
+        if (pagePosition < responseUiDataList.size.minus(1)) updateDisplayUiDataList(
+            conditionState.value.pagePosition.plus(
+                1
+            )
+        )
+    }
+
+    override fun onClickBack() {
+        val pagePosition = conditionState.value.pagePosition
+        if (pagePosition > 0) updateDisplayUiDataList(pagePosition.minus(1))
+    }
 }
