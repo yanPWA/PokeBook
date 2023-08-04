@@ -101,7 +101,6 @@ private fun NavigationHost(
                         onClickSearchPokemonName = {searchNavController.navigate("pokemonDetailScreen")},
                         onClickSearchPokemonNumber = {searchNavController.navigate("pokemonDetailScreen")},
                         onClickSearchTypeButton = { searchNavController.navigate("pokemonListScreen") },
-//                        onClickBackButton = { searchNavController.navigateUp() }
 //                    TODO 検索たぶでバックボタンおストクラッシュする
                     )
                 }
@@ -110,9 +109,14 @@ private fun NavigationHost(
                         searchViewModel = searchViewModel,
                         pokemonDetailViewModel = pokemonDetailViewModel,
                         onClickCard = { searchNavController.navigate("pokemonDetailScreen") },
-                        onClickBackButton = { searchNavController.navigateUp() }
+                        onClickBackSearchScreen = { searchNavController.navigateUp() }
                     )
 
+                }
+                composable("pokemonNotFound") {
+                    PokemonNotFound(
+                        onClickBackSearchScreen = { searchNavController.navigateUp() }
+                    )
                 }
                 composable("pokemonDetailScreen") {
                     PokemonDetailScreen(

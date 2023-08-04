@@ -2,9 +2,16 @@ package com.example.pokebook.ui.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -94,4 +102,40 @@ fun AutoSizeableText(
             }
         }
     )
+}
+
+/**
+ * 該当するポケモンがいない
+ */
+@Composable
+fun PokemonNotFound(
+    onClickBackSearchScreen: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = androidx.compose.material3.MaterialTheme.colorScheme.background),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "該当するポケモンが存在しません",
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
+            fontSize = 20.sp
+        )
+        Button(
+            onClick = onClickBackSearchScreen,
+            modifier = Modifier
+                .padding(top = 30.dp),
+            shape = RoundedCornerShape(4.dp),
+        ) {
+            Text(
+                text = "検索TOPに戻る",
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(vertical = 10.dp),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
 }
