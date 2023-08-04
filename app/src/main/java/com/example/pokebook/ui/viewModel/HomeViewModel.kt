@@ -77,12 +77,12 @@ class HomeViewModel : ViewModel(), DefaultHeader {
                         async {
                             pokemonNumber?.let { number ->
                                 // ポケモンのパーソナル情報を取得
-                                repository.getPokemonPersonalData(number)
+                                repository.getPokemonPersonalData(number.toInt())
                             }
                         }
                     }.awaitAll()
                     uiDataList.onEachIndexed { index, item ->
-                        item.imageUri =
+                        item.imageUrl =
                             imageUriList[index]?.sprites?.other?.officialArtwork?.imgUrl ?: ""
                     }
 
@@ -91,7 +91,7 @@ class HomeViewModel : ViewModel(), DefaultHeader {
                         val pokemonNumber = Uri.parse(item.url).lastPathSegment
                         async {
                             pokemonNumber?.let { number ->
-                                repository.getPokemonSpecies(number)
+                                repository.getPokemonSpecies(number.toInt())
                             }
                         }
                     }.awaitAll()
@@ -144,9 +144,9 @@ class HomeViewModel : ViewModel(), DefaultHeader {
     /**
      * 初回取得時かどうか
      */
-    fun updateIsFirst( isFirst: Boolean){
+    fun updateIsFirst(isFirst: Boolean) {
         _conditionState.update { current ->
-            current.copy( isFirst = isFirst)
+            current.copy(isFirst = isFirst)
         }
     }
 }

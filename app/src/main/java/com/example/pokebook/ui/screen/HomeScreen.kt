@@ -64,7 +64,7 @@ fun HomeScreen(
 ) {
     HomeScreen(
         uiState = homeViewModel.uiState,
-        conditionState = homeViewModel.conditionState,
+        homeUiConditionState = homeViewModel.conditionState,
         onClickNext = homeViewModel::onClickNext,
         onClickBack = homeViewModel::onClickBack,
         onClickCard = onClickCard,
@@ -77,7 +77,7 @@ fun HomeScreen(
 @Composable
 private fun HomeScreen(
     uiState: StateFlow<HomeUiState>,
-    conditionState: StateFlow<HomeScreenConditionState>,
+    homeUiConditionState: StateFlow<HomeScreenConditionState>,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
@@ -91,10 +91,10 @@ private fun HomeScreen(
     when (state) {
         is HomeUiState.Fetched -> {
             PokeList(
-                currentNumberStart = conditionState.value.currentNumberStart,
-                currentNumberEnd = conditionState.value.offset,
+                currentNumberStart = homeUiConditionState.value.currentNumberStart,
+                currentNumberEnd = homeUiConditionState.value.offset,
                 pokemonUiDataList = (state as HomeUiState.Fetched).uiDataList,
-                isFirst = conditionState.value.isFirst,
+                isFirst = homeUiConditionState.value.isFirst,
                 onClickNext = onClickNext,
                 onClickBack = onClickBack,
                 onClickCard = onClickCard,
@@ -143,7 +143,7 @@ private fun PokeList(
             currentNumberStart = currentNumberStart,
             currentNumberEnd = currentNumberEnd,
             onClickNext = onClickNext,
-            onClickBack = onClickBack,
+            onClickBack = onClickBack
         )
         PokeList(
             pokemonUiDataList = pokemonUiDataList,
@@ -216,14 +216,14 @@ fun PokeCard(
             pokemon.imageUri?.let {
                 AsyncImage(
                     model = ImageRequest.Builder(context = LocalContext.current)
-                        .data(pokemon.imageUri)
+                        .data(pokemon.imageUrl)
                         .crossfade(true)
                         .build(),
                     modifier = Modifier
                         .size(200.dp)
                         .padding(bottom = 20.dp),
                     contentScale = ContentScale.Crop,
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
             Text(
