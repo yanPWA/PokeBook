@@ -48,13 +48,13 @@ interface PokeApiService {
      * ポケモン個体情報取得
      */
     @GET("pokemon/{path}")
-    suspend fun getPokemonPersonalData(@Path("path") number: String): PokemonPersonalData
+    suspend fun getPokemonPersonalData(@Path("path") number: Int): PokemonPersonalData
 
     /**
      * ポケモン個体説明取得
      */
     @GET("pokemon-species/{path}")
-    suspend fun getPokemonSpecies(@Path("path") number: String): PokemonSpecies
+    suspend fun getPokemonSpecies(@Path("path") number: Int): PokemonSpecies
 
     /**
      * ポケモンタイプ別検索
