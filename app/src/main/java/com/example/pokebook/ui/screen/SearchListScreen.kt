@@ -140,14 +140,14 @@ private fun PokeTypeList(
 private fun PokeTypeCard(
     pokemon: PokemonListUiData,
     onClickCard: () -> Unit,
-    getPokemonSpecies: (String) -> Unit,
+    getPokemonSpecies: (Int) -> Unit,
     modifier: Modifier = Modifier
-){
+) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = {
-            getPokemonSpecies.invoke(pokemon.name)
+            getPokemonSpecies.invoke(pokemon.id)
             onClickCard.invoke()
         }
     ) {

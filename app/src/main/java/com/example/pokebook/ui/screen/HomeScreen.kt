@@ -82,7 +82,7 @@ private fun HomeScreen(
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (String) -> Unit
+    getPokemonSpecies: (Int) -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val lazyGridState = rememberLazyGridState()
@@ -131,7 +131,7 @@ private fun PokeList(
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (String) -> Unit,
+    getPokemonSpecies: (Int) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
@@ -166,7 +166,7 @@ fun PokeList(
     isFirst: Boolean,
     onClickCard: () -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (String) -> Unit,
+    getPokemonSpecies: (Int) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
@@ -199,14 +199,14 @@ fun PokeList(
 fun PokeCard(
     pokemon: PokemonListUiData,
     onClickCard: () -> Unit,
-    getPokemonSpecies: (String) -> Unit,
+    getPokemonSpecies: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = cardElevation(4.dp),
         onClick = {
-            getPokemonSpecies.invoke(pokemon.name)
+            getPokemonSpecies.invoke(pokemon.id)
             onClickCard.invoke()
         }
     ) {

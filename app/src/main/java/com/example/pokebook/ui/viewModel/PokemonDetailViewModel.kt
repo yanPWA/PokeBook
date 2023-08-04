@@ -22,13 +22,14 @@ class PokemonDetailViewModel : ViewModel() {
     /**
      *　ポケモンの種類に関する情報を取得
      */
-    fun getPokemonSpecies(pokeName: String) = viewModelScope.launch {
+    fun getPokemonSpecies(pokeId: Int) = viewModelScope.launch {
+        Log.d("test","詳細画面検索ポケモン名: $pokeId")
         _uiState.emit(PokemonDetailUiState.Loading)
         runCatching {
-            repository.getPokemonSpecies(pokeName)
+            repository.getPokemonSpecies(pokeId)
         }.onSuccess {
             // ポケモン個体情報取得
-            val pokemonPersonalData = repository.getPokemonPersonalData(pokeName)
+            val pokemonPersonalData = repository.getPokemonPersonalData(pokeId)
 
             // 名前
             val name = it.names.firstOrNull { names -> names.language.name == "ja" }?.name ?: ""

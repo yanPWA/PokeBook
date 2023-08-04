@@ -63,7 +63,7 @@ fun SearchScreen(
 private fun SearchScreen(
     onClickSearchType: (String) -> Unit,
     onClickSearchName: (String) -> Unit,
-    onClickSearchNumber: (String) -> Unit,
+    onClickSearchNumber: (Int) -> Unit,
     onClickSearchPokemonNumber: () -> Unit,
     onClickSearchTypeButton: () -> Unit
 ) {
@@ -81,7 +81,7 @@ private fun SearchScreen(
 private fun SearchScreen(
     onClickSearchType: (String) -> Unit,
     onClickSearchName: (String) -> Unit,
-    onClickSearchNumber: (String) -> Unit,
+    onClickSearchNumber: (Int) -> Unit,
     onClickSearchPokemonNumber: () -> Unit,
     onClickSearchTypeButton: () -> Unit,
     modifier: Modifier = Modifier
@@ -272,7 +272,7 @@ private fun SearchName(
 private fun SearchNumber(
     value: String,
     onValueChange: (String) -> Unit,
-    onClickSearchNumber: (String) -> Unit,
+    onClickSearchNumber: (Int) -> Unit,
     onClickSearchPokemonNumber: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -304,7 +304,7 @@ private fun SearchNumber(
             )
             Button(
                 onClick = {
-                    onClickSearchNumber.invoke(value)
+                    onClickSearchNumber.invoke(value.toInt())
                     onClickSearchPokemonNumber.invoke()
                 },
                 modifier = modifier
