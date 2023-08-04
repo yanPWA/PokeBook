@@ -63,7 +63,7 @@ fun SearchScreen(
 private fun SearchScreen(
     onClickSearchType: (String) -> Unit,
     onClickSearchName: (String) -> Unit,
-    onClickSearchNumber: (String) -> Unit,
+    onClickSearchNumber: (Int) -> Unit,
     onClickSearchPokemonNumber: () -> Unit,
     onClickSearchTypeButton: () -> Unit
 ) {
@@ -81,7 +81,7 @@ private fun SearchScreen(
 private fun SearchScreen(
     onClickSearchType: (String) -> Unit,
     onClickSearchName: (String) -> Unit,
-    onClickSearchNumber: (String) -> Unit,
+    onClickSearchNumber: (Int) -> Unit,
     onClickSearchPokemonNumber: () -> Unit,
     onClickSearchTypeButton: () -> Unit,
     modifier: Modifier = Modifier
@@ -153,55 +153,12 @@ private fun SearchType(
                     modifier = modifier
                         .padding(5.dp)
                         .background(
-                            color = when (item) {
-                                TypeName.FIGHTING.jaTypeName -> Color(color = 0xFFEE6969)
-                                TypeName.POISON.jaTypeName -> Color(color = 0xFFAB7ACA)
-                                TypeName.GROUND.jaTypeName -> Color(color = 0xFFC8A841)
-                                TypeName.FLYING.jaTypeName -> Color(color = 0xFF64A7F1)
-                                TypeName.PSYCHIC.jaTypeName -> Color(color = 0xFF9AC30E)
-                                TypeName.BUG.jaTypeName -> Color(color = 0xFF51CB5A)
-                                TypeName.ROCK.jaTypeName -> Color(color = 0xFFFAC727)
-                                TypeName.GHOST.jaTypeName -> Color(color = 0xFF756EB4)
-                                TypeName.DRAGON.jaTypeName -> Color(color = 0xFF9AC30E)
-                                TypeName.DARK.jaTypeName -> Color(color = 0xFFFF8859)
-                                TypeName.STEEL.jaTypeName -> Color(color = 0xFF818AA4)
-                                TypeName.FAIRY.jaTypeName -> Color(color = 0xFFFC7799)
-                                TypeName.FIRE.jaTypeName -> Color(color = 0xFFFFA766)
-                                TypeName.WATER.jaTypeName -> Color(color = 0xFF64C5F7)
-                                TypeName.ELECTRIC.jaTypeName -> Color(color = 0xFFE7D400)
-                                TypeName.GRASS.jaTypeName -> Color(color = 0xFF9AC30E)
-                                TypeName.SHADOW.jaTypeName -> Color(color = 0xFF333333)
-                                TypeName.ICE.jaTypeName -> Color(color = 0xFF60E9F5)
-                                else -> Color(color = 0xFFAEAEAE) //NORMAL,UNKNOWN
-                            },
+                            color = item.convertToJaColorCode(),
                             shape = RoundedCornerShape(5.dp),
                         )
                         .padding(2.dp)
                         .clickable {
-                            val typeNumber = when (item) {
-                                TypeName.FIGHTING.jaTypeName -> TypeName.FIGHTING.number
-                                TypeName.POISON.jaTypeName -> TypeName.POISON.number
-                                TypeName.GROUND.jaTypeName -> TypeName.GROUND.number
-                                TypeName.FLYING.jaTypeName -> TypeName.FLYING.number
-                                TypeName.PSYCHIC.jaTypeName -> TypeName.PSYCHIC.number
-                                TypeName.BUG.jaTypeName -> TypeName.BUG.number
-                                TypeName.ROCK.jaTypeName -> TypeName.ROCK.number
-                                TypeName.GHOST.jaTypeName -> TypeName.GHOST.number
-                                TypeName.DRAGON.jaTypeName -> TypeName.DRAGON.number
-                                TypeName.DARK.jaTypeName -> TypeName.DARK.number
-                                TypeName.STEEL.jaTypeName -> TypeName.STEEL.number
-                                TypeName.FAIRY.jaTypeName -> TypeName.FAIRY.number
-                                TypeName.FIRE.jaTypeName -> TypeName.FIRE.number
-                                TypeName.WATER.jaTypeName -> TypeName.WATER.number
-                                TypeName.ELECTRIC.jaTypeName -> TypeName.ELECTRIC.number
-                                TypeName.GRASS.jaTypeName -> TypeName.GRASS.number
-                                TypeName.SHADOW.jaTypeName -> TypeName.SHADOW.number
-                                TypeName.ICE.jaTypeName -> TypeName.ICE.number
-                                TypeName.NORMAL.jaTypeName -> TypeName.NORMAL.number
-                                TypeName.UNKNOWN.jaTypeName -> TypeName.UNKNOWN.number
-                                else -> ""
-                            }
-                            onClickType.invoke(typeNumber)
+                            onClickType.invoke(item.convertToTypeNumber())
                             onClickSearchTypeButton.invoke()
                         }
                 )
@@ -272,7 +229,7 @@ private fun SearchName(
 private fun SearchNumber(
     value: String,
     onValueChange: (String) -> Unit,
-    onClickSearchNumber: (String) -> Unit,
+    onClickSearchNumber: (Int) -> Unit,
     onClickSearchPokemonNumber: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -304,7 +261,7 @@ private fun SearchNumber(
             )
             Button(
                 onClick = {
-                    onClickSearchNumber.invoke(value)
+                    onClickSearchNumber.invoke(value.toInt())
                     onClickSearchPokemonNumber.invoke()
                 },
                 modifier = modifier

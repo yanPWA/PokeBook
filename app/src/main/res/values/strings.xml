@@ -43,5 +43,5 @@
     <string name="search_button">検索</string>
     <string name="search_name_title">ポケモン名検索</string>
     <string name="search_number">図鑑番号で検索</string>
-    <string name="header_title_search_list">「%s」の検索結果一覧</string>
+    <string name="header_title_search_list">「%s」の検索結果一覧 \n%d / %s ページ</string>
 </resources>

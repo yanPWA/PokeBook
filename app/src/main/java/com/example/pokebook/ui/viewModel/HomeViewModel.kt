@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel : ViewModel(), DefaultHeader {
     private var _uiState: MutableStateFlow<HomeUiState> =
         MutableStateFlow(HomeUiState.InitialState)
     val uiState = _uiState.asStateFlow()
@@ -77,12 +77,12 @@ class HomeViewModel : ViewModel() {
                         async {
                             pokemonNumber?.let { number ->
                                 // ポケモンのパーソナル情報を取得
-                                repository.getPokemonPersonalData(number)
+                                repository.getPokemonPersonalData(number.toInt())
                             }
                         }
                     }.awaitAll()
                     uiDataList.onEachIndexed { index, item ->
-                        item.imageUri =
+                        item.imageUrl =
                             imageUriList[index]?.sprites?.other?.officialArtwork?.imgUrl ?: ""
                     }
 
@@ -91,7 +91,7 @@ class HomeViewModel : ViewModel() {
                         val pokemonNumber = Uri.parse(item.url).lastPathSegment
                         async {
                             pokemonNumber?.let { number ->
-                                repository.getPokemonSpecies(number)
+                                repository.getPokemonSpecies(number.toInt())
                             }
                         }
                     }.awaitAll()
@@ -112,17 +112,16 @@ class HomeViewModel : ViewModel() {
     /**
      * 「次へ」ボタン押下してポケモンリスト取得
      */
-    fun onClickNext() {
+    override fun onClickNext() {
         getPokemonList(false)
     }
 
     /**
      * 「戻る」ボタン押下して一つ前のポケモンリストを取得
      */
-    fun onClickBack() {
+    override fun onClickBack() {
         getPokemonList(isFirst = false, isBackButton = true)
     }
-
 
     /**
      * nextUrlからクエリを取得してOffsetを更新する
@@ -145,9 +144,9 @@ class HomeViewModel : ViewModel() {
     /**
      * 初回取得時かどうか
      */
-    fun updateIsFirst( isFirst: Boolean){
+    fun updateIsFirst(isFirst: Boolean) {
         _conditionState.update { current ->
-            current.copy( isFirst = isFirst)
+            current.copy(isFirst = isFirst)
         }
     }
 }

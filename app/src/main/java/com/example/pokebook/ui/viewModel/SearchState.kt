@@ -10,15 +10,21 @@ import java.util.UUID
 sealed class SearchUiState {
     object Loading : SearchUiState()
     data class Fetched(
-        val searchList:List<PokemonListUiData>
-    ): SearchUiState()
+        val searchList: List<PokemonListUiData>
+    ) : SearchUiState()
+
     object InitialState : SearchUiState()
 }
 
 data class SearchConditionState(
     val pokemonNumber: String = "",
-    val pokemonName: String ="",
-    val pokemonTypeName: String = ""
+    val pokemonName: String = "",
+    val pokemonTypeName: String = "",
+    val isBackButton: Boolean = false,
+    val isNextButton: Boolean = false,
+    val pagePosition: Int = 0,
+    val maxPage: String = "",
+    val isFirst:Boolean = true
 )
 
 /**

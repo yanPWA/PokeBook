@@ -26,7 +26,7 @@ data class PokemonListUiData(
     val name: String = "",
     var displayName: String = "",
     val url: String = "",
-    var imageUri: String? = ""
+    var imageUrl: String? = ""
 )
 
 data class HomeScreenConditionState(

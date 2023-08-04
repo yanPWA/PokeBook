@@ -1,6 +1,7 @@
 package com.example.pokebook.ui.screen
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,7 +19,6 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.Card
@@ -53,7 +53,6 @@ import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -64,7 +63,7 @@ fun HomeScreen(
 ) {
     HomeScreen(
         uiState = homeViewModel.uiState,
-        conditionState = homeViewModel.conditionState,
+        homeUiConditionState = homeViewModel.conditionState,
         onClickNext = homeViewModel::onClickNext,
         onClickBack = homeViewModel::onClickBack,
         onClickCard = onClickCard,
@@ -77,12 +76,12 @@ fun HomeScreen(
 @Composable
 private fun HomeScreen(
     uiState: StateFlow<HomeUiState>,
-    conditionState: StateFlow<HomeScreenConditionState>,
+    homeUiConditionState: StateFlow<HomeScreenConditionState>,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (String) -> Unit
+    getPokemonSpecies: (Int) -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val lazyGridState = rememberLazyGridState()
@@ -91,10 +90,10 @@ private fun HomeScreen(
     when (state) {
         is HomeUiState.Fetched -> {
             PokeList(
-                currentNumberStart = conditionState.value.currentNumberStart,
-                currentNumberEnd = conditionState.value.offset,
+                currentNumberStart = homeUiConditionState.value.currentNumberStart,
+                currentNumberEnd = homeUiConditionState.value.offset,
                 pokemonUiDataList = (state as HomeUiState.Fetched).uiDataList,
-                isFirst = conditionState.value.isFirst,
+                isFirst = homeUiConditionState.value.isFirst,
                 onClickNext = onClickNext,
                 onClickBack = onClickBack,
                 onClickCard = onClickCard,
@@ -108,8 +107,11 @@ private fun HomeScreen(
         HomeUiState.Loading -> {
             Column {
                 DefaultHeader(
-                    currentNumberStart = conditionState.value.currentNumberStart,
-                    currentNumberEnd = conditionState.value.offset,
+                    title = String.format(
+                        stringResource(id = R.string.header_title_displayed_number),
+                        homeUiConditionState.value.currentNumberStart,
+                        homeUiConditionState.value.offset
+                    ),
                     onClickNext = onClickNext,
                     onClickBack = onClickBack,
                 )
@@ -131,7 +133,7 @@ private fun PokeList(
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (String) -> Unit,
+    getPokemonSpecies: (Int) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
@@ -140,10 +142,13 @@ private fun PokeList(
             .background(MaterialTheme.colorScheme.background)
     ) {
         DefaultHeader(
-            currentNumberStart = currentNumberStart,
-            currentNumberEnd = currentNumberEnd,
+            title = String.format(
+                stringResource(id = R.string.header_title_displayed_number),
+                currentNumberStart,
+                currentNumberEnd
+            ),
             onClickNext = onClickNext,
-            onClickBack = onClickBack,
+            onClickBack = onClickBack
         )
         PokeList(
             pokemonUiDataList = pokemonUiDataList,
@@ -166,7 +171,7 @@ fun PokeList(
     isFirst: Boolean,
     onClickCard: () -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (String) -> Unit,
+    getPokemonSpecies: (Int) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
@@ -199,31 +204,40 @@ fun PokeList(
 fun PokeCard(
     pokemon: PokemonListUiData,
     onClickCard: () -> Unit,
-    getPokemonSpecies: (String) -> Unit,
+    getPokemonSpecies: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = cardElevation(4.dp),
         onClick = {
-            getPokemonSpecies.invoke(pokemon.name)
+            getPokemonSpecies.invoke(pokemon.id)
             onClickCard.invoke()
         }
     ) {
         Box(
             contentAlignment = Alignment.BottomCenter
         ) {
-            pokemon.imageUri?.let {
+            if (pokemon.imageUrl.isNullOrEmpty()) {
+                Image(
+                    painter = painterResource(id = R.drawable.no_image),
+                    modifier = Modifier
+                        .size(200.dp)
+                        .padding(bottom = 20.dp),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null
+                )
+            } else {
                 AsyncImage(
                     model = ImageRequest.Builder(context = LocalContext.current)
-                        .data(pokemon.imageUri)
+                        .data(pokemon.imageUrl)
                         .crossfade(true)
                         .build(),
                     modifier = Modifier
                         .size(200.dp)
                         .padding(bottom = 20.dp),
                     contentScale = ContentScale.Crop,
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
             Text(
@@ -255,83 +269,79 @@ fun PokeCard(
  */
 @Composable
 fun DefaultHeader(
-    currentNumberStart: String = "",
-    currentNumberEnd: String = "",
-    isSearchListScreen: Boolean = false,
-    searchWord: String = "",
+    title: String,
+    updateButtonStates: (Boolean, Boolean) -> Unit = { _, _ -> },
     onClickNext: () -> Unit = {},
     onClickBack: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
-            .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
-            .padding(bottom = 5.dp),
+            .padding(5.dp)
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (isSearchListScreen) String.format(
-                stringResource(R.string.header_title_search_list), searchWord
-            )
-            else String.format(
-                stringResource(id = R.string.header_title_displayed_number),
-                currentNumberStart,
-                currentNumberEnd
-            ),
+            text = title,
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 25.sp,
             modifier = Modifier
                 .padding(2.dp)
                 .align(Alignment.CenterHorizontally)
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background),
+            textAlign = TextAlign.Center
         )
-        if (!isSearchListScreen) {
-            Row(
+        Row(
+            modifier = Modifier
+                .padding(vertical = 6.dp)
+        ) {
+            Box(
                 modifier = Modifier
-                    .padding(bottom = 6.dp)
+                    .weight(1F)
+                    .wrapContentHeight()
+                    .clickable {
+                        updateButtonStates.invoke(true, false)
+                        onClickBack.invoke()
+                    },
+                contentAlignment = Alignment.CenterEnd
             ) {
-                Box(
+                Text(
+                    text = stringResource(R.string.back_button),
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
-                        .weight(1F)
-                        .wrapContentHeight()
-                        .clickable { onClickBack.invoke() },
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    Text(
-                        text = stringResource(R.string.back_button),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(
-                                width = 1.dp,
-                                color = Color.DarkGray,
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .padding(4.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Box(
+                        .fillMaxWidth()
+                        .border(
+                            width = 1.dp,
+                            color = Color.DarkGray,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(4.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1F)
+                    .wrapContentHeight()
+                    .clickable {
+                        updateButtonStates.invoke(false, true)
+                        onClickNext.invoke()
+                    },
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Text(
+                    text = stringResource(R.string.next_button),
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
-                        .weight(1F)
-                        .wrapContentHeight()
-                        .clickable { onClickNext.invoke() },
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    Text(
-                        text = stringResource(R.string.next_button),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(
-                                width = 1.dp,
-                                color = Color.DarkGray,
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .padding(4.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
+                        .fillMaxWidth()
+                        .border(
+                            width = 1.dp,
+                            color = Color.DarkGray,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(4.dp),
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
