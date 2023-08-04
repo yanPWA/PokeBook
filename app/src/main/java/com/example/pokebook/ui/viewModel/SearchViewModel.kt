@@ -4,16 +4,19 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pokebook.model.PokemonPersonalData
+import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.repository.DefaultSearchRepository
-import com.example.pokebook.ui.screen.TypeName
+import com.example.pokebook.ui.screen.convertToJaTypeName
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class SearchViewModel : ViewModel() {
+const val DISPLAY_UI_DATA_LIST_ITEM = 20
+
+class SearchViewModel : ViewModel(), DefaultHeader {
     private var _uiState: MutableStateFlow<SearchUiState> =
         MutableStateFlow(SearchUiState.InitialState)
     val uiState = _uiState.asStateFlow()
@@ -23,94 +26,122 @@ class SearchViewModel : ViewModel() {
     private var _conditionState: MutableStateFlow<SearchConditionState> =
         MutableStateFlow(SearchConditionState())
     val conditionState = _conditionState.asStateFlow()
-    private val uiDataList = mutableListOf<PokemonListUiData>()
+
+    // APIから取得したタイプ別一覧を格納するリスト
+    private val responseUiDataList = mutableListOf<List<PokemonListUiData>>()
+
+    // 表示用のタイプ別一覧リスト（20件ずつ）
+    private var displayUiDataList = mutableListOf<SearchedListData>()
 
     /**
      * Type検索
      */
     fun getPokemonByType(typeNumber: String) = viewModelScope.launch {
         _uiState.emit(SearchUiState.Loading)
+        // 検索一覧画面のタイトル更新
+        _conditionState.update { currentState ->
+            currentState.copy(
+                pokemonTypeName = typeNumber.convertToJaTypeName(),
+            )
+        }
         runCatching {
             repository.getPokemonByType(typeNumber)
         }.onSuccess {
-            uiDataList.clear()
-            uiDataList += it.pokemon.map { item ->
+            _conditionState.update { currentState ->
+                currentState.copy(
+                    maxPage = it.pokemon.size.div(DISPLAY_UI_DATA_LIST_ITEM).plus(1).toString(),
+                )
+            }
+
+            if(it.pokemon.isEmpty()) {
+                _uiState.emit(SearchUiState.Fetched(emptyList()))
+                return@launch
+            }
+
+            val chunkedList = it.pokemon.map { item ->
                 PokemonListUiData(
                     name = item.pokemonItem.name,
                     url = item.pokemonItem.url
                 )
-            }.toMutableList()
-            // 一覧に表示する画像を取得
-//            val imageUriList = it.pokemon.map { item ->
-//                val pokemonNumber = Uri.parse(item.pokemonItem.url).lastPathSegment
-//                Log.d("test","pokemonNumber：$pokemonNumber")
-//                async {
-//                    pokemonNumber?.let { number ->
-//                        // ポケモンのパーソナル情報を取得
-//                        repository.getPokemonPersonalData(number).apply {
-//                            Log.d("test","getPokemonPersonalData：${this.sprites.other.officialArtwork.imgUrl}")
-//                        }
-//                    }
-//                }
-//            }.awaitAll()
-//            Log.d("test","imageUriList：$imageUriList")
-//            uiDataList.onEachIndexed { index, item ->
-//                item.imageUri =
-//                    imageUriList[index]?.sprites?.other?.officialArtwork?.imgUrl ?: ""
-//            }
-//            Log.d("test","画像URL取得されているはず：$uiDataList")
-            //　一覧に表示するポケモンの日本語名を取得
-//            val pokemonSpeciesList = it.pokemon.map { item ->
-//                val pokemonNumber = Uri.parse(item.pokemonItem.url).lastPathSegment
-//                async {
-//                    pokemonNumber?.let { number ->
-//                        repository.getPokemonSpecies(number).apply {
-//                            Log.d("test","getPokemonSpecies：$this")
-//                        }
-//                    }
-//                }
-//            }.awaitAll()
-//            Log.d("test","pokemonSpeciesList：$pokemonSpeciesList")
-//            uiDataList.onEachIndexed { index, item ->
-//                item.displayName =
-//                    pokemonSpeciesList[index]?.names?.firstOrNull { name -> name.language.name == "ja" }?.name
-//                        ?: ""
-//                item.id = pokemonSpeciesList[index]?.id ?: 0
-//            }
-//            Log.d("test","名前・id取得されているはず：$uiDataList")
-            _conditionState.update { currentState ->
-                val typeName = when (typeNumber) {
-                    TypeName.FIGHTING.number -> TypeName.FIGHTING.jaTypeName
-                    TypeName.POISON.number -> TypeName.POISON.jaTypeName
-                    TypeName.GROUND.number -> TypeName.GROUND.jaTypeName
-                    TypeName.FLYING.number -> TypeName.FLYING.jaTypeName
-                    TypeName.PSYCHIC.number -> TypeName.PSYCHIC.jaTypeName
-                    TypeName.BUG.number -> TypeName.BUG.jaTypeName
-                    TypeName.ROCK.number -> TypeName.ROCK.jaTypeName
-                    TypeName.GHOST.number -> TypeName.GHOST.jaTypeName
-                    TypeName.DRAGON.number -> TypeName.DRAGON.jaTypeName
-                    TypeName.DARK.number -> TypeName.DARK.jaTypeName
-                    TypeName.STEEL.number -> TypeName.STEEL.jaTypeName
-                    TypeName.FAIRY.number -> TypeName.FAIRY.jaTypeName
-                    TypeName.FIRE.number -> TypeName.FIRE.jaTypeName
-                    TypeName.WATER.number -> TypeName.WATER.jaTypeName
-                    TypeName.ELECTRIC.number -> TypeName.ELECTRIC.jaTypeName
-                    TypeName.GRASS.number -> TypeName.GRASS.jaTypeName
-                    TypeName.SHADOW.number -> TypeName.SHADOW.jaTypeName
-                    TypeName.ICE.number -> TypeName.ICE.jaTypeName
-                    TypeName.NORMAL.number -> TypeName.NORMAL.jaTypeName
-                    TypeName.UNKNOWN.number -> TypeName.UNKNOWN.jaTypeName
-                    else -> ""
-                }
-                currentState.copy(
-                    pokemonTypeName = typeName
-                )
+            }.chunked(DISPLAY_UI_DATA_LIST_ITEM).toMutableList()
+
+            // 最後のリストを調整
+            val lastChunk = chunkedList.lastOrNull()?.take(DISPLAY_UI_DATA_LIST_ITEM)
+            if (lastChunk != null) {
+                chunkedList[chunkedList.size.minus(1)] = lastChunk
             }
-            Log.d("test", "uiDataList:$uiDataList")
-            _uiState.emit(SearchUiState.Fetched(searchList = uiDataList))
+            responseUiDataList.clear()
+            responseUiDataList += chunkedList
+            displayUiDataList = responseUiDataList.map { item ->
+                SearchedListData(item, false)
+            }.toMutableList()
+
+            updateDisplayUiDataList()
         }.onFailure {
             Log.d("error", "e[getPokemonList]:$it")
         }
+
+    }
+
+    /**
+     * 画像url、id、ポケモン日本語名を取得
+     */
+    private fun updateDisplayUiDataList(pagePosition: Int = 0) = viewModelScope.launch {
+        val personalDataList = mutableListOf<PokemonPersonalData>()
+        val speciesList = mutableListOf<PokemonSpecies>()
+        val urlList = responseUiDataList[pagePosition].map { page -> page.url }
+
+        _conditionState.update { currentState ->
+            currentState.copy(
+                pagePosition = pagePosition,
+                isFirst = true
+            )
+        }
+
+        // 未取得の場合のみ取得しにいく
+        if (!displayUiDataList[pagePosition].isFetched) {
+            _uiState.emit(SearchUiState.Loading)
+
+            Log.d("test","urlList: $urlList")
+
+            urlList.onEach { url ->
+                val pokemonNumber = Uri.parse(url).lastPathSegment
+                async {
+                    pokemonNumber?.let { number ->
+                        // ポケモンのパーソナル情報を取得
+                        personalDataList.add(repository.getPokemonPersonalData(number.toInt()))
+
+                        // ポケモンの特性取得のためのNumberを取得
+                        val speciesNumber =
+                            Uri.parse(personalDataList[personalDataList.lastIndex].species.url).lastPathSegment
+
+                        // ポケモンの特性を取得
+                        speciesNumber?.let {
+                            speciesList.add(repository.getPokemonSpecies(it.toInt()))
+                        }
+                    }
+                }.await()
+            }
+
+            // 取得した情報を表示用listに保存
+            responseUiDataList[pagePosition].onEachIndexed { index, responseUiData ->
+                responseUiData.apply {
+                    imageUrl =
+                        personalDataList[index].sprites.other.officialArtwork.imgUrl ?: "".apply {
+
+                        }
+                    displayName =
+                        speciesList[index].names.firstOrNull { name -> name.language.name == "ja" }?.name
+                            ?: ""
+                    id = speciesList[index].id
+                }
+            }
+            displayUiDataList[pagePosition] = displayUiDataList[pagePosition].copy(
+                list = responseUiDataList[pagePosition],
+                isFetched = true
+            )
+        }
+        _uiState.emit(SearchUiState.Fetched(searchList = displayUiDataList[pagePosition].list))
     }
 
     /**
@@ -119,13 +150,38 @@ class SearchViewModel : ViewModel() {
     fun getPokemonByName(name: String) = viewModelScope.launch {
         _uiState.emit(SearchUiState.Loading)
         runCatching {
-            repository.getPokemonPersonalData(name)
+//            repository.getPokemonPersonalData(name)
         }.onSuccess {
             // TODO 返ってきたURLから個別情報取得する
         }.onFailure {
             Log.d("error", "e[getPokemonList]:$it")
         }
     }
+
+    /**
+     * どのボタンが押下されたかを更新
+     */
+    fun updateButtonStates(
+        isBackButton: Boolean = false,
+        isNextButton: Boolean = false
+    ) {
+        _conditionState.update { currentState ->
+            currentState.copy(
+                isBackButton = isBackButton,
+                isNextButton = isNextButton
+            )
+        }
+    }
+
+    /**
+     * 初回取得時かどうか
+     */
+    fun updateIsFirst(isFirst: Boolean) {
+        _conditionState.update { current ->
+            current.copy(isFirst = isFirst)
+        }
+    }
+
     override fun onClickNext() {
         val pagePosition = conditionState.value.pagePosition
         if (pagePosition < responseUiDataList.size.minus(1)) updateDisplayUiDataList(
@@ -140,3 +196,11 @@ class SearchViewModel : ViewModel() {
         if (pagePosition > 0) updateDisplayUiDataList(pagePosition.minus(1))
     }
 }
+
+/**
+ * 検索一覧表示用
+ */
+data class SearchedListData(
+    val list: List<PokemonListUiData>,
+    val isFetched: Boolean
+)
