@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokebook.model.Pokemon
+import com.example.pokebook.model.PokemonPersonalData
+import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.repository.DefaultHomeRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -72,7 +74,7 @@ class HomeViewModel : ViewModel(), DefaultHeader {
                         )
                     }.toMutableList()
                     // 一覧に表示する画像を取得
-                    val imageUriList = it.results.map { item ->
+                    val pokemonPersonalDataList = it.results.map { item ->
                         val pokemonNumber = Uri.parse(item.url).lastPathSegment
                         async {
                             pokemonNumber?.let { number ->
@@ -83,7 +85,8 @@ class HomeViewModel : ViewModel(), DefaultHeader {
                     }.awaitAll()
                     uiDataList.onEachIndexed { index, item ->
                         item.imageUrl =
-                            imageUriList[index]?.sprites?.other?.officialArtwork?.imgUrl ?: ""
+                            pokemonPersonalDataList[index]?.sprites?.other?.officialArtwork?.imgUrl
+                                ?: ""
                     }
 
                     // 一覧に表示するポケモンの日本語名を取得
@@ -91,7 +94,11 @@ class HomeViewModel : ViewModel(), DefaultHeader {
                         val pokemonNumber = Uri.parse(item.url).lastPathSegment
                         async {
                             pokemonNumber?.let { number ->
-                                repository.getPokemonSpecies(number.toInt())
+                                val data = repository.getPokemonPersonalData(number.toInt())
+                                val speciesNumber = Uri.parse(data.species.url).lastPathSegment
+                                speciesNumber?.let { num ->
+                                    repository.getPokemonSpecies(num.toInt())
+                                }
                             }
                         }
                     }.awaitAll()
@@ -150,4 +157,3 @@ class HomeViewModel : ViewModel(), DefaultHeader {
         }
     }
 }
-

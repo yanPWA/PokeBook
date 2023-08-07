@@ -59,7 +59,7 @@ fun SearchListScreen(
         onClickCard = onClickCard,
         updateButtonStates = searchViewModel::updateButtonStates,
         updateIsFirst = searchViewModel::updateIsFirst,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpecies,
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByNumber,
         onClickBackSearchScreen = onClickBackSearchScreen
     )
 }
@@ -74,7 +74,7 @@ private fun SearchListScreen(
     onClickCard: () -> Unit,
     updateButtonStates: (Boolean, Boolean) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (Int) -> Unit,
+    getPokemonSpecies: (PokemonListUiData) -> Unit,
     onClickBackSearchScreen: () -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
@@ -137,7 +137,7 @@ private fun SearchListScreen(
     onClickCard: () -> Unit,
     updateButtonStates: (Boolean, Boolean) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (Int) -> Unit,
+    getPokemonSpecies: (PokemonListUiData) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
@@ -174,7 +174,7 @@ private fun PokeTypeList(
     isFirst: Boolean,
     onClickCard: () -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (Int) -> Unit,
+    getPokemonSpecies: (PokemonListUiData) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
@@ -208,14 +208,14 @@ private fun PokeTypeList(
 private fun PokeTypeCard(
     pokemon: PokemonListUiData,
     onClickCard: () -> Unit,
-    getPokemonSpecies: (Int) -> Unit,
+    getPokemonSpecies: (PokemonListUiData) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = {
-            getPokemonSpecies.invoke(pokemon.id)
+            getPokemonSpecies.invoke(pokemon)
             onClickCard.invoke()
         }
     ) {
