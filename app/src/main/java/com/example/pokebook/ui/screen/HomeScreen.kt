@@ -194,8 +194,6 @@ fun PokeList(
                 getPokemonSpecies = getPokemonSpecies
             )
         }
-        // 下部がボトムナビゲーションとかぶってしまった為
-        item { Spacer(modifier = Modifier.height(70.dp)) }
     }
 }
 

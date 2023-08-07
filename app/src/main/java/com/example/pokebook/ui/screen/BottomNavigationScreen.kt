@@ -2,6 +2,7 @@ package com.example.pokebook.ui.screen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -14,15 +15,18 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.example.pokebook.ui.viewModel.HomeViewModel
 import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
@@ -30,111 +34,115 @@ import com.example.pokebook.ui.viewModel.SearchViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 /**
- * ボトムナビゲーション
- */
-sealed class BottomNavItems(
-    val route: String,
-    val name: String,
-    val icon: ImageVector
-) {
-    object Home : BottomNavItems("home", "HOME", Icons.Filled.Home)
-    object Search : BottomNavItems("search", "SEARCH", Icons.Filled.Search)
-    object Like : BottomNavItems("like", "LIKE", Icons.Filled.Star)
-    object Setting : BottomNavItems("setting", "SETTING", Icons.Filled.Settings)
-}
-
-val navItems = listOf(
-    BottomNavItems.Home,
-    BottomNavItems.Search,
-    BottomNavItems.Like,
-    BottomNavItems.Setting
-)
-
-/**
  * NavHost に宛先を設定する
  */
-@SuppressLint("ComposableDestinationInComposeScope")
+@SuppressLint("ComposableDestinationInComposeScope", "ComposableNavGraphInComposeScope")
 @ExperimentalFoundationApi
 @Composable
 private fun NavigationHost(
-    navController: NavHostController
+    startDestination: String = BottomNavItems.Home.route,
+    navController: NavHostController = rememberNavController(),
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
-    val childNavController = rememberNavController()
-    val searchNavController = rememberNavController()
-
+    val homeViewModel = HomeViewModel()
+    val pokemonDetailViewModel = PokemonDetailViewModel()
+    val searchViewModel = SearchViewModel()
     NavHost(
         navController = navController,
-        startDestination = BottomNavItems.Home.route
+        startDestination = startDestination,
+        modifier = modifier
     ) {
-        val homeViewModel = HomeViewModel()
-        val pokemonDetailViewModel = PokemonDetailViewModel()
-        val searchViewModel = SearchViewModel()
-        composable(BottomNavItems.Home.route) {
-            NavHost(
-                navController = childNavController,
-                startDestination = "pokemonListScreen"
-            ) {
-                composable("pokemonListScreen") {
-                    HomeScreen(
-                        homeViewModel = homeViewModel,
-                        pokemonDetailViewModel = pokemonDetailViewModel,
-                        onClickCard = { childNavController.navigate("pokemonDetailScreen") }
-                    )
-                }
-                composable("pokemonDetailScreen") {
-                    PokemonDetailScreen(
-                        pokemonDetailViewModel = pokemonDetailViewModel,
-                        onClickBackButton = { childNavController.navigateUp() }
-                    )
-                }
-            }
-        }
-        composable(BottomNavItems.Search.route) {
-            NavHost(
-                navController = searchNavController,
-                startDestination = "searchScreen"
-            ) {
-                composable("searchScreen") {
-                    SearchScreen(
-                        searchViewModel = searchViewModel,
-                        pokemonDetailViewModel =pokemonDetailViewModel,
-                        onClickSearchPokemonName = {searchNavController.navigate("pokemonDetailScreen")},
-                        onClickSearchPokemonNumber = {searchNavController.navigate("pokemonDetailScreen")},
-                        onClickSearchTypeButton = { searchNavController.navigate("pokemonListScreen") },
-//                    TODO 検索たぶでバックボタンおストクラッシュする
-                    )
-                }
-                composable("pokemonListScreen") {
-                    SearchListScreen(
-                        searchViewModel = searchViewModel,
-                        pokemonDetailViewModel = pokemonDetailViewModel,
-                        onClickCard = { searchNavController.navigate("pokemonDetailScreen") },
-                        onClickBackSearchScreen = { searchNavController.navigateUp() }
-                    )
-
-                }
-                composable("pokemonNotFound") {
-                    PokemonNotFound(
-                        onClickBackSearchScreen = { searchNavController.navigateUp() }
-                    )
-                }
-                composable("pokemonDetailScreen") {
-                    PokemonDetailScreen(
-                        pokemonDetailViewModel = pokemonDetailViewModel,
-                        onClickBackButton = { searchNavController.navigateUp() }
-                    )
-                }
-            }
-        }
-        composable(BottomNavItems.Like.route) {
+        homeGraph(
+            navController = navController,
+            homeViewModel = homeViewModel,
+            pokemonDetailViewModel = pokemonDetailViewModel
+        )
+        searchGraph(
+            navController = navController,
+            searchViewModel = searchViewModel,
+            pokemonDetailViewModel = pokemonDetailViewModel
+        )
+        composable(route = BottomNavItems.Like.route) {
             // TODO お気に入り画面
         }
-        composable(BottomNavItems.Setting.route) {
+        composable(route = BottomNavItems.Setting.route) {
             // TODO 設定画面
         }
     }
 }
 
+/**
+ * homeタブのナビゲーショングラフ
+ */
+fun NavGraphBuilder.homeGraph(
+    navController: NavController,
+    homeViewModel: HomeViewModel,
+    pokemonDetailViewModel: PokemonDetailViewModel
+) {
+    navigation(
+        startDestination = HomeScreen.PokemonListScreen.route,
+        route = BottomNavItems.Home.route
+    ) {
+        composable(HomeScreen.PokemonListScreen.route) {
+            HomeScreen(
+                homeViewModel = homeViewModel,
+                pokemonDetailViewModel = pokemonDetailViewModel,
+                onClickCard = { navController.navigate(HomeScreen.PokemonDetailScreen.route) }
+            )
+        }
+        composable(HomeScreen.PokemonDetailScreen.route) {
+            PokemonDetailScreen(
+                pokemonDetailViewModel = pokemonDetailViewModel,
+                onClickBackButton = { navController.navigateUp() }
+            )
+        }
+    }
+}
+
+/**
+ * searchタブのナビゲーショングラフ
+ */
+fun NavGraphBuilder.searchGraph(
+    navController: NavController,
+    searchViewModel: SearchViewModel,
+    pokemonDetailViewModel: PokemonDetailViewModel
+
+) {
+    navigation(
+        startDestination = SearchScreen.SearchTopScreen.route,
+        route = BottomNavItems.Search.route
+    ) {
+        composable(SearchScreen.SearchTopScreen.route) {
+            SearchScreen(
+                searchViewModel = searchViewModel,
+                pokemonDetailViewModel = pokemonDetailViewModel,
+                onClickSearchPokemonName = { navController.navigate(SearchScreen.PokemonDetailScreen.route) },
+                onClickSearchPokemonNumber = { navController.navigate(SearchScreen.PokemonDetailScreen.route) },
+                onClickSearchTypeButton = { navController.navigate(SearchScreen.PokemonListScreen.route) },
+            )
+        }
+        composable(SearchScreen.PokemonListScreen.route) {
+            SearchListScreen(
+                searchViewModel = searchViewModel,
+                pokemonDetailViewModel = pokemonDetailViewModel,
+                onClickCard = { navController.navigate(SearchScreen.PokemonDetailScreen.route) },
+                onClickBackSearchScreen = { navController.navigateUp() }
+            )
+
+        }
+        composable(SearchScreen.PokemonNotFound.route) {
+            PokemonNotFound(
+                onClickBackSearchScreen = { navController.navigateUp() }
+            )
+        }
+        composable(SearchScreen.PokemonDetailScreen.route) {
+            PokemonDetailScreen(
+                pokemonDetailViewModel = pokemonDetailViewModel,
+                onClickBackButton = { navController.navigateUp() }
+            )
+        }
+    }
+}
 
 /**
  * BottomNavigation のセットアップ
@@ -149,13 +157,13 @@ private fun BottomNavigationBar(
         contentColor = Color(0xFFFFFFFF)
     ) {
         val navBackStackEntry = navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry.value?.destination
+        val currentDestination = navBackStackEntry.value?.destination
 
         items.forEach { navItem ->
             BottomNavigationItem(
                 label = { Text(navItem.name) },
                 alwaysShowLabel = true,
-                selected = currentRoute?.hierarchy?.any {
+                selected = currentDestination?.hierarchy?.any {
                     navItem.route == it.route
                 } == true,
                 icon = {
@@ -188,9 +196,13 @@ fun BottomNavigationView() {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavigationBar(navController) }
-    ) {
+    ) { innerPadding ->
         StatusBarColorSample()
-        NavigationHost(navController)
+        NavigationHost(
+            startDestination = BottomNavItems.Home.route,
+            navController = navController,
+            modifier = Modifier.padding(innerPadding)
+        )
     }
 }
 

@@ -191,7 +191,6 @@ private fun PokeTypeList(
         columns = GridCells.Adaptive(minSize = 150.dp),
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 70.dp)
     ) {
         items(pokemonUiDataList) { listItem ->
             PokeTypeCard(
