@@ -52,13 +52,11 @@ private fun NavigationHost(
         startDestination = startDestination,
         modifier = modifier
     ) {
-        // homeタブ
         homeGraph(
             navController = navController,
             homeViewModel = homeViewModel,
             pokemonDetailViewModel = pokemonDetailViewModel
         )
-
         searchGraph(
             navController = navController,
             searchViewModel = searchViewModel,
@@ -89,7 +87,7 @@ fun NavGraphBuilder.homeGraph(
             HomeScreen(
                 homeViewModel = homeViewModel,
                 pokemonDetailViewModel = pokemonDetailViewModel,
-                onClickCard = { navController.navigate("home/pokemonDetailScreen") }
+                onClickCard = { navController.navigate(HomeScreen.PokemonDetailScreen.route) }
             )
         }
         composable(HomeScreen.PokemonDetailScreen.route) {
@@ -118,16 +116,16 @@ fun NavGraphBuilder.searchGraph(
             SearchScreen(
                 searchViewModel = searchViewModel,
                 pokemonDetailViewModel = pokemonDetailViewModel,
-                onClickSearchPokemonName = { navController.navigate("search/pokemonDetailScreen") },
-                onClickSearchPokemonNumber = { navController.navigate("search/pokemonDetailScreen") },
-                onClickSearchTypeButton = { navController.navigate("search/pokemonListScreen") },
+                onClickSearchPokemonName = { navController.navigate(SearchScreen.PokemonDetailScreen.route) },
+                onClickSearchPokemonNumber = { navController.navigate(SearchScreen.PokemonDetailScreen.route) },
+                onClickSearchTypeButton = { navController.navigate(SearchScreen.PokemonListScreen.route) },
             )
         }
         composable(SearchScreen.PokemonListScreen.route) {
             SearchListScreen(
                 searchViewModel = searchViewModel,
                 pokemonDetailViewModel = pokemonDetailViewModel,
-                onClickCard = { navController.navigate("search/pokemonDetailScreen") },
+                onClickCard = { navController.navigate(SearchScreen.PokemonDetailScreen.route) },
                 onClickBackSearchScreen = { navController.navigateUp() }
             )
 
