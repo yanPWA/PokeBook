@@ -145,7 +145,7 @@ private fun SearchType(
                     modifier = modifier
                         .padding(5.dp)
                         .background(
-                            color = item.convertToJaColorCode(),
+                            color = item.convertToColorCode(),
                             shape = RoundedCornerShape(5.dp),
                         )
                         .padding(2.dp)
