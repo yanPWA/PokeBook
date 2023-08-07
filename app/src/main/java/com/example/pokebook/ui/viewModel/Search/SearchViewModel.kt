@@ -1,4 +1,4 @@
-package com.example.pokebook.ui.viewModel
+package com.example.pokebook.ui.viewModel.Search
 
 import android.net.Uri
 import android.util.Log
@@ -8,6 +8,8 @@ import com.example.pokebook.model.PokemonPersonalData
 import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.repository.DefaultSearchRepository
 import com.example.pokebook.ui.screen.convertToJaTypeName
+import com.example.pokebook.ui.viewModel.DefaultHeader
+import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

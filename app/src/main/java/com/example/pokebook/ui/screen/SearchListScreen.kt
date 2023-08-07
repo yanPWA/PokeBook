@@ -34,11 +34,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
-import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
-import com.example.pokebook.ui.viewModel.PokemonListUiData
-import com.example.pokebook.ui.viewModel.SearchConditionState
-import com.example.pokebook.ui.viewModel.SearchUiState
-import com.example.pokebook.ui.viewModel.SearchViewModel
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
+import com.example.pokebook.ui.viewModel.Search.SearchConditionState
+import com.example.pokebook.ui.viewModel.Search.SearchUiState
+import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

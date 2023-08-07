@@ -1,13 +1,12 @@
-package com.example.pokebook.ui.viewModel
+package com.example.pokebook.ui.viewModel.Home
 
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokebook.model.Pokemon
-import com.example.pokebook.model.PokemonPersonalData
-import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.repository.DefaultHomeRepository
+import com.example.pokebook.ui.viewModel.DefaultHeader
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow

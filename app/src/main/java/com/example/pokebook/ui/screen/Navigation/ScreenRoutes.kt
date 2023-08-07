@@ -1,4 +1,4 @@
-package com.example.pokebook.ui.screen
+package com.example.pokebook.ui.screen.Navigation
 
 /**
  * HOMEタブ

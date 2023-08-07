@@ -1,7 +1,6 @@
-package com.example.pokebook.ui.viewModel
+package com.example.pokebook.ui.viewModel.Search
 
-import com.example.pokebook.model.PokemonListItem
-import com.example.pokebook.ui.screen.TypeName
+import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import java.util.UUID
 
 /**

@@ -1,4 +1,4 @@
-package com.example.pokebook.ui.screen
+package com.example.pokebook.ui.screen.Navigation
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -8,16 +8,10 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -28,9 +22,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.example.pokebook.ui.viewModel.HomeViewModel
-import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
-import com.example.pokebook.ui.viewModel.SearchViewModel
+import com.example.pokebook.ui.screen.HomeScreen
+import com.example.pokebook.ui.screen.PokemonDetailScreen
+import com.example.pokebook.ui.screen.PokemonNotFound
+import com.example.pokebook.ui.screen.SearchListScreen
+import com.example.pokebook.ui.screen.SearchScreen
+import com.example.pokebook.ui.viewModel.Home.HomeViewModel
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 /**

@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.pokebook.ui.screen.BottomNavigationView
+import com.example.pokebook.ui.screen.Navigation.BottomNavigationView
 import com.example.pokebook.ui.theme.PokeBookTheme
 
 class MainActivity : ComponentActivity() {

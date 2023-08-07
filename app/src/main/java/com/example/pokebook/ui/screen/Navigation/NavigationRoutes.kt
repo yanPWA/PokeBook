@@ -1,4 +1,4 @@
-package com.example.pokebook.ui.screen
+package com.example.pokebook.ui.screen.Navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
