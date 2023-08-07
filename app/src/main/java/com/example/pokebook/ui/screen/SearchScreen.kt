@@ -30,8 +30,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.pokebook.R
-import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
-import com.example.pokebook.ui.viewModel.SearchViewModel
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 
 @Composable
 fun SearchScreen(

@@ -37,9 +37,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
-import com.example.pokebook.ui.viewModel.PokemonDetailScreenUiData
-import com.example.pokebook.ui.viewModel.PokemonDetailUiState
-import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiState
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable

@@ -1,4 +1,4 @@
-package com.example.pokebook.ui.viewModel
+package com.example.pokebook.ui.viewModel.Home
 
 import java.util.UUID
 

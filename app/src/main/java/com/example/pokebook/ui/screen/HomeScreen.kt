@@ -8,9 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -45,11 +43,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
-import com.example.pokebook.ui.viewModel.HomeScreenConditionState
-import com.example.pokebook.ui.viewModel.PokemonListUiData
-import com.example.pokebook.ui.viewModel.HomeUiState
-import com.example.pokebook.ui.viewModel.HomeViewModel
-import com.example.pokebook.ui.viewModel.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Home.HomeScreenConditionState
+import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
+import com.example.pokebook.ui.viewModel.Home.HomeUiState
+import com.example.pokebook.ui.viewModel.Home.HomeViewModel
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
