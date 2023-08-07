@@ -167,9 +167,13 @@ fun BottomNavigationView() {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavigationBar(navController) }
-    ) {
+    ) { innerPadding ->
         StatusBarColorSample()
-        NavigationHost(navController)
+        NavigationHost(
+            startDestination = BottomNavItems.Home.route,
+            navController = navController,
+            modifier = Modifier.padding(innerPadding)
+        )
     }
 }
 
