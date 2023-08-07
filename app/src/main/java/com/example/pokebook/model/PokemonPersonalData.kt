@@ -107,7 +107,6 @@ data class Genera(
     val language: Language
 )
 
-// TODO これを使いたい
 enum class StatType(val type: String){
     HP("hp"),
     ATTACK("attack"),

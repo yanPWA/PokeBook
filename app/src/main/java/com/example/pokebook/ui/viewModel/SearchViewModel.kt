@@ -101,9 +101,6 @@ class SearchViewModel : ViewModel(), DefaultHeader {
         // 未取得の場合のみ取得しにいく
         if (!displayUiDataList[pagePosition].isFetched) {
             _uiState.emit(SearchUiState.Loading)
-
-            Log.d("test","urlList: $urlList")
-
             urlList.onEach { url ->
                 val pokemonNumber = Uri.parse(url).lastPathSegment
                 async {
