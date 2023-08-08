@@ -39,7 +39,7 @@ import com.example.pokebook.ui.viewModel.Search.SearchConditionState
 @Composable
 fun DefaultHeader(
     title: String,
-    displayPage: Int=0,
+    displayPage: Int = 0,
     maxPage: String = "",
     updateButtonStates: (Boolean, Boolean) -> Unit = { _, _ -> },
     onClickNext: () -> Unit = {},
@@ -66,34 +66,29 @@ fun DefaultHeader(
             modifier = Modifier
                 .padding(vertical = 6.dp)
         ) {
-            Log.d("test","displayPage:$displayPage")
-            if (displayPage == 0) {
-                Spacer(modifier = Modifier.weight(1F))
-            } else {
-                Box(
+            Box(
+                modifier = Modifier
+                    .weight(1F)
+                    .wrapContentHeight()
+                    .clickable {
+                        updateButtonStates.invoke(true, false)
+                        onClickBack.invoke()
+                    },
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Text(
+                    text = stringResource(R.string.back_button),
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
-                        .weight(1F)
-                        .wrapContentHeight()
-                        .clickable {
-                            updateButtonStates.invoke(true, false)
-                            onClickBack.invoke()
-                        },
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    Text(
-                        text = stringResource(R.string.back_button),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(
-                                width = 1.dp,
-                                color = Color.DarkGray,
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .padding(4.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
+                        .fillMaxWidth()
+                        .border(
+                            width = 1.dp,
+                            color = Color.DarkGray,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(4.dp),
+                    textAlign = TextAlign.Center
+                )
             }
             Box(
                 modifier = Modifier
