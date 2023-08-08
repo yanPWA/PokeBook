@@ -8,8 +8,12 @@ import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.model.StatType
 import com.example.pokebook.repository.DefaultPokemonDetailRepository
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
+import com.example.pokebook.ui.viewModel.Search.SearchUiEvent
+import com.example.pokebook.ui.viewModel.Search.SearchUiState
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -22,6 +26,21 @@ class PokemonDetailViewModel : ViewModel() {
     private var _conditionState: MutableStateFlow<PokemonDetailScreenUiData> =
         MutableStateFlow(PokemonDetailScreenUiData())
     val conditionState = _conditionState.asStateFlow()
+
+    private val _uiEvent: MutableStateFlow<List<PokemonDetailUiEvent>> = MutableStateFlow(listOf())
+    val uiEvent: Flow<PokemonDetailUiEvent?>
+        get() = _uiEvent.map { it.firstOrNull() }
+
+    // イベントの通知
+    private fun send(event: PokemonDetailUiEvent) = viewModelScope.launch {
+        _uiEvent.emit(_uiEvent.value + event)
+    }
+
+    // イベントの消費
+    fun processed(event: PokemonDetailUiEvent) = viewModelScope.launch {
+        _uiEvent.emit(_uiEvent.value.filterNot { it == event })
+    }
+
 
     private lateinit var species: PokemonSpecies
 
@@ -100,7 +119,8 @@ class PokemonDetailViewModel : ViewModel() {
             }
             _uiState.emit(PokemonDetailUiState.Fetched)
         }.onFailure {
-            Log.d("error", "e[getPokemonList]:$it")
+            send(PokemonDetailUiEvent.Error(it))
+            _uiState.emit(PokemonDetailUiState.ResultError)
         }
     }
 
@@ -173,7 +193,8 @@ class PokemonDetailViewModel : ViewModel() {
             }
             _uiState.emit(PokemonDetailUiState.Fetched)
         }.onFailure {
-            Log.d("error", "e[getPokemonList]:$it")
+            send(PokemonDetailUiEvent.Error(it))
+            _uiState.emit(PokemonDetailUiState.ResultError)
         }
     }
 }

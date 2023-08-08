@@ -38,8 +38,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiEvent
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiState
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
@@ -49,6 +51,8 @@ fun PokemonDetailScreen(
 ) {
     PokemonDetailScreen(
         uiState = pokemonDetailViewModel.uiState,
+        uiEvent = pokemonDetailViewModel.uiEvent,
+        consumeEvent = pokemonDetailViewModel::processed,
         conditionState = pokemonDetailViewModel.conditionState,
         onClickBackButton = onClickBackButton
     )
@@ -58,10 +62,25 @@ fun PokemonDetailScreen(
 @Composable
 private fun PokemonDetailScreen(
     uiState: StateFlow<PokemonDetailUiState>,
+    uiEvent: Flow<PokemonDetailUiEvent?>,
+    consumeEvent:(PokemonDetailUiEvent)->Unit,
     conditionState: StateFlow<PokemonDetailScreenUiData>,
     onClickBackButton: () -> Unit,
 ) {
     val state by uiState.collectAsStateWithLifecycle()
+    val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
+
+    when(uiEvent) {
+        is PokemonDetailUiEvent.Error -> {
+            ErrorScreen(
+                consumeEvent = consumeEvent,
+                event = uiEvent as PokemonDetailUiEvent.Error
+            )
+        }
+
+        null -> {}
+    }
+
 
     when (state) {
         is PokemonDetailUiState.Fetched -> {
@@ -72,6 +91,13 @@ private fun PokemonDetailScreen(
         }
 
         PokemonDetailUiState.Loading -> LoadingScreen()
+
+        PokemonDetailUiState.ResultError -> {
+            ResultError(
+                onClickBackSearchScreen = onClickBackButton
+            )
+        }
+
         else -> {}
     }
 }

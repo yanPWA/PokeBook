@@ -9,8 +9,10 @@ import com.example.pokebook.repository.DefaultHomeRepository
 import com.example.pokebook.ui.viewModel.DefaultHeader
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -23,21 +25,19 @@ class HomeViewModel : ViewModel(), DefaultHeader {
         MutableStateFlow(HomeScreenConditionState())
     val conditionState = _conditionState.asStateFlow()
 
-// -----  TODO エラー画面実装 ----------------------------
-//    private val _uiEvent: MutableStateFlow<List<HomeUiEvent>> = MutableStateFlow(listOf())
-//    val uiEvent: Flow<HomeUiEvent?>
-//        get() = _uiEvent.map { it.firstOrNull() }
-//
-//    // イベントの通知
-//    private fun send(event: HomeUiEvent) = viewModelScope.launch {
-//        _uiEvent.emit(_uiEvent.value + event)
-//    }
-//
-//    // イベントの消費
-//    fun processed(event: HomeUiEvent) = viewModelScope.launch {
-//        _uiEvent.emit(_uiEvent.value.filterNot { it == event })
-//    }
-// ----------------------------------------------------
+    private val _uiEvent: MutableStateFlow<List<HomeUiEvent>> = MutableStateFlow(listOf())
+    val uiEvent: Flow<HomeUiEvent?>
+        get() = _uiEvent.map { it.firstOrNull() }
+
+    // イベントの通知
+    private fun send(event: HomeUiEvent) = viewModelScope.launch {
+        _uiEvent.emit(_uiEvent.value + event)
+    }
+
+    // イベントの消費
+    fun processed(event: HomeUiEvent) = viewModelScope.launch {
+        _uiEvent.emit(_uiEvent.value.filterNot { it == event })
+    }
 
     private val repository = DefaultHomeRepository()
     private val uiDataList = mutableListOf<PokemonListUiData>()
@@ -49,7 +49,7 @@ class HomeViewModel : ViewModel(), DefaultHeader {
     /**
      * ポケモンリスト取得
      */
-    private fun getPokemonList(isFirst: Boolean, isBackButton: Boolean = false) {
+    fun getPokemonList(isFirst: Boolean, isBackButton: Boolean = false) {
         viewModelScope.launch {
             _uiState.emit(HomeUiState.Loading)
             updateIsFirst(true)
@@ -110,7 +110,8 @@ class HomeViewModel : ViewModel(), DefaultHeader {
                     _uiState.emit(HomeUiState.Fetched(uiDataList = uiDataList))
                 }
                 .onFailure {
-                    Log.d("error", "e[getPokemonList]:$it")
+                    send(HomeUiEvent.Error(it))
+                    _uiState.emit(HomeUiState.ResultError)
                 }
         }
     }
@@ -119,7 +120,7 @@ class HomeViewModel : ViewModel(), DefaultHeader {
      * 「次へ」ボタン押下してポケモンリスト取得
      */
     override fun onClickNext() {
-        getPokemonList(false)
+        getPokemonList(isFirst = false)
     }
 
     /**
@@ -150,9 +151,9 @@ class HomeViewModel : ViewModel(), DefaultHeader {
     /**
      * 初回取得時かどうか
      */
-    fun updateIsFirst(isFirst: Boolean) {
+    fun updateIsFirst(isScrollTop: Boolean) {
         _conditionState.update { current ->
-            current.copy(isFirst = isFirst)
+            current.copy(isScrollTop = isScrollTop)
         }
     }
 }

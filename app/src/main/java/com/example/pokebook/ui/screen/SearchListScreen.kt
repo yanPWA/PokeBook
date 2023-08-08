@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -38,9 +37,11 @@ import com.example.pokebook.R
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import com.example.pokebook.ui.viewModel.Search.SearchConditionState
+import com.example.pokebook.ui.viewModel.Search.SearchUiEvent
 import com.example.pokebook.ui.viewModel.Search.SearchUiState
 import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -54,6 +55,8 @@ fun SearchListScreen(
 ) {
     SearchListScreen(
         uiState = searchViewModel.uiState,
+        uiEvent = searchViewModel.uiEvent,
+        consumeEvent = searchViewModel::processed,
         conditionState = searchViewModel.conditionState,
         onClickBack = searchViewModel::onClickBack,
         onClickNext = searchViewModel::onClickNext,
@@ -69,6 +72,8 @@ fun SearchListScreen(
 @Composable
 private fun SearchListScreen(
     uiState: StateFlow<SearchUiState>,
+    uiEvent: Flow<SearchUiEvent?>,
+    consumeEvent: (SearchUiEvent) -> Unit,
     conditionState: StateFlow<SearchConditionState>,
     onClickBack: () -> Unit,
     onClickNext: () -> Unit,
@@ -79,9 +84,21 @@ private fun SearchListScreen(
     onClickBackSearchScreen: () -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
+    val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
     val lazyGridState = rememberLazyGridState()
     val searchWord = conditionState.value.pokemonTypeName
     val coroutineScope = rememberCoroutineScope()
+
+    when(uiEvent) {
+        is SearchUiEvent.Error -> {
+            ErrorScreen(
+                consumeEvent = consumeEvent,
+                event = uiEvent as SearchUiEvent.Error
+            )
+        }
+
+        null -> {}
+    }
 
     when (state) {
         is SearchUiState.Fetched -> {
@@ -121,6 +138,12 @@ private fun SearchListScreen(
                 )
                 LoadingScreen()
             }
+        }
+
+        SearchUiState.ResultError -> {
+            ResultError(
+                onClickBackSearchScreen = onClickBackSearchScreen
+            )
         }
 
         else -> {}
