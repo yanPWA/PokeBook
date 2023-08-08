@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -93,8 +94,9 @@ private fun SearchListScreen(
                     pokemonUiDataList = (state as SearchUiState.Fetched).searchList,
                     isFirst = conditionState.value.isFirst,
                     searchWord = searchWord,
-                    pagePosition = conditionState.value.pagePosition.toInt().plus(1),
+                    pagePosition = conditionState.value.pagePosition.plus(1),
                     maxPage = conditionState.value.maxPage,
+                    displayPage = conditionState.value.pagePosition,
                     onClickBack = onClickBack,
                     onClickNext = onClickNext,
                     onClickCard = onClickCard,
@@ -111,11 +113,11 @@ private fun SearchListScreen(
             Column {
                 DefaultHeader(
                     title = String.format(
-                        stringResource(R.string.header_title_search_list),
-                        searchWord,
-                        conditionState.value.pagePosition.plus(1),
-                        conditionState.value.maxPage
-                    )
+                        stringResource(R.string.header_title_search_list_1),
+                        searchWord
+                    ) + stringResource(id = R.string.header_title_search_list_loading),
+                    displayPage = conditionState.value.pagePosition,
+                    maxPage = conditionState.value.maxPage
                 )
                 LoadingScreen()
             }
@@ -132,6 +134,7 @@ private fun SearchListScreen(
     searchWord: String,
     pagePosition: Int,
     maxPage: String,
+    displayPage: Int,
     onClickBack: () -> Unit,
     onClickNext: () -> Unit,
     onClickCard: () -> Unit,
@@ -147,11 +150,18 @@ private fun SearchListScreen(
     ) {
         DefaultHeader(
             title = String.format(
-                stringResource(R.string.header_title_search_list),
-                searchWord,
-                pagePosition,
-                maxPage
-            ),
+                stringResource(R.string.header_title_search_list_1),
+                searchWord
+            ) + if (maxPage.isEmpty()) {
+                stringResource(id = R.string.header_title_search_list_loading)
+            } else {
+                String.format(
+                    stringResource(R.string.header_title_search_list_2),
+                    pagePosition,
+                    maxPage
+                )
+            },
+            displayPage = displayPage,
             updateButtonStates = updateButtonStates,
             onClickBack = onClickBack,
             onClickNext = onClickNext,
