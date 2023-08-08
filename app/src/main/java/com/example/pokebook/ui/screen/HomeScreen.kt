@@ -3,15 +3,10 @@ package com.example.pokebook.ui.screen
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -30,12 +25,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,7 +41,9 @@ import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import com.example.pokebook.ui.viewModel.Home.HomeUiState
 import com.example.pokebook.ui.viewModel.Home.HomeViewModel
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Home.HomeUiEvent
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -61,12 +56,15 @@ fun HomeScreen(
 ) {
     HomeScreen(
         uiState = homeViewModel.uiState,
+        uiEvent = homeViewModel.uiEvent,
         homeUiConditionState = homeViewModel.conditionState,
+        consumeEvent = homeViewModel::processed,
         onClickNext = homeViewModel::onClickNext,
         onClickBack = homeViewModel::onClickBack,
         onClickCard = onClickCard,
         updateIsFirst = homeViewModel::updateIsFirst,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByNumber
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByNumber,
+        onClickRetryGetList = homeViewModel::getPokemonList
     )
 }
 
@@ -74,16 +72,31 @@ fun HomeScreen(
 @Composable
 private fun HomeScreen(
     uiState: StateFlow<HomeUiState>,
+    uiEvent: Flow<HomeUiEvent?>,
     homeUiConditionState: StateFlow<HomeScreenConditionState>,
+    consumeEvent: (HomeUiEvent) -> Unit,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit
+    getPokemonSpecies: (PokemonListUiData) -> Unit,
+    onClickRetryGetList: (Boolean) -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
+    val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
     val lazyGridState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
+
+    when (uiEvent) {
+        is HomeUiEvent.Error -> {
+            ErrorScreen(
+                consumeEvent = consumeEvent,
+                event = uiEvent as HomeUiEvent.Error
+            )
+        }
+
+        null -> {}
+    }
 
     when (state) {
         is HomeUiState.Fetched -> {
@@ -91,7 +104,7 @@ private fun HomeScreen(
                 currentNumberStart = homeUiConditionState.value.currentNumberStart,
                 currentNumberEnd = homeUiConditionState.value.offset,
                 pokemonUiDataList = (state as HomeUiState.Fetched).uiDataList,
-                isFirst = homeUiConditionState.value.isFirst,
+                isFirst = homeUiConditionState.value.isScrollTop,
                 onClickNext = onClickNext,
                 onClickBack = onClickBack,
                 onClickCard = onClickCard,
@@ -115,6 +128,13 @@ private fun HomeScreen(
                 )
                 LoadingScreen()
             }
+        }
+
+        HomeUiState.ResultError -> {
+            HomeResultError(
+                onClickRetryGetList = onClickRetryGetList,
+                isFirst = homeUiConditionState.value.isScrollTop
+            )
         }
 
         else -> {}

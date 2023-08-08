@@ -9,10 +9,14 @@ import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.repository.DefaultSearchRepository
 import com.example.pokebook.ui.screen.convertToJaTypeName
 import com.example.pokebook.ui.viewModel.DefaultHeader
+import com.example.pokebook.ui.viewModel.Home.HomeUiEvent
+import com.example.pokebook.ui.viewModel.Home.HomeUiState
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -34,6 +38,20 @@ class SearchViewModel : ViewModel(), DefaultHeader {
 
     // 表示用のタイプ別一覧リスト（20件ずつ）
     private var displayUiDataList = mutableListOf<SearchedListData>()
+
+    private val _uiEvent: MutableStateFlow<List<SearchUiEvent>> = MutableStateFlow(listOf())
+    val uiEvent: Flow<SearchUiEvent?>
+        get() = _uiEvent.map { it.firstOrNull() }
+
+    // イベントの通知
+    private fun send(event: SearchUiEvent) = viewModelScope.launch {
+        _uiEvent.emit(_uiEvent.value + event)
+    }
+
+    // イベントの消費
+    fun processed(event: SearchUiEvent) = viewModelScope.launch {
+        _uiEvent.emit(_uiEvent.value.filterNot { it == event })
+    }
 
     /**
      * Type検索
@@ -80,7 +98,8 @@ class SearchViewModel : ViewModel(), DefaultHeader {
 
             updateDisplayUiDataList()
         }.onFailure {
-            Log.d("error", "e[getPokemonList]:$it")
+            send(SearchUiEvent.Error(it))
+            _uiState.emit(SearchUiState.ResultError)
         }
 
     }

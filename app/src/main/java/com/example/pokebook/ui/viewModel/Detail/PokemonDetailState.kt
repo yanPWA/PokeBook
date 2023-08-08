@@ -1,5 +1,6 @@
 package com.example.pokebook.ui.viewModel.Detail
 
+import com.example.pokebook.ui.viewModel.Home.HomeUiState
 import java.util.UUID
 
 /**
@@ -9,6 +10,7 @@ sealed class PokemonDetailUiState {
     object Loading : PokemonDetailUiState()
     object Fetched : PokemonDetailUiState()
     object InitialState : PokemonDetailUiState()
+    object ResultError: PokemonDetailUiState()
 }
 
 

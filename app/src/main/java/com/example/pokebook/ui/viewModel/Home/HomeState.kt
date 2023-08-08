@@ -12,6 +12,7 @@ sealed class HomeUiState {
     ) : HomeUiState()
 
     object InitialState : HomeUiState()
+    object ResultError: HomeUiState()
 }
 
 /**
@@ -34,7 +35,7 @@ data class HomeScreenConditionState(
     val offset: String = "20",
     val previous: String = "",
     val currentNumberStart: String = "1",
-    val isFirst:Boolean = true
+    val isScrollTop:Boolean = true
 )
 
 /**
