@@ -5,7 +5,7 @@
     <string name="icon_like">like</string>
     <string name="icon_setting">setting</string>
     <string name="loading">loading</string>
-    <string name="loading_failed">Failed to load</string>
+    <string name="loading_failed">読み込みに失敗しました</string>
     <string name="header_title_displayed_number">#%s 〜 #%s</string>
     <string name="back_button">◀︎戻る︎</string>
     <string name="next_button">次へ ▶︎︎</string>
@@ -46,4 +46,8 @@
     <string name="header_title_search_list_1">「%s」の検索結果一覧</string>
     <string name="header_title_search_list_2">\n%d / %s ページ</string>
     <string name="header_title_search_list_loading">\nポケモン取得中</string>
+    <string name="result_error_text">通信に失敗し、結果を取得できませんでした。\n時間を置いてから再度読み込んで下さい。</string>
+    <string name="retry_button_text">再取得する</string>
+    <string name="pokemon_not_found_text">該当するポケモンが存在しません</string>
+    <string name="back_screen_button_text">前の画面に戻る</string>
 </resources>
