@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.10'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -86,6 +87,6 @@ dependencies {
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.31.2-alpha"
     //Room
     implementation "androidx.room:room-runtime:2.5.0"
-    annotationProcessor "androidx.room:room-compiler:2.5.0"
     implementation "androidx.room:room-ktx:2.5.0"
+    kapt "androidx.room:room-compiler:2.5.0"
 }
