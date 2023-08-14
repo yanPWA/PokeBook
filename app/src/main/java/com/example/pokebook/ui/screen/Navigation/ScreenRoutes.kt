@@ -21,6 +21,10 @@ sealed class SearchScreen(val route: String) {
 /**
  * LIKEタブ
  */
+sealed class LikeScreen(val route: String) {
+    object LikeListScreen : LikeScreen("like/listScreen")
+    object LikeDetailScreen : LikeScreen("like/detailScreen")
+}
 
 
 /**

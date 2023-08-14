@@ -22,13 +22,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.example.pokebook.ui.AppViewModelProvider
 import com.example.pokebook.ui.screen.HomeScreen
+import com.example.pokebook.ui.screen.LikeEntryScreen
+import com.example.pokebook.ui.screen.LikeScreen
 import com.example.pokebook.ui.screen.PokemonDetailScreen
 import com.example.pokebook.ui.screen.PokemonNotFound
 import com.example.pokebook.ui.screen.SearchListScreen
 import com.example.pokebook.ui.screen.SearchScreen
+import com.example.pokebook.ui.screen.createDummyList
 import com.example.pokebook.ui.viewModel.Home.HomeViewModel
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
 import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
@@ -45,6 +50,7 @@ private fun NavigationHost(
 ) {
     val homeViewModel = HomeViewModel()
     val pokemonDetailViewModel = PokemonDetailViewModel()
+
     val searchViewModel = SearchViewModel()
     NavHost(
         navController = navController,
@@ -61,9 +67,11 @@ private fun NavigationHost(
             searchViewModel = searchViewModel,
             pokemonDetailViewModel = pokemonDetailViewModel
         )
-        composable(route = BottomNavItems.Like.route) {
-            // TODO お気に入り画面
-        }
+        likeGraph(
+            navController = navController,
+            pokemonDetailViewModel = pokemonDetailViewModel
+        )
+
         composable(route = BottomNavItems.Setting.route) {
             // TODO 設定画面
         }
@@ -135,6 +143,37 @@ fun NavGraphBuilder.searchGraph(
             )
         }
         composable(SearchScreen.PokemonDetailScreen.route) {
+            PokemonDetailScreen(
+                pokemonDetailViewModel = pokemonDetailViewModel,
+                onClickBackButton = { navController.navigateUp() }
+            )
+        }
+    }
+}
+
+/**
+ * Likeタブのナビゲーショングラフ
+ */
+fun NavGraphBuilder.likeGraph(
+    navController: NavController,
+    pokemonDetailViewModel: PokemonDetailViewModel
+) {
+    navigation(
+        startDestination = LikeScreen.LikeListScreen.route,
+        route = BottomNavItems.Like.route
+    ) {
+        composable(LikeScreen.LikeListScreen.route) {
+//            LikeEntryScreen(
+//                onClickCard = { navController.navigate(LikeScreen.LikeListScreen.route) },
+//                onClickBackButton = { navController.navigateUp() },
+//            )
+            LikeScreen(
+                likeList = createDummyList(),
+                onClickCard = {},
+                onClickBackButton = { navController.navigateUp() }
+            )
+        }
+        composable(LikeScreen.LikeDetailScreen.route) {
             PokemonDetailScreen(
                 pokemonDetailViewModel = pokemonDetailViewModel,
                 onClickBackButton = { navController.navigateUp() }
