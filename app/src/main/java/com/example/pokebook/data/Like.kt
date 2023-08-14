@@ -2,10 +2,11 @@ package com.example.pokebook.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 
 /**
  * お気に入りポケモンをDBに保存するためのエンティティ
- * デーベーステーブル
+ * データベーステーブル
  */
 @Entity(tableName = "likes")
 data class Like(
@@ -16,7 +17,8 @@ data class Like(
     val displayName: String,
     val description: String,
     val genus: String,
-    val type: List<String>,
+//    @TypeConverters()
+//    val type: List<String>,
     val hp: Int,
     val attack: Int,
     val defense: Int,
