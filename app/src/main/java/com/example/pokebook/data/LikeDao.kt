@@ -23,5 +23,5 @@ interface LikeDao {
     suspend fun delete(like: Like)
 
     @Query("SELECT * from likes ORDER BY name ASC")
-    fun getAllItems(): Flow<List<Like>>
+    fun getAllItems(): List<Like>
 }

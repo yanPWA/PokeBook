@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 
 class OfflineLikesRepository(private val likeDao: LikeDao) : LikesRepository {
-    override fun getAllItemsStream(): Flow<List<Like>> = likeDao.getAllItems()
+    override fun getAllItemsStream(): List<Like> = likeDao.getAllItems()
 
     override suspend fun insertItem(like: Like) = likeDao.insert(like)
 

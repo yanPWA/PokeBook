@@ -9,7 +9,7 @@ interface LikesRepository {
     /**
      * 指定されたデータ・ソースからすべての項目を取得
      */
-    fun getAllItemsStream(): Flow<List<Like>>
+    fun getAllItemsStream(): List<Like>
 
     /**
      * データ・ソースに項目を挿入
