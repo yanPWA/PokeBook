@@ -1,21 +1,16 @@
 package com.example.pokebook.ui.screen
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -31,7 +26,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -39,7 +33,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,13 +41,15 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
 import com.example.pokebook.ui.AppViewModelProvider
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 
 import com.example.pokebook.ui.viewModel.Like.LikeDetails
 import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
+import com.example.pokebook.ui.viewModel.Like.LikeUiEvent
 import com.example.pokebook.ui.viewModel.Like.LikeUiState
-import com.example.pokebook.ui.viewModel.Like.PokemonListUiData
-import com.example.pokebook.ui.viewModel.Search.SearchUiState
-import kotlinx.coroutines.CoroutineScope
+import com.example.pokebook.ui.viewModel.Like.toPokemonListUiDataByLikeDetails
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -71,109 +66,114 @@ import kotlinx.coroutines.launch
 fun LikeEntryScreen(
     onClickCard: () -> Unit,
     onClickBackButton: () -> Unit,
+    pokemonDetailViewModel: PokemonDetailViewModel,
     likeEntryViewModel: LikeEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     LikeEntryBody(
-        likeEntryViewModel = likeEntryViewModel,
         uiState = likeEntryViewModel.uiState,
-        onLikeValueChange = likeEntryViewModel::updateLikeListUiState,
+        uiEventState = likeEntryViewModel.uiEvent,
+        consumeEvent = likeEntryViewModel::processed,
         onClickCard = onClickCard,
-        onClickBackButton = onClickBackButton
+        onClickBackButton = onClickBackButton,
+        updateIsLike = likeEntryViewModel::updateIsLike,
+        deleteLike = likeEntryViewModel::deleteLike,
+        getAllList = likeEntryViewModel::getAllList,
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData
     )
 }
 
 @Composable
 private fun LikeEntryBody(
-    likeEntryViewModel: LikeEntryViewModel,
     uiState: StateFlow<LikeUiState>,
-    onLikeValueChange: (LikeDetails) -> Unit,
-    onClickCard: () -> Unit,
-    onClickBackButton: () -> Unit
-) {
-    val state by uiState.collectAsStateWithLifecycle()
-    LikeScreen(
-        likeEntryViewModel = likeEntryViewModel,
-//        likeList = (state as LikeUiState.Fetched).uiDataList,
-        likeList = createDummyList(),
-        onClickCard = onClickCard,
-        onClickBackButton = onClickBackButton
-    )
-//    when (state) {
-//        is LikeUiState.Fetched -> {
-//            if ((state as LikeUiState.Fetched).uiDataList.isEmpty()) {
-//                PokemonNotFound(
-//                    onClickBackSearchScreen = onClickBackButton
-//                )
-//            } else {
-//                LikeScreen(
-//                    likeEntryViewModel = likeEntryViewModel,
-//                    likeList = (state as LikeUiState.Fetched).uiDataList,
-//                    onClickCard = onClickCard,
-//                    onClickBackButton = onClickBackButton
-//                )
-//            }
-//        }
-//
-//        else -> {
-//        }
-//    }
-}
-
-@SuppressLint("StateFlowValueCalledInComposition")
-@Composable
-private fun LikeScreen(
-    likeEntryViewModel: LikeEntryViewModel,
-    likeList: MutableList<PokemonListUiData>,
-//    uiEvent: Flow<LikeUiEvent>
-//    consumeEvent: (LikeUiEvent) -> Unit,
+    uiEventState: Flow<LikeUiEvent?>,
+    consumeEvent: (LikeUiEvent) -> Unit,
     onClickCard: () -> Unit,
     onClickBackButton: () -> Unit,
-//    onClickRetryGetList: (Boolean) -> Unit
+    updateIsLike: (Boolean, Int) -> Unit,
+    deleteLike: suspend (LikeDetails) -> Unit,
+    getAllList: () -> Unit,
+    getPokemonSpecies: (PokemonListUiData) -> Unit
 ) {
-//    val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
-    val lazyGridState = rememberLazyGridState()
-    val coroutineScope = rememberCoroutineScope()
+    val state by uiState.collectAsStateWithLifecycle()
+    val uiEvent by uiEventState.collectAsStateWithLifecycle(initialValue = null)
 
-    LikeScreen(
-        likeEntryViewModel = likeEntryViewModel,
-        likeList = likeList,
-        onClickCard = onClickCard,
-        onClickBackButton = onClickBackButton,
-        lazyGridState = lazyGridState,
-        coroutineScope = coroutineScope
-    )
+    when (uiEvent) {
+        is LikeUiEvent.Error -> {
+            ErrorScreen(
+                consumeEvent = consumeEvent,
+                event = uiEvent as LikeUiEvent.Error
+            )
+        }
+
+        null -> {}
+    }
+
+    when (state) {
+        is LikeUiState.Fetched -> {
+            if ((state as LikeUiState.Fetched).uiDataList.isEmpty()) {
+                PokemonNotFound(
+                    onClickBackSearchScreen = onClickBackButton
+                )
+            } else {
+                LikeScreen(
+                    likeList = (state as LikeUiState.Fetched).uiDataList,
+                    onClickCard = onClickCard,
+                    onClickBackButton = onClickBackButton,
+                    updateIsLike = updateIsLike,
+                    deleteLike = deleteLike,
+                    getAllList = getAllList,
+                    getPokemonSpecies = getPokemonSpecies
+                )
+            }
+        }
+
+        is LikeUiState.Loading -> {
+            LoadingScreen()
+        }
+
+        is LikeUiState.ResultError -> {
+            ResultError(onClickBackSearchScreen = onClickBackButton)
+        }
+
+        else -> {
+        }
+    }
 }
 
 @Composable
 fun LikeScreen(
-    likeEntryViewModel: LikeEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    likeList: MutableList<PokemonListUiData>,
+    likeList: MutableList<LikeDetails>,
     onClickCard: () -> Unit,
     onClickBackButton: () -> Unit,
-    lazyGridState: LazyGridState = rememberLazyGridState(),
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
+    updateIsLike: (Boolean, Int) -> Unit,
+    deleteLike: suspend (LikeDetails) -> Unit,
+    getAllList: () -> Unit,
+    getPokemonSpecies: (PokemonListUiData) -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
+        val lazyGridState = rememberLazyGridState()
+
         LikeHeader(
-            title = "お気に入りのポケモン一覧",
-            onClickBackButton = onClickBackButton
+            title = stringResource(R.string.like_header_title),
+            modifier = Modifier.padding(top = 5.dp)
         )
 
         LazyVerticalGrid(
             state = lazyGridState,
             columns = GridCells.Adaptive(minSize = 150.dp),
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
         ) {
             items(likeList) { listItem ->
                 LikePokeCard(
-                    likeEntryViewModel = likeEntryViewModel,
                     pokemon = listItem,
                     onClickCard = onClickCard,
-                    coroutineScope = coroutineScope
+                    updateIsLike = updateIsLike,
+                    deleteLike = deleteLike,
+                    getAllList = getAllList,
+                    getPokemonSpecies = getPokemonSpecies
                 )
             }
         }
@@ -183,21 +183,28 @@ fun LikeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LikePokeCard(
-    likeEntryViewModel: LikeEntryViewModel,
-    pokemon: PokemonListUiData,
+    pokemon: LikeDetails,
     onClickCard: () -> Unit,
-    coroutineScope: CoroutineScope,
+    updateIsLike: (Boolean, Int) -> Unit,
+    deleteLike: suspend (LikeDetails) -> Unit,
+    getAllList: () -> Unit,
+    getPokemonSpecies: (PokemonListUiData) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        onClick = onClickCard,
+        onClick = {
+            getPokemonSpecies.invoke(pokemon.toPokemonListUiDataByLikeDetails())
+            onClickCard.invoke()
+        },
     ) {
         Box(
             contentAlignment = Alignment.BottomCenter
         ) {
-            if (pokemon.imageUrl.isNullOrEmpty()) {
+            val coroutineScope = rememberCoroutineScope()
+
+            if (pokemon.imageUrl.isEmpty()) {
                 Image(
                     painter = painterResource(id = R.drawable.no_image),
                     modifier = Modifier
@@ -209,29 +216,7 @@ private fun LikePokeCard(
             } else {
                 Box(
                     contentAlignment = Alignment.TopEnd,
-                    modifier = Modifier
-                        .background(pokemon.type.convertToColorCodeByTypeName())
                 ) {
-                    Image(
-                        imageVector = ImageVector.vectorResource(
-                            id = R.drawable.favorite_fill0_wght400_grad0_opsz48
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .size(30.dp)
-                            .clickable {
-                                if (pokemon.isLike) {
-                                    coroutineScope.launch {
-                                        likeEntryViewModel.deleteLike()
-                                    }
-                                } else {
-                                    coroutineScope.launch {
-                                        likeEntryViewModel.saveLike()
-                                    }
-                                }
-                            }
-                    )
                     AsyncImage(
                         model = ImageRequest.Builder(context = LocalContext.current)
                             .data(pokemon.imageUrl)
@@ -243,12 +228,26 @@ private fun LikePokeCard(
                         contentScale = ContentScale.Crop,
                         contentDescription = null,
                     )
+                    Image(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.favorite_fill),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .size(30.dp)
+                            .clickable {
+                                coroutineScope.launch {
+                                    deleteLike.invoke(pokemon)
+                                    getAllList.invoke()
+                                }
+                                updateIsLike.invoke(!pokemon.isLike, pokemon.pokemonNumber)
+                            }
+                    )
                 }
             }
             Text(
                 text = String.format(
                     stringResource(R.string.pokemon_name),
-                    pokemon.id,
+                    pokemon.pokemonNumber,
                     pokemon.displayName
                 ),
                 fontSize = 13.sp,
@@ -269,52 +268,21 @@ private fun LikePokeCard(
     }
 }
 
-fun createDummyList(): MutableList<PokemonListUiData> {
-    val list = mutableListOf<PokemonListUiData>()
+fun createDummyList(): MutableList<LikeDetails> {
+    val list = mutableListOf<LikeDetails>()
     for (i in 0 until 11) {
         list.add(
-            PokemonListUiData(
-                id = i,
+            LikeDetails(
+                pokemonNumber = i,
                 name = "pika",
                 displayName = "ピカチュウ",
                 imageUrl = "",
                 isLike = true,
-                type = "electric"
+//                type = "electric"
             )
         )
     }
     return list
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LikeScreenPreview() {
-    LikeScreen(
-        likeEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
-        likeList = createDummyList(),
-        onClickCard = {},
-        onClickBackButton = {},
-        lazyGridState = LazyGridState(),
-        coroutineScope = rememberCoroutineScope()
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LikePokeCardPreview() {
-    LikePokeCard(
-        likeEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
-        pokemon = PokemonListUiData(
-            id = 1,
-            name = "pika",
-            displayName = "ピカチュウ",
-            imageUrl = "",
-            isLike = true,
-            type = "electric"
-        ),
-        onClickCard = {},
-        coroutineScope = rememberCoroutineScope()
-    )
 }
 
 /**
@@ -323,33 +291,20 @@ fun LikePokeCardPreview() {
 @Composable
 fun LikeHeader(
     title: String,
-    onClickBackButton: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier
+    Box(
+        modifier = modifier
             .background(MaterialTheme.colorScheme.background)
             .padding(5.dp)
             .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        contentAlignment = Alignment.Center
     ) {
-        Image(
-            imageVector = ImageVector.vectorResource(
-                id = if (isSystemInDarkTheme()) R.drawable.arrow_back_fillf else R.drawable.arrow_back_fill0
-            ),
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.Start)
-                .clickable { onClickBackButton.invoke() }
-                .size(30.dp)
-                .padding(5.dp)
-        )
-
         Text(
             text = title,
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 25.sp,
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
                 .background(MaterialTheme.colorScheme.background),
             textAlign = TextAlign.Center
         )
