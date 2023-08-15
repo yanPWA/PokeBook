@@ -1,6 +1,5 @@
 package com.example.pokebook.ui.viewModel.Detail
 
-import com.example.pokebook.ui.viewModel.Home.HomeUiState
 import java.util.UUID
 
 /**
@@ -28,7 +27,7 @@ sealed class PokemonDetailUiState {
  *　体重
  */
 data class PokemonDetailScreenUiData(
-    val id: Int = 0,
+    val pokemonNumber: Int = 0,
     val name: String = "",
     val description: String = "",
     val genus: String = "",
@@ -39,7 +38,8 @@ data class PokemonDetailScreenUiData(
     val speed: Int = 0,
     val imageUri: String = "",
     val height: Double = 0.0,
-    val weight: Double = 0.0
+    val weight: Double = 0.0,
+    val isLike:Boolean = false
 )
 
 /**
