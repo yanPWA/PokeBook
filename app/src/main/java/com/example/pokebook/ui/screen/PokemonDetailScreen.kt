@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,22 +36,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
+import com.example.pokebook.ui.AppViewModelProvider
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiEvent
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiState
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Like.LikeDetails
+import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
+import com.example.pokebook.ui.viewModel.Like.toLikeDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 @Composable
 fun PokemonDetailScreen(
+    likeEntryViewModel: LikeEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
     pokemonDetailViewModel: PokemonDetailViewModel,
     onClickBackButton: () -> Unit
 ) {
@@ -59,7 +66,11 @@ fun PokemonDetailScreen(
         uiEvent = pokemonDetailViewModel.uiEvent,
         consumeEvent = pokemonDetailViewModel::processed,
         conditionState = pokemonDetailViewModel.conditionState,
-        onClickBackButton = onClickBackButton
+        onClickBackButton = onClickBackButton,
+        updateIsLike = pokemonDetailViewModel::updateIsLike,
+        saveLike = likeEntryViewModel::saveLike,
+        deleteLike = likeEntryViewModel::deleteLike,
+        getAllList = likeEntryViewModel::getAllList
     )
 }
 
@@ -68,14 +79,18 @@ fun PokemonDetailScreen(
 private fun PokemonDetailScreen(
     uiState: StateFlow<PokemonDetailUiState>,
     uiEvent: Flow<PokemonDetailUiEvent?>,
-    consumeEvent:(PokemonDetailUiEvent)->Unit,
+    consumeEvent: (PokemonDetailUiEvent) -> Unit,
     conditionState: StateFlow<PokemonDetailScreenUiData>,
     onClickBackButton: () -> Unit,
+    updateIsLike: (Boolean, Int) -> Unit,
+    saveLike: suspend (LikeDetails) -> Unit,
+    deleteLike: suspend (LikeDetails) -> Unit,
+    getAllList:()->Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
 
-    when(uiEvent) {
+    when (uiEvent) {
         is PokemonDetailUiEvent.Error -> {
             ErrorScreen(
                 consumeEvent = consumeEvent,
@@ -91,7 +106,11 @@ private fun PokemonDetailScreen(
         is PokemonDetailUiState.Fetched -> {
             PokemonDetailScreen(
                 uiData = conditionState.value,
-                onClickBackButton = onClickBackButton
+                onClickBackButton = onClickBackButton,
+                updateIsLike = updateIsLike,
+                saveLike = saveLike,
+                deleteLike = deleteLike,
+                getAllList = getAllList
             )
         }
 
@@ -111,6 +130,10 @@ private fun PokemonDetailScreen(
 private fun PokemonDetailScreen(
     uiData: PokemonDetailScreenUiData,
     onClickBackButton: () -> Unit,
+    updateIsLike: (Boolean, Int) -> Unit,
+    saveLike: suspend (LikeDetails) -> Unit,
+    deleteLike: suspend (LikeDetails) -> Unit,
+    getAllList : () ->Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -131,8 +154,12 @@ private fun PokemonDetailScreen(
                 .clickable { onClickBackButton.invoke() }
         )
         TitleImage(
-            imageUri = uiData.imageUri,
-            type = uiData.type.firstOrNull() ?: ""
+            pokemon = uiData,
+            type = uiData.type.firstOrNull() ?: "",
+            updateIsLike = updateIsLike,
+            deleteLike = deleteLike,
+            saveLike = saveLike,
+            getAllList = getAllList
         )
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -145,7 +172,7 @@ private fun PokemonDetailScreen(
             AutoSizeableText(
                 text = String.format(
                     stringResource(id = R.string.pokemon_name),
-                    uiData.id,
+                    uiData.pokemonNumber,
                     uiData.name
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
@@ -176,31 +203,55 @@ private fun PokemonDetailScreen(
 
 @Composable
 private fun TitleImage(
-    imageUri: String,
-    type: String
+    type: String,
+    pokemon: PokemonDetailScreenUiData,
+    updateIsLike: (Boolean, Int) -> Unit,
+    deleteLike: suspend (LikeDetails) -> Unit,
+    saveLike: suspend (LikeDetails) -> Unit,
+    getAllList:()->Unit
 ) {
     Card(
         modifier = Modifier
             .padding(start = 8.dp, end = 8.dp, top = 20.dp, bottom = 5.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
+        val coroutineScope = rememberCoroutineScope()
+
         Box(
             contentAlignment = Alignment.TopEnd,
             modifier = Modifier
                 .background(type.convertToColorCodeByTypeName())
+                .background(
+                    pokemon.type
+                        .firstOrNull()
+                        ?.convertToColorCodeByTypeName() ?: Color(
+                        color = 0xFFAEAEAE
+                    )
+                )
         ) {
             Image(
                 imageVector = ImageVector.vectorResource(
-                    id = R.drawable.favorite_fill0_wght400_grad0_opsz48
+                    id = if (pokemon.isLike) R.drawable.favorite_fill else R.drawable.favorite_border
                 ),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(5.dp)
                     .size(30.dp)
+                    .clickable {
+                        coroutineScope.launch {
+                            if (pokemon.isLike) {
+                                deleteLike.invoke(pokemon.toLikeDetails())
+                            } else {
+                                saveLike.invoke(pokemon.toLikeDetails())
+                            }
+                        }
+                        getAllList.invoke()
+                        updateIsLike.invoke(!pokemon.isLike, pokemon.pokemonNumber)
+                    }
             )
             AsyncImage(
                 model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(imageUri)
+                    .data(pokemon.imageUri)
                     .crossfade(true)
                     .build(),
                 modifier = Modifier
@@ -212,7 +263,6 @@ private fun TitleImage(
         }
     }
 }
-
 
 @Composable
 private fun BaseInfo(
@@ -300,15 +350,6 @@ private fun Ability(
             )
         }
     }
-}
-
-@Preview
-@Composable
-private fun PokemonDetailScreenPreview() {
-    PokemonDetailScreen(
-        uiData = PokemonDetailScreenUiData(),
-        onClickBackButton = {},
-    )
 }
 
 /**
