@@ -1,7 +1,6 @@
 package com.example.pokebook.ui.viewModel.Home
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokebook.model.Pokemon

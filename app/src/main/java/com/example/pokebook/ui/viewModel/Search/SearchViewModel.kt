@@ -9,8 +9,6 @@ import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.repository.DefaultSearchRepository
 import com.example.pokebook.ui.screen.convertToJaTypeName
 import com.example.pokebook.ui.viewModel.DefaultHeader
-import com.example.pokebook.ui.viewModel.Home.HomeUiEvent
-import com.example.pokebook.ui.viewModel.Home.HomeUiState
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
