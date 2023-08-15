@@ -10,8 +10,8 @@ import androidx.room.TypeConverters
  */
 @Entity(tableName = "likes")
 data class Like(
-    @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    @PrimaryKey(autoGenerate = true)
     val pokemonNumber:Int = 0,
     val name: String,
     val displayName: String,

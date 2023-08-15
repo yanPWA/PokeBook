@@ -104,7 +104,7 @@ class HomeViewModel : ViewModel(), DefaultHeader {
                         item.displayName =
                             pokemonSpeciesList[index]?.names?.firstOrNull { name -> name.language.name == "ja" }?.name
                                 ?: ""
-                        item.id = pokemonSpeciesList[index]?.id ?: 0
+                        item.pokemonNumber = pokemonSpeciesList[index]?.id ?: 0
                     }
                     _uiState.emit(HomeUiState.Fetched(uiDataList = uiDataList))
                 }

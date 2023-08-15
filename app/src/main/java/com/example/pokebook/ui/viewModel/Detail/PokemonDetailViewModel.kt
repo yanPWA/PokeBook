@@ -44,7 +44,7 @@ class PokemonDetailViewModel : ViewModel() {
     /**
      *　ポケモンの種類に関する情報を取得（番号検索）
      */
-    fun getPokemonSpeciesByNumber(pokeId: Int) = viewModelScope.launch {
+    fun getPokemonSpeciesByUiData(pokeId: Int) = viewModelScope.launch {
         _uiState.emit(PokemonDetailUiState.Loading)
         runCatching {
             repository.getPokemonPersonalData(pokeId)
@@ -104,7 +104,7 @@ class PokemonDetailViewModel : ViewModel() {
             // id 日本語名　説明　属性
             _conditionState.update { currentState ->
                 currentState.copy(
-                    id = species.id,
+                    pokemonNumber = species.id,
                     name = name,
                     type = type,
                     description = description,
@@ -122,12 +122,12 @@ class PokemonDetailViewModel : ViewModel() {
     }
 
     /**
-     * ポケモンの種類に関する情報を取得（画像URLを引数で渡す）
+     * ポケモンの種類に関する情報を取得（uiDataを引数で渡す）
      */
-    fun getPokemonSpeciesByNumber(pokemonListUiData: PokemonListUiData) = viewModelScope.launch {
+    fun getPokemonSpeciesByUiData(pokemonListUiData: PokemonListUiData) = viewModelScope.launch {
         _uiState.emit(PokemonDetailUiState.Loading)
         runCatching {
-            repository.getPokemonPersonalData(pokemonListUiData.id)
+            repository.getPokemonPersonalData(pokemonListUiData.pokemonNumber)
         }.onSuccess {
             val speciesNumber = Uri.parse(it.species.url).lastPathSegment
             speciesNumber?.let { num ->
@@ -178,7 +178,7 @@ class PokemonDetailViewModel : ViewModel() {
             // id 日本語名　説明　属性
             _conditionState.update { currentState ->
                 currentState.copy(
-                    id = pokemonListUiData.id,
+                    pokemonNumber = pokemonListUiData.pokemonNumber,
                     name = pokemonListUiData.displayName,
                     type = type,
                     description = description,
@@ -192,6 +192,19 @@ class PokemonDetailViewModel : ViewModel() {
         }.onFailure {
             send(PokemonDetailUiEvent.Error(it))
             _uiState.emit(PokemonDetailUiState.ResultError)
+        }
+    }
+
+    /**
+     * Likeフラグを更新
+     */
+    fun updateIsLike(isLike: Boolean, pokemonNumber: Int) {
+        if (conditionState.value.pokemonNumber == pokemonNumber) {
+            _conditionState.update { currentState ->
+                currentState.copy(
+                    isLike = isLike
+                )
+            }
         }
     }
 }

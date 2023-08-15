@@ -63,7 +63,7 @@ fun HomeScreen(
         onClickBack = homeViewModel::onClickBack,
         onClickCard = onClickCard,
         updateIsFirst = homeViewModel::updateIsFirst,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByNumber,
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData,
         onClickRetryGetList = homeViewModel::getPokemonList
     )
 }
@@ -259,7 +259,7 @@ fun PokeCard(
             Text(
                 text = String.format(
                     stringResource(R.string.pokemon_name),
-                    pokemon.id,
+                    pokemon.pokemonNumber,
                     pokemon.displayName
                 ),
                 fontSize = 13.sp,

@@ -149,7 +149,7 @@ class SearchViewModel : ViewModel(), DefaultHeader {
                     displayName =
                         speciesList[index].names.firstOrNull { name -> name.language.name == "ja" }?.name
                             ?: ""
-                    id = speciesList[index].id
+                    pokemonNumber = speciesList[index].id
                 }
             }
             displayUiDataList[pagePosition] = displayUiDataList[pagePosition].copy(

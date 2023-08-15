@@ -23,7 +23,7 @@ sealed class HomeUiState {
  *　画像URL　
  */
 data class PokemonListUiData(
-    var id: Int = 0,
+    var pokemonNumber: Int = 0,
     val name: String = "",
     var displayName: String = "",
     val url: String = "",

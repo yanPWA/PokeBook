@@ -163,14 +163,10 @@ fun NavGraphBuilder.likeGraph(
         route = BottomNavItems.Like.route
     ) {
         composable(LikeScreen.LikeListScreen.route) {
-//            LikeEntryScreen(
-//                onClickCard = { navController.navigate(LikeScreen.LikeListScreen.route) },
-//                onClickBackButton = { navController.navigateUp() },
-//            )
-            LikeScreen(
-                likeList = createDummyList(),
-                onClickCard = {},
-                onClickBackButton = { navController.navigateUp() }
+            LikeEntryScreen(
+                onClickCard = { navController.navigate(LikeScreen.LikeDetailScreen.route) },
+                onClickBackButton = { navController.navigateUp() },
+                pokemonDetailViewModel = pokemonDetailViewModel
             )
         }
         composable(LikeScreen.LikeDetailScreen.route) {

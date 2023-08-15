@@ -45,7 +45,7 @@ fun SearchScreen(
     SearchScreen(
         onClickSearchType = searchViewModel::getPokemonByType,
         onClickSearchName = searchViewModel::getPokemonByName,
-        onClickSearchNumber = pokemonDetailViewModel::getPokemonSpeciesByNumber,
+        onClickSearchNumber = pokemonDetailViewModel::getPokemonSpeciesByUiData,
         onClickSearchPokemonNumber = onClickSearchPokemonNumber,
         onClickSearchTypeButton = onClickSearchTypeButton
     )

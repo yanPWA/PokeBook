@@ -63,7 +63,7 @@ fun SearchListScreen(
         onClickCard = onClickCard,
         updateButtonStates = searchViewModel::updateButtonStates,
         updateIsFirst = searchViewModel::updateIsFirst,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByNumber,
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData,
         onClickBackSearchScreen = onClickBackSearchScreen
     )
 }
@@ -269,7 +269,7 @@ private fun PokeTypeCard(
                 Text(
                     text = String.format(
                         stringResource(R.string.pokemon_name),
-                        pokemon.id,
+                        pokemon.pokemonNumber,
                         pokemon.displayName
                     ),
                     fontSize = 13.sp,
