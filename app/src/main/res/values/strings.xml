@@ -50,4 +50,5 @@
     <string name="retry_button_text">再取得する</string>
     <string name="pokemon_not_found_text">該当するポケモンが存在しません</string>
     <string name="back_screen_button_text">前の画面に戻る</string>
+    <string name="like_header_title">お気に入りのポケモン一覧</string>
 </resources>
