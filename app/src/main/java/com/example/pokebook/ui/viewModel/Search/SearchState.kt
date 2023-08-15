@@ -1,6 +1,5 @@
 package com.example.pokebook.ui.viewModel.Search
 
-import com.example.pokebook.ui.viewModel.Home.HomeUiState
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import java.util.UUID
 

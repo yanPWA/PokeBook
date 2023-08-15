@@ -1,15 +1,12 @@
 package com.example.pokebook.ui.viewModel.Detail
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.model.StatType
 import com.example.pokebook.repository.DefaultPokemonDetailRepository
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
-import com.example.pokebook.ui.viewModel.Search.SearchUiEvent
-import com.example.pokebook.ui.viewModel.Search.SearchUiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
