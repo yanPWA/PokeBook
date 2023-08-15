@@ -118,7 +118,6 @@ private fun LikeEntryBody(
                 LikeScreen(
                     likeList = (state as LikeUiState.Fetched).uiDataList,
                     onClickCard = onClickCard,
-                    onClickBackButton = onClickBackButton,
                     updateIsLike = updateIsLike,
                     deleteLike = deleteLike,
                     getAllList = getAllList,
@@ -144,7 +143,6 @@ private fun LikeEntryBody(
 fun LikeScreen(
     likeList: MutableList<LikeDetails>,
     onClickCard: () -> Unit,
-    onClickBackButton: () -> Unit,
     updateIsLike: (Boolean, Int) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
     getAllList: () -> Unit,
