@@ -1,6 +1,9 @@
 package com.example.pokebook.ui.viewModel.Like
 
 import com.example.pokebook.data.Like
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
+import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
+import java.util.UUID
 
 /**
  * Like画面の状態に関する情報
@@ -8,43 +11,22 @@ import com.example.pokebook.data.Like
 sealed class LikeUiState {
     object Loading : LikeUiState()
     data class Fetched(
-        val uiDataList: MutableList<PokemonListUiData>
+        val uiDataList: MutableList<LikeDetails>
     ) : LikeUiState()
 
     object InitialState : LikeUiState()
-    object ResultError: LikeUiState()
+    object ResultError : LikeUiState()
 }
 
-/**
- *　Like表示用データ
- *　 - id
- *　 - 名前
- *　 - ポケモンの説明
- *　 - ポケモン個体情報取得用URL
- *　 - 画像URL　
- */
-data class PokemonListUiData(
-    var id: Int = 0,
-    val name: String = "",
-    var displayName: String = "",
-    var imageUrl: String? = "",
-    val isLike: Boolean = false,
-    val type:String = ""
-)
-
-/**
- * LikeのUi状態を表す
- */
-data class LikeListUiState(
-    val likeDetails: LikeDetails = LikeDetails(),
-    val likeList: MutableList<PokemonListUiData> = mutableListOf(),
+data class LikeScreenConditionState(
+    val isScrollTop: Boolean = true
 )
 
 /**
  * 一つのLikeを表す
  */
 data class LikeDetails(
-    val id: Int = 0,
+    val pokemonNumber: Int = 0,
     val name: String = "",
     val displayName: String = "",
     val description: String = "",
@@ -56,14 +38,25 @@ data class LikeDetails(
     val speed: Int = 0,
     val imageUrl: String = "",
     val height: Double = 0.0,
-    val weight: Double = 0.0
+    val weight: Double = 0.0,
+    var isLike: Boolean = true
 )
+
+/**
+ * エラー表示に関する情報
+ */
+sealed class LikeUiEvent(
+    // ワンショットのイベントとして管理
+    val id: Long = UUID.randomUUID().mostSignificantBits
+) {
+    data class Error(val e: Throwable) : LikeUiEvent()
+}
 
 /**
  * LikeDetails -> Like
  */
 fun LikeDetails.toLike(): Like = Like(
-    id = id,
+    pokemonNumber = pokemonNumber,
     name = name,
     displayName = displayName,
     description = description,
@@ -78,37 +71,32 @@ fun LikeDetails.toLike(): Like = Like(
     weight = weight
 )
 
-/**
- * Like -> LikeUiState
- */
-fun Like.toLikeUiState(isEntryValid: Boolean = false): LikeListUiState = LikeListUiState(
-    likeDetails = this.toLikeDetails()
-)
 
 /**
- * Like -> LikeDetails
+ * PokemonDetailScreenUiData -> LikeDetails
  */
-fun Like.toLikeDetails(): LikeDetails = LikeDetails(
-    id = id,
-    name = name,
-    displayName = displayName,
-    description = description,
-    genus = genus,
-//    type = type,
-    hp = hp,
-    attack = attack,
-    defense = defense,
-    speed = speed,
-    imageUrl = imageUrl,
-    height = height,
-    weight = weight
+fun PokemonDetailScreenUiData.toLikeDetails(): LikeDetails = LikeDetails(
+    pokemonNumber = this.pokemonNumber,
+    name = this.name,
+    displayName = this.name,
+    description = this.description,
+    genus = this.genus,
+    type = this.type,
+    hp = this.hp,
+    attack = this.attack,
+    defense = this.defense,
+    speed = this.speed,
+    imageUrl = this.imageUri,
+    height = this.height,
+    weight = this.weight,
+    isLike = this.isLike
 )
 
 /**
  * LikeDetails -> PokemonListUiData
  */
 fun LikeDetails.toPokemonListUiDataByLikeDetails(): PokemonListUiData = PokemonListUiData(
-    id = id,
+    pokemonNumber = pokemonNumber,
     name = name,
     displayName = displayName,
     imageUrl = imageUrl
@@ -117,16 +105,25 @@ fun LikeDetails.toPokemonListUiDataByLikeDetails(): PokemonListUiData = PokemonL
 /**
  * List<Like> -> MutableList<PokemonListUiData>
  */
-fun List<Like>.toPokemonListUiDataList(): MutableList<PokemonListUiData> {
-    val convertList = mutableListOf<PokemonListUiData>()
+fun List<Like>.toPokemonListUiDataList(): MutableList<LikeDetails> {
+    val convertList = mutableListOf<LikeDetails>()
 
     convertList.addAll(
         this.map { like ->
-            PokemonListUiData(
-                id = like.id,
+            LikeDetails(
+                pokemonNumber = like.pokemonNumber,
                 name = like.name,
                 displayName = like.displayName,
+                description = like.description,
+                genus = like.genus,
+//                type =like.,
+                hp = like.hp,
+                attack = like.attack,
+                defense = like.defense,
+                speed = like.speed,
                 imageUrl = like.imageUrl,
+                height = like.height,
+                weight = like.weight,
                 isLike = true
             )
         }
