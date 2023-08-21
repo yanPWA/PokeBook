@@ -15,6 +15,7 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,11 +45,7 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
             .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
             .fillMaxSize()
     ) {
-        Image(
-            modifier = Modifier.size(200.dp),
-            painter = painterResource(R.drawable.loading_img),
-            contentDescription = stringResource(R.string.loading)
-        )
+        CircularProgressIndicator()
     }
 }
 
