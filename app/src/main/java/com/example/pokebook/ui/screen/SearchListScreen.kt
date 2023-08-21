@@ -55,7 +55,7 @@ fun SearchListScreen(
 ) {
     SearchListScreen(
         uiState = searchViewModel.uiState,
-        uiEvent = searchViewModel.uiEvent,
+        uiStateEvent = searchViewModel.uiEvent,
         consumeEvent = searchViewModel::processed,
         conditionState = searchViewModel.conditionState,
         onClickBack = searchViewModel::onClickBack,
@@ -64,7 +64,8 @@ fun SearchListScreen(
         updateButtonStates = searchViewModel::updateButtonStates,
         updateIsFirst = searchViewModel::updateIsFirst,
         getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData,
-        onClickBackSearchScreen = onClickBackSearchScreen
+        onClickBackSearchScreen = onClickBackSearchScreen,
+        onClickBackButton = onClickBackSearchScreen
     )
 }
 
@@ -72,7 +73,7 @@ fun SearchListScreen(
 @Composable
 private fun SearchListScreen(
     uiState: StateFlow<SearchUiState>,
-    uiEvent: Flow<SearchUiEvent?>,
+    uiStateEvent: Flow<SearchUiEvent?>,
     consumeEvent: (SearchUiEvent) -> Unit,
     conditionState: StateFlow<SearchConditionState>,
     onClickBack: () -> Unit,
@@ -81,13 +82,12 @@ private fun SearchListScreen(
     updateButtonStates: (Boolean, Boolean) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     getPokemonSpecies: (PokemonListUiData) -> Unit,
-    onClickBackSearchScreen: () -> Unit
+    onClickBackSearchScreen: () -> Unit,
+    onClickBackButton:()->Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
-    val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
-    val lazyGridState = rememberLazyGridState()
+    val uiEvent by uiStateEvent.collectAsStateWithLifecycle(initialValue = null)
     val searchWord = conditionState.value.pokemonTypeName
-    val coroutineScope = rememberCoroutineScope()
 
     when(uiEvent) {
         is SearchUiEvent.Error -> {
@@ -113,15 +113,13 @@ private fun SearchListScreen(
                     searchWord = searchWord,
                     pagePosition = conditionState.value.pagePosition.plus(1),
                     maxPage = conditionState.value.maxPage,
-                    displayPage = conditionState.value.pagePosition,
                     onClickBack = onClickBack,
                     onClickNext = onClickNext,
                     onClickCard = onClickCard,
                     updateButtonStates = updateButtonStates,
                     updateIsFirst = updateIsFirst,
                     getPokemonSpecies = getPokemonSpecies,
-                    lazyGridState = lazyGridState,
-                    coroutineScope = coroutineScope
+                    onClickBackSearchScreen = onClickBackSearchScreen
                 )
             }
         }
@@ -133,8 +131,7 @@ private fun SearchListScreen(
                         stringResource(R.string.header_title_search_list_1),
                         searchWord
                     ) + stringResource(id = R.string.header_title_search_list_loading),
-                    displayPage = conditionState.value.pagePosition,
-                    maxPage = conditionState.value.maxPage
+                    onClickBackButton=onClickBackButton
                 )
                 LoadingScreen()
             }
@@ -157,20 +154,21 @@ private fun SearchListScreen(
     searchWord: String,
     pagePosition: Int,
     maxPage: String,
-    displayPage: Int,
     onClickBack: () -> Unit,
     onClickNext: () -> Unit,
     onClickCard: () -> Unit,
     updateButtonStates: (Boolean, Boolean) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     getPokemonSpecies: (PokemonListUiData) -> Unit,
-    lazyGridState: LazyGridState,
-    coroutineScope: CoroutineScope
+    onClickBackSearchScreen:()->Unit,
 ) {
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background),
     ) {
+        val lazyGridState = rememberLazyGridState()
+        val coroutineScope = rememberCoroutineScope()
+
         DefaultHeader(
             title = String.format(
                 stringResource(R.string.header_title_search_list_1),
@@ -184,10 +182,11 @@ private fun SearchListScreen(
                     maxPage
                 )
             },
-            displayPage = displayPage,
             updateButtonStates = updateButtonStates,
             onClickBack = onClickBack,
             onClickNext = onClickNext,
+            onClickBackButton = onClickBackSearchScreen,
+            isSearch = true
         )
         PokeTypeList(
             pokemonUiDataList = pokemonUiDataList,
