@@ -50,6 +50,7 @@ import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiState
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Like.LikeDetails
 import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
+import com.example.pokebook.ui.viewModel.Like.LikeUiState
 import com.example.pokebook.ui.viewModel.Like.toLikeDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -85,7 +86,7 @@ private fun PokemonDetailScreen(
     updateIsLike: (Boolean, Int) -> Unit,
     saveLike: suspend (LikeDetails) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
-    getAllList:()->Unit
+    getAllList: () -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
@@ -133,7 +134,7 @@ private fun PokemonDetailScreen(
     updateIsLike: (Boolean, Int) -> Unit,
     saveLike: suspend (LikeDetails) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
-    getAllList : () ->Unit,
+    getAllList: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -151,7 +152,9 @@ private fun PokemonDetailScreen(
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.Start)
-                .clickable { onClickBackButton.invoke() }
+                .clickable {
+                    onClickBackButton.invoke()
+                }
         )
         TitleImage(
             pokemon = uiData,
@@ -208,7 +211,7 @@ private fun TitleImage(
     updateIsLike: (Boolean, Int) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
     saveLike: suspend (LikeDetails) -> Unit,
-    getAllList:()->Unit
+    getAllList: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -245,7 +248,6 @@ private fun TitleImage(
                                 saveLike.invoke(pokemon.toLikeDetails())
                             }
                         }
-                        getAllList.invoke()
                         updateIsLike.invoke(!pokemon.isLike, pokemon.pokemonNumber)
                     }
             )
