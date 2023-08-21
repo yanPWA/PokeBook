@@ -110,12 +110,11 @@ private fun LikeEntryBody(
     }
 
     when (state) {
+        is LikeUiState.Loading -> {
+            LoadingScreen()
+        }
         is LikeUiState.Fetched -> {
-            if ((state as LikeUiState.Fetched).uiDataList.isEmpty()) {
-                PokemonNotFound(
-                    onClickBackSearchScreen = onClickBackButton
-                )
-            } else {
+            if ((state as LikeUiState.Fetched).uiDataList.isNotEmpty()) {
                 LikeScreen(
                     likeList = (state as LikeUiState.Fetched).uiDataList,
                     onClickCard = onClickCard,
@@ -124,13 +123,12 @@ private fun LikeEntryBody(
                     getAllList = getAllList,
                     getPokemonSpecies = getPokemonSpecies
                 )
+            } else {
+                PokemonNotFound(
+                    onClickBackSearchScreen = onClickBackButton
+                )
             }
         }
-
-        is LikeUiState.Loading -> {
-            LoadingScreen()
-        }
-
         is LikeUiState.ResultError -> {
             ResultError(onClickBackSearchScreen = onClickBackButton)
         }
