@@ -94,6 +94,7 @@ private fun LikeEntryBody(
     getAllList: () -> Unit,
     getPokemonSpecies: (PokemonListUiData) -> Unit
 ) {
+    getAllList.invoke()
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiEventState.collectAsStateWithLifecycle(initialValue = null)
 
