@@ -40,11 +40,7 @@ class LikeEntryViewModel(private val likesRepository: LikesRepository) : ViewMod
 
     // 表示用リスト
     private val uiDataList = mutableListOf<LikeDetails>()
-
-    init {
-        getAllList()
-    }
-
+    
     /**
      * Room データベースにアイテムを挿入
      */
