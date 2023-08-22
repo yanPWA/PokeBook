@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PokemonDetailScreen(
-    likeEntryViewModel: LikeEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    likeEntryViewModel: LikeEntryViewModel,
     pokemonDetailViewModel: PokemonDetailViewModel,
     onClickBackButton: () -> Unit
 ) {

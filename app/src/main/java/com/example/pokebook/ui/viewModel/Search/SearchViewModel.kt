@@ -4,9 +4,11 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pokebook.data.pokemonData.PokemonDataRepository
 import com.example.pokebook.model.PokemonPersonalData
 import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.repository.DefaultSearchRepository
+import com.example.pokebook.repository.SearchRepository
 import com.example.pokebook.ui.screen.convertToJaTypeName
 import com.example.pokebook.ui.viewModel.DefaultHeader
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
@@ -20,12 +22,14 @@ import kotlinx.coroutines.launch
 
 const val DISPLAY_UI_DATA_LIST_ITEM = 20
 
-class SearchViewModel : ViewModel(), DefaultHeader {
+class SearchViewModel(
+    private val searchRepository: SearchRepository,
+    private val pokemonDataRepository: PokemonDataRepository
+) : ViewModel(),
+    DefaultHeader {
     private var _uiState: MutableStateFlow<SearchUiState> =
         MutableStateFlow(SearchUiState.InitialState)
     val uiState = _uiState.asStateFlow()
-
-    private val repository = DefaultSearchRepository()
 
     private var _conditionState: MutableStateFlow<SearchConditionState> =
         MutableStateFlow(SearchConditionState())
@@ -63,7 +67,7 @@ class SearchViewModel : ViewModel(), DefaultHeader {
             )
         }
         runCatching {
-            repository.getPokemonByType(typeNumber)
+            searchRepository.getPokemonByType(typeNumber)
         }.onSuccess {
             _conditionState.update { currentState ->
                 currentState.copy(
@@ -71,7 +75,7 @@ class SearchViewModel : ViewModel(), DefaultHeader {
                 )
             }
 
-            if(it.pokemon.isEmpty()) {
+            if (it.pokemon.isEmpty()) {
                 _uiState.emit(SearchUiState.Fetched(emptyList()))
                 return@launch
             }
@@ -125,7 +129,7 @@ class SearchViewModel : ViewModel(), DefaultHeader {
                 async {
                     pokemonNumber?.let { number ->
                         // ポケモンのパーソナル情報を取得
-                        personalDataList.add(repository.getPokemonPersonalData(number.toInt()))
+                        personalDataList.add(searchRepository.getPokemonPersonalData(number.toInt()))
 
                         // ポケモンの特性取得のためのNumberを取得
                         val speciesNumber =
@@ -133,7 +137,7 @@ class SearchViewModel : ViewModel(), DefaultHeader {
 
                         // ポケモンの特性を取得
                         speciesNumber?.let {
-                            speciesList.add(repository.getPokemonSpecies(it.toInt()))
+                            speciesList.add(searchRepository.getPokemonSpecies(it.toInt()))
                         }
                     }
                 }.await()

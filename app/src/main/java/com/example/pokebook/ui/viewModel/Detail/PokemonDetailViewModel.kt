@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.model.StatType
 import com.example.pokebook.repository.DefaultPokemonDetailRepository
+import com.example.pokebook.repository.PokemonDetailRepository
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,11 +15,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class PokemonDetailViewModel : ViewModel() {
+class PokemonDetailViewModel(private val repository: PokemonDetailRepository) : ViewModel() {
     private var _uiState: MutableStateFlow<PokemonDetailUiState> =
         MutableStateFlow(PokemonDetailUiState.InitialState)
     val uiState = _uiState.asStateFlow()
-    private val repository = DefaultPokemonDetailRepository()
 
     private var _conditionState: MutableStateFlow<PokemonDetailScreenUiData> =
         MutableStateFlow(PokemonDetailScreenUiData())

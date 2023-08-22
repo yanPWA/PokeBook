@@ -31,9 +31,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
+import com.example.pokebook.ui.AppViewModelProvider
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import com.example.pokebook.ui.viewModel.Search.SearchConditionState

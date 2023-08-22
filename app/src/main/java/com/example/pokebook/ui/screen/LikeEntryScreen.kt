@@ -67,7 +67,7 @@ fun LikeEntryScreen(
     onClickCard: () -> Unit,
     onClickBackButton: () -> Unit,
     pokemonDetailViewModel: PokemonDetailViewModel,
-    likeEntryViewModel: LikeEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    likeEntryViewModel: LikeEntryViewModel
 ) {
     LikeEntryBody(
         uiState = likeEntryViewModel.uiState,

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokebook.model.Pokemon
 import com.example.pokebook.repository.DefaultHomeRepository
+import com.example.pokebook.repository.HomeRepository
 import com.example.pokebook.ui.viewModel.DefaultHeader
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -15,7 +16,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel(), DefaultHeader {
+class HomeViewModel(
+    private val repository: HomeRepository
+) : ViewModel(), DefaultHeader {
     private var _uiState: MutableStateFlow<HomeUiState> =
         MutableStateFlow(HomeUiState.InitialState)
     val uiState = _uiState.asStateFlow()
@@ -38,7 +41,6 @@ class HomeViewModel : ViewModel(), DefaultHeader {
         _uiEvent.emit(_uiEvent.value.filterNot { it == event })
     }
 
-    private val repository = DefaultHomeRepository()
     private val uiDataList = mutableListOf<PokemonListUiData>()
 
     init {
