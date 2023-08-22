@@ -4,10 +4,15 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.pokebook.data.like.Like
+import com.example.pokebook.data.like.LikeDao
+import com.example.pokebook.data.pokemonData.PokemonData
+import com.example.pokebook.data.pokemonData.PokemonDataDao
 
-@Database(entities = [Like::class], version = 1, exportSchema = false)
+@Database(entities = [Like::class, PokemonData::class ], version = 1, exportSchema = false)
 abstract class PokemonDatabase : RoomDatabase() {
     abstract fun likeDao(): LikeDao
+    abstract fun pokemonDataDao(): PokemonDataDao
 
     companion object {
         @Volatile

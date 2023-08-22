@@ -1,28 +1,28 @@
-package com.example.pokebook.data
+package com.example.pokebook.data.pokemonData
 
-import kotlinx.coroutines.flow.Flow
+import com.example.pokebook.data.pokemonData.PokemonData
 
 /**
  * 与えられたデータソースから[Like]の挿入、更新、削除、取得を提供するリポジトリ
  */
-interface LikesRepository {
+interface PokemonDataRepository {
     /**
      * 指定されたデータ・ソースからすべての項目を取得
      */
-    fun getAllItemsStream(): List<Like>
+    fun getAllItemsStream(): List<PokemonData>
 
     /**
      * データ・ソースに項目を挿入
      */
-    suspend fun insertItem(like: Like)
+    suspend fun insertItem(pokemon: PokemonData)
 
     /**
      * データ・ソースから項目を削除
      */
-    suspend fun deleteItem(like: Like)
+    suspend fun deleteItem(pokemon: PokemonData)
 
     /**
      * データソースの項目を更新
      */
-    suspend fun updateItem(like: Like)
+    suspend fun updateItem(pokemon: PokemonData)
 }

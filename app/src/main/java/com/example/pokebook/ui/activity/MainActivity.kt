@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import com.example.pokebook.json.readJson
 import com.example.pokebook.ui.screen.Navigation.BottomNavigationView
 import com.example.pokebook.ui.theme.PokeBookTheme
 
@@ -15,7 +16,6 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
             PokeBookTheme {
                 Surface(
@@ -26,5 +26,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        readJson(context = this)
     }
 }

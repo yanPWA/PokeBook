@@ -1,6 +1,6 @@
 package com.example.pokebook.ui.viewModel.Like
 
-import com.example.pokebook.data.Like
+import com.example.pokebook.data.like.Like
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import java.util.UUID

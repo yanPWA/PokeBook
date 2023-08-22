@@ -1,9 +1,8 @@
-package com.example.pokebook.data
+package com.example.pokebook.data.like
 
-import android.util.Log
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.runBlocking
+import com.example.pokebook.data.like.Like
+import com.example.pokebook.data.like.LikeDao
+import com.example.pokebook.data.like.LikesRepository
 
 class OfflineLikesRepository(private val likeDao: LikeDao) : LikesRepository {
     override fun getAllItemsStream(): List<Like> = likeDao.getAllItems()

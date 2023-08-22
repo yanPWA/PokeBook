@@ -3,7 +3,7 @@ package com.example.pokebook.ui.viewModel.Like
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pokebook.data.LikesRepository
+import com.example.pokebook.data.like.LikesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
