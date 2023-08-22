@@ -1,4 +1,4 @@
-package com.example.pokebook.data
+package com.example.pokebook.data.like
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,4 +1,4 @@
-package com.example.pokebook.data
+package com.example.pokebook.data.like
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import kotlinx.coroutines.flow.Flow
+import com.example.pokebook.data.like.Like
 
 @Dao
 interface LikeDao {

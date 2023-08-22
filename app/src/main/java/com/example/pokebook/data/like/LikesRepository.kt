@@ -1,6 +1,6 @@
-package com.example.pokebook.data
+package com.example.pokebook.data.like
 
-import kotlinx.coroutines.flow.Flow
+import com.example.pokebook.data.like.Like
 
 /**
  * 与えられたデータソースから[Like]の挿入、更新、削除、取得を提供するリポジトリ
