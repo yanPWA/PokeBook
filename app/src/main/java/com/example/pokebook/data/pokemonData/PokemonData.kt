@@ -11,8 +11,8 @@ import androidx.room.PrimaryKey
 data class PokemonData(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val nameEnglish: String,
-    val nameJapanese:String,
+    val englishName: String,
+    val japaneseName:String,
 //    val type:List<String>
     val hp: Int,
     val Attack: Int,

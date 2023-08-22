@@ -1,6 +1,5 @@
 package com.example.pokebook.json
 
-import androidx.room.PrimaryKey
 import com.example.pokebook.data.pokemonData.PokemonData
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -39,8 +38,8 @@ data class Base(
  */
 fun PokemonDataByJson.toPokemonData(): PokemonData = PokemonData(
     id = this.id,
-    nameEnglish = this.name.english,
-    nameJapanese = this.name.japanese,
+    englishName = this.name.english,
+    japaneseName = this.name.japanese,
 //    typy = this.type,
     hp = this.base.hp,
     Attack = this.base.attack,
