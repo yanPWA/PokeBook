@@ -15,15 +15,5 @@ data class Like(
     val pokemonNumber:Int = 0,
     val name: String,
     val displayName: String,
-    val description: String,
-    val genus: String,
-//    @TypeConverters()
-//    val type: List<String>,
-    val hp: Int,
-    val attack: Int,
-    val defense: Int,
-    val speed: Int,
     val imageUrl: String,
-    val height: Double,
-    val weight: Double
 )
