@@ -1,6 +1,7 @@
 package com.example.pokebook.ui.screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -68,7 +69,7 @@ fun PokemonDetailScreen(
         updateIsLike = pokemonDetailViewModel::updateIsLike,
         saveLike = likeEntryViewModel::saveLike,
         deleteLike = likeEntryViewModel::deleteLike,
-        getAllList = likeEntryViewModel::getAllList
+        checkIfRoomLike = pokemonDetailViewModel::checkIfRoomLike
     )
 }
 
@@ -83,7 +84,7 @@ private fun PokemonDetailScreen(
     updateIsLike: (Boolean, Int) -> Unit,
     saveLike: suspend (LikeDetails) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
-    getAllList: () -> Unit
+    checkIfRoomLike: suspend (Int) -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
@@ -108,7 +109,7 @@ private fun PokemonDetailScreen(
                 updateIsLike = updateIsLike,
                 saveLike = saveLike,
                 deleteLike = deleteLike,
-                getAllList = getAllList
+                checkIfRoomLike = checkIfRoomLike
             )
         }
 
@@ -139,7 +140,7 @@ private fun PokemonDetailScreen(
     updateIsLike: (Boolean, Int) -> Unit,
     saveLike: suspend (LikeDetails) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
-    getAllList: () -> Unit,
+    checkIfRoomLike: suspend (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -167,7 +168,7 @@ private fun PokemonDetailScreen(
             updateIsLike = updateIsLike,
             deleteLike = deleteLike,
             saveLike = saveLike,
-            getAllList = getAllList
+            checkIfRoomLike = checkIfRoomLike
         )
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -209,6 +210,7 @@ private fun PokemonDetailScreen(
     }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 private fun TitleImage(
     type: String,
@@ -216,7 +218,7 @@ private fun TitleImage(
     updateIsLike: (Boolean, Int) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
     saveLike: suspend (LikeDetails) -> Unit,
-    getAllList: () -> Unit
+    checkIfRoomLike: suspend (Int) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -237,6 +239,9 @@ private fun TitleImage(
                     )
                 )
         ) {
+            coroutineScope.launch {
+                checkIfRoomLike.invoke(pokemon.pokemonNumber)
+            }
             Image(
                 imageVector = ImageVector.vectorResource(
                     id = if (pokemon.isLike) R.drawable.favorite_fill else R.drawable.favorite_border
