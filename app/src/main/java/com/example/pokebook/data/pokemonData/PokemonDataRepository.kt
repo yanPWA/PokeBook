@@ -25,4 +25,9 @@ interface PokemonDataRepository {
      * データソースの項目を更新
      */
     suspend fun updateItem(pokemon: PokemonData)
+
+    /**
+     * 指定されたjapaneseNameを検索
+     */
+    suspend fun searchPokemonByKeyword(keyword: String): PokemonData
 }

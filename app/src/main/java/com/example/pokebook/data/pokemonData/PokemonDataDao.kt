@@ -24,4 +24,7 @@ interface PokemonDataDao {
 
     @Query("SELECT * from pokemonData ORDER BY japaneseName ASC")
     fun getAllItems(): List<PokemonData>
+
+    @Query("SELECT * FROM pokemonData WHERE japaneseName = :keyword")
+    fun searchByJapaneseName(keyword: String): PokemonData
 }

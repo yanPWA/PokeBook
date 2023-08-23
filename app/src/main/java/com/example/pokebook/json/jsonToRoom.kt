@@ -39,7 +39,7 @@ fun insertPokemonDataToDB(context: Context, pokemonData: List<PokemonDataByJson>
     val database = Room.databaseBuilder(
         context.applicationContext,
         PokemonDatabase::class.java,
-        "pokemon-database"
+        "pokemon_db"
     ).build()
 
     val pokemonDataDao = database.pokemonDataDao()
