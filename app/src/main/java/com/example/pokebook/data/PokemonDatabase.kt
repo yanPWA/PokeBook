@@ -21,7 +21,7 @@ abstract class PokemonDatabase : RoomDatabase() {
         fun getDatabase(context: Context): PokemonDatabase {
             // インスタンスがnullの場合は新しいDBインスタンスを作成して返す
             return Instance ?: synchronized(this) {
-                Room.databaseBuilder(context, PokemonDatabase::class.java, "like_database")
+                Room.databaseBuilder(context, PokemonDatabase::class.java, "pokemon_db")
                     .build()
                     .also { Instance = it }
             }

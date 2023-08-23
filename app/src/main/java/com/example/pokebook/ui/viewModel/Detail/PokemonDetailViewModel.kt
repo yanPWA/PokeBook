@@ -1,24 +1,30 @@
 package com.example.pokebook.ui.viewModel.Detail
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pokebook.data.pokemonData.PokemonDataRepository
 import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.model.StatType
-import com.example.pokebook.repository.DefaultPokemonDetailRepository
+import com.example.pokebook.repository.PokemonDetailRepository
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class PokemonDetailViewModel : ViewModel() {
+class PokemonDetailViewModel(
+    private val detailRepository: PokemonDetailRepository,
+    private val dataRepository: PokemonDataRepository
+) : ViewModel() {
     private var _uiState: MutableStateFlow<PokemonDetailUiState> =
         MutableStateFlow(PokemonDetailUiState.InitialState)
     val uiState = _uiState.asStateFlow()
-    private val repository = DefaultPokemonDetailRepository()
 
     private var _conditionState: MutableStateFlow<PokemonDetailScreenUiData> =
         MutableStateFlow(PokemonDetailScreenUiData())
@@ -44,16 +50,16 @@ class PokemonDetailViewModel : ViewModel() {
     /**
      *　ポケモンの種類に関する情報を取得（番号検索）
      */
-    fun getPokemonSpeciesByUiData(pokeId: Int) = viewModelScope.launch {
+    fun getPokemonSpeciesById(pokeId: Int) = viewModelScope.launch {
         _uiState.emit(PokemonDetailUiState.Loading)
         runCatching {
-            repository.getPokemonPersonalData(pokeId)
+            detailRepository.getPokemonPersonalData(pokeId)
         }.onSuccess {
             val speciesNumber = Uri.parse(it.species.url).lastPathSegment
 
             speciesNumber?.let { num ->
                 // ポケモン特性を取得
-                species = repository.getPokemonSpecies(num.toInt())
+                species = detailRepository.getPokemonSpecies(num.toInt())
             }
             // 名前
             val name =
@@ -122,17 +128,43 @@ class PokemonDetailViewModel : ViewModel() {
     }
 
     /**
-     * ポケモンの種類に関する情報を取得（uiDataを引数で渡す）
+     * ポケモンの種類に関する情報を取得（名前検索）
      */
-    fun getPokemonSpeciesByUiData(pokemonListUiData: PokemonListUiData) = viewModelScope.launch {
+    fun searchByName(searchName: String) = viewModelScope.launch {
         _uiState.emit(PokemonDetailUiState.Loading)
         runCatching {
-            repository.getPokemonPersonalData(pokemonListUiData.pokemonNumber)
+            withContext(Dispatchers.IO) {
+                val result = dataRepository.searchPokemonByKeyword(searchName)
+                val searchId = if (searchName == result.japaneseName) result.id else null
+                searchId?.let {
+                    _conditionState.update { currentState ->
+                        currentState.copy(
+                            pokemonNumber = it
+                        )
+                    }
+                }
+            }
+        }.onSuccess {
+            getPokemonSpeciesById(conditionState.value.pokemonNumber)
+        }.onFailure {
+            Log.d("error", "e[getPokemonList]:$it")
+            send(PokemonDetailUiEvent.Error(it))
+            _uiState.emit(PokemonDetailUiState.SearchError)
+        }
+    }
+
+    /**
+     * ポケモンの種類に関する情報を取得（uiDataを引数で渡す）
+     */
+    fun getPokemonSpeciesById(pokemonListUiData: PokemonListUiData) = viewModelScope.launch {
+        _uiState.emit(PokemonDetailUiState.Loading)
+        runCatching {
+            detailRepository.getPokemonPersonalData(pokemonListUiData.pokemonNumber)
         }.onSuccess {
             val speciesNumber = Uri.parse(it.species.url).lastPathSegment
             speciesNumber?.let { num ->
                 // ポケモン特性を取得
-                species = repository.getPokemonSpecies(num.toInt())
+                species = detailRepository.getPokemonSpecies(num.toInt())
             }
 
             // 説明

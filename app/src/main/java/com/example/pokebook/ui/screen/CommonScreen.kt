@@ -169,6 +169,7 @@ fun HomeResultError(
  */
 @Composable
 fun ResultError(
+    text:String,
     onClickBackSearchScreen: () -> Unit
 ) {
     Column(
@@ -192,7 +193,7 @@ fun ResultError(
                 .padding(bottom = 10.dp)
         )
         Text(
-            text = stringResource(R.string.result_error_text),
+            text = text,
             color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .padding(bottom = 10.dp)

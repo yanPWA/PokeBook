@@ -4,28 +4,35 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pokebook.data.pokemonData.PokemonDataRepository
 import com.example.pokebook.model.PokemonPersonalData
 import com.example.pokebook.model.PokemonSpecies
-import com.example.pokebook.repository.DefaultSearchRepository
+import com.example.pokebook.model.StatType
+import com.example.pokebook.repository.PokemonDetailRepository
+import com.example.pokebook.repository.SearchRepository
 import com.example.pokebook.ui.screen.convertToJaTypeName
 import com.example.pokebook.ui.viewModel.DefaultHeader
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiState
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val DISPLAY_UI_DATA_LIST_ITEM = 20
 
-class SearchViewModel : ViewModel(), DefaultHeader {
+class SearchViewModel(private val searchRepository: SearchRepository) : ViewModel(),
+    DefaultHeader {
     private var _uiState: MutableStateFlow<SearchUiState> =
         MutableStateFlow(SearchUiState.InitialState)
     val uiState = _uiState.asStateFlow()
-
-    private val repository = DefaultSearchRepository()
 
     private var _conditionState: MutableStateFlow<SearchConditionState> =
         MutableStateFlow(SearchConditionState())
@@ -63,7 +70,7 @@ class SearchViewModel : ViewModel(), DefaultHeader {
             )
         }
         runCatching {
-            repository.getPokemonByType(typeNumber)
+            searchRepository.getPokemonByType(typeNumber)
         }.onSuccess {
             _conditionState.update { currentState ->
                 currentState.copy(
@@ -71,7 +78,7 @@ class SearchViewModel : ViewModel(), DefaultHeader {
                 )
             }
 
-            if(it.pokemon.isEmpty()) {
+            if (it.pokemon.isEmpty()) {
                 _uiState.emit(SearchUiState.Fetched(emptyList()))
                 return@launch
             }
@@ -125,7 +132,7 @@ class SearchViewModel : ViewModel(), DefaultHeader {
                 async {
                     pokemonNumber?.let { number ->
                         // ポケモンのパーソナル情報を取得
-                        personalDataList.add(repository.getPokemonPersonalData(number.toInt()))
+                        personalDataList.add(searchRepository.getPokemonPersonalData(number.toInt()))
 
                         // ポケモンの特性取得のためのNumberを取得
                         val speciesNumber =
@@ -133,7 +140,7 @@ class SearchViewModel : ViewModel(), DefaultHeader {
 
                         // ポケモンの特性を取得
                         speciesNumber?.let {
-                            speciesList.add(repository.getPokemonSpecies(it.toInt()))
+                            speciesList.add(searchRepository.getPokemonSpecies(it.toInt()))
                         }
                     }
                 }.await()
@@ -158,20 +165,6 @@ class SearchViewModel : ViewModel(), DefaultHeader {
             )
         }
         _uiState.emit(SearchUiState.Fetched(searchList = displayUiDataList[pagePosition].list))
-    }
-
-    /**
-     * 名前検索
-     */
-    fun getPokemonByName(name: String) = viewModelScope.launch {
-        _uiState.emit(SearchUiState.Loading)
-        runCatching {
-//            repository.getPokemonPersonalData(name)
-        }.onSuccess {
-            // TODO 返ってきたURLから個別情報取得する
-        }.onFailure {
-            Log.d("error", "e[getPokemonList]:$it")
-        }
     }
 
     /**

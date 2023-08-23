@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -26,12 +27,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.pokebook.ui.AppViewModelProvider
 import com.example.pokebook.ui.screen.HomeScreen
 import com.example.pokebook.ui.screen.LikeEntryScreen
-import com.example.pokebook.ui.screen.LikeScreen
 import com.example.pokebook.ui.screen.PokemonDetailScreen
 import com.example.pokebook.ui.screen.PokemonNotFound
 import com.example.pokebook.ui.screen.SearchListScreen
 import com.example.pokebook.ui.screen.SearchScreen
-import com.example.pokebook.ui.screen.createDummyList
 import com.example.pokebook.ui.viewModel.Home.HomeViewModel
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
@@ -47,12 +46,12 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 private fun NavigationHost(
     startDestination: String = BottomNavItems.Home.route,
     navController: NavHostController = rememberNavController(),
+    searchViewModel: SearchViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    pokemonDetailViewModel: PokemonDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    likeEntryViewModel: LikeEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
-    val homeViewModel = HomeViewModel()
-    val pokemonDetailViewModel = PokemonDetailViewModel()
-
-    val searchViewModel = SearchViewModel()
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -61,16 +60,19 @@ private fun NavigationHost(
         homeGraph(
             navController = navController,
             homeViewModel = homeViewModel,
-            pokemonDetailViewModel = pokemonDetailViewModel
+            pokemonDetailViewModel = pokemonDetailViewModel,
+            likeEntryViewModel = likeEntryViewModel
         )
         searchGraph(
             navController = navController,
             searchViewModel = searchViewModel,
-            pokemonDetailViewModel = pokemonDetailViewModel
+            pokemonDetailViewModel = pokemonDetailViewModel,
+            likeEntryViewModel = likeEntryViewModel
         )
         likeGraph(
             navController = navController,
-            pokemonDetailViewModel = pokemonDetailViewModel
+            pokemonDetailViewModel = pokemonDetailViewModel,
+            likeEntryViewModel = likeEntryViewModel
         )
 
         composable(route = BottomNavItems.Setting.route) {
@@ -85,7 +87,8 @@ private fun NavigationHost(
 fun NavGraphBuilder.homeGraph(
     navController: NavController,
     homeViewModel: HomeViewModel,
-    pokemonDetailViewModel: PokemonDetailViewModel
+    pokemonDetailViewModel: PokemonDetailViewModel,
+    likeEntryViewModel: LikeEntryViewModel
 ) {
     navigation(
         startDestination = HomeScreen.PokemonListScreen.route,
@@ -101,6 +104,7 @@ fun NavGraphBuilder.homeGraph(
         composable(HomeScreen.PokemonDetailScreen.route) {
             PokemonDetailScreen(
                 pokemonDetailViewModel = pokemonDetailViewModel,
+                likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() }
             )
         }
@@ -113,8 +117,8 @@ fun NavGraphBuilder.homeGraph(
 fun NavGraphBuilder.searchGraph(
     navController: NavController,
     searchViewModel: SearchViewModel,
-    pokemonDetailViewModel: PokemonDetailViewModel
-
+    pokemonDetailViewModel: PokemonDetailViewModel,
+    likeEntryViewModel: LikeEntryViewModel
 ) {
     navigation(
         startDestination = SearchScreen.SearchTopScreen.route,
@@ -124,7 +128,6 @@ fun NavGraphBuilder.searchGraph(
             SearchScreen(
                 searchViewModel = searchViewModel,
                 pokemonDetailViewModel = pokemonDetailViewModel,
-                onClickSearchPokemonName = { navController.navigate(SearchScreen.PokemonDetailScreen.route) },
                 onClickSearchPokemonNumber = { navController.navigate(SearchScreen.PokemonDetailScreen.route) },
                 onClickSearchTypeButton = { navController.navigate(SearchScreen.PokemonListScreen.route) },
             )
@@ -146,6 +149,7 @@ fun NavGraphBuilder.searchGraph(
         composable(SearchScreen.PokemonDetailScreen.route) {
             PokemonDetailScreen(
                 pokemonDetailViewModel = pokemonDetailViewModel,
+                likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() }
             )
         }
@@ -157,7 +161,8 @@ fun NavGraphBuilder.searchGraph(
  */
 fun NavGraphBuilder.likeGraph(
     navController: NavController,
-    pokemonDetailViewModel: PokemonDetailViewModel
+    pokemonDetailViewModel: PokemonDetailViewModel,
+    likeEntryViewModel: LikeEntryViewModel
 ) {
     navigation(
         startDestination = LikeScreen.LikeListScreen.route,
@@ -167,12 +172,14 @@ fun NavGraphBuilder.likeGraph(
             LikeEntryScreen(
                 onClickCard = { navController.navigate(LikeScreen.LikeDetailScreen.route) },
                 onClickBackButton = { navController.navigateUp() },
-                pokemonDetailViewModel = pokemonDetailViewModel
+                pokemonDetailViewModel = pokemonDetailViewModel,
+                likeEntryViewModel = likeEntryViewModel
             )
         }
         composable(LikeScreen.LikeDetailScreen.route) {
             PokemonDetailScreen(
                 pokemonDetailViewModel = pokemonDetailViewModel,
+                likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() }
             )
         }

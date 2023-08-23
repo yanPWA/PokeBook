@@ -5,17 +5,35 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.pokebook.PokemonApplication
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Home.HomeViewModel
 import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
+import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 
 /**
  * ViewModel インスタンスを作成するファクトリーを提供
  */
 object AppViewModelProvider {
     val Factory = viewModelFactory {
-        // Initializer for LikeViewModel
         initializer {
             LikeEntryViewModel(
                 pokemonApplication().container.likesRepository
+            )
+        }
+        initializer {
+            SearchViewModel(
+                pokemonApplication().container.searchRepository
+            )
+        }
+        initializer {
+            HomeViewModel(
+                pokemonApplication().container.homeRepository
+            )
+        }
+        initializer {
+            PokemonDetailViewModel(
+                pokemonApplication().container.pokemonDetailRepository,
+                pokemonApplication().container.pokemonDataRepository
             )
         }
     }

@@ -22,6 +22,9 @@ interface PokemonDataDao {
     @Delete
     suspend fun delete(pokemon: PokemonData)
 
-    @Query("SELECT * from pokemonData ORDER BY nameJapanese ASC")
+    @Query("SELECT * from pokemonData ORDER BY japaneseName ASC")
     fun getAllItems(): List<PokemonData>
+
+    @Query("SELECT * FROM pokemonData WHERE japaneseName = :keyword")
+    fun searchByJapaneseName(keyword: String): PokemonData
 }

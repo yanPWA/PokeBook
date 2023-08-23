@@ -63,7 +63,7 @@ fun SearchListScreen(
         onClickCard = onClickCard,
         updateButtonStates = searchViewModel::updateButtonStates,
         updateIsFirst = searchViewModel::updateIsFirst,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData,
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesById,
         onClickBackSearchScreen = onClickBackSearchScreen,
         onClickBackButton = onClickBackSearchScreen
     )
@@ -83,13 +83,13 @@ private fun SearchListScreen(
     updateIsFirst: (Boolean) -> Unit,
     getPokemonSpecies: (PokemonListUiData) -> Unit,
     onClickBackSearchScreen: () -> Unit,
-    onClickBackButton:()->Unit
+    onClickBackButton: () -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiStateEvent.collectAsStateWithLifecycle(initialValue = null)
     val searchWord = conditionState.value.pokemonTypeName
 
-    when(uiEvent) {
+    when (uiEvent) {
         is SearchUiEvent.Error -> {
             ErrorScreen(
                 consumeEvent = consumeEvent,
@@ -131,7 +131,7 @@ private fun SearchListScreen(
                         stringResource(R.string.header_title_search_list_1),
                         searchWord
                     ) + stringResource(id = R.string.header_title_search_list_loading),
-                    onClickBackButton=onClickBackButton
+                    onClickBackButton = onClickBackButton
                 )
                 LoadingScreen()
             }
@@ -139,6 +139,7 @@ private fun SearchListScreen(
 
         SearchUiState.ResultError -> {
             ResultError(
+                text = stringResource(R.string.result_error_text),
                 onClickBackSearchScreen = onClickBackSearchScreen
             )
         }
@@ -160,7 +161,7 @@ private fun SearchListScreen(
     updateButtonStates: (Boolean, Boolean) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     getPokemonSpecies: (PokemonListUiData) -> Unit,
-    onClickBackSearchScreen:()->Unit,
+    onClickBackSearchScreen: () -> Unit,
 ) {
     Column(
         modifier = Modifier

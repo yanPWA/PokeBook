@@ -39,18 +39,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
-import com.example.pokebook.ui.AppViewModelProvider
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiEvent
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiState
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Like.LikeDetails
 import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
-import com.example.pokebook.ui.viewModel.Like.LikeUiState
 import com.example.pokebook.ui.viewModel.Like.toLikeDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -58,7 +55,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PokemonDetailScreen(
-    likeEntryViewModel: LikeEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    likeEntryViewModel: LikeEntryViewModel,
     pokemonDetailViewModel: PokemonDetailViewModel,
     onClickBackButton: () -> Unit
 ) {
@@ -119,6 +116,14 @@ private fun PokemonDetailScreen(
 
         PokemonDetailUiState.ResultError -> {
             ResultError(
+                text = stringResource(R.string.search_by_id_error_text),
+                onClickBackSearchScreen = onClickBackButton
+            )
+        }
+
+        PokemonDetailUiState.SearchError -> {
+            ResultError(
+                text = stringResource(R.string.search_by_name_error_text),
                 onClickBackSearchScreen = onClickBackButton
             )
         }
