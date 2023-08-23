@@ -128,7 +128,6 @@ fun NavGraphBuilder.searchGraph(
             SearchScreen(
                 searchViewModel = searchViewModel,
                 pokemonDetailViewModel = pokemonDetailViewModel,
-                onClickSearchPokemonName = { navController.navigate(SearchScreen.PokemonDetailScreen.route) },
                 onClickSearchPokemonNumber = { navController.navigate(SearchScreen.PokemonDetailScreen.route) },
                 onClickSearchTypeButton = { navController.navigate(SearchScreen.PokemonListScreen.route) },
             )

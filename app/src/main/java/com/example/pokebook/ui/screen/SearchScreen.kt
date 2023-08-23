@@ -1,5 +1,6 @@
 package com.example.pokebook.ui.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,25 +30,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pokebook.R
-import com.example.pokebook.ui.AppViewModelProvider
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun SearchScreen(
     searchViewModel: SearchViewModel,
     pokemonDetailViewModel: PokemonDetailViewModel,
-    onClickSearchPokemonName: () -> Unit,
     onClickSearchPokemonNumber: () -> Unit,
     onClickSearchTypeButton: () -> Unit,
-//    onClickBackButton: () -> Unit
 ) {
     SearchScreen(
         onClickSearchType = searchViewModel::getPokemonByType,
-        onClickSearchName = searchViewModel::getPokemonByName,
-        onClickSearchNumber = pokemonDetailViewModel::getPokemonSpeciesByUiData,
+        searchByName = pokemonDetailViewModel::searchByName,
+        onClickSearchNumber = pokemonDetailViewModel::getPokemonSpeciesById,
         onClickSearchPokemonNumber = onClickSearchPokemonNumber,
         onClickSearchTypeButton = onClickSearchTypeButton
     )
@@ -56,14 +54,14 @@ fun SearchScreen(
 @Composable
 private fun SearchScreen(
     onClickSearchType: (String) -> Unit,
-    onClickSearchName: (String) -> Unit,
+    searchByName: (String) -> Unit,
     onClickSearchNumber: (Int) -> Unit,
     onClickSearchPokemonNumber: () -> Unit,
     onClickSearchTypeButton: () -> Unit
 ) {
     SearchScreen(
         onClickSearchType = onClickSearchType,
-        onClickSearchName = onClickSearchName,
+        searchByName = searchByName,
         onClickSearchNumber = onClickSearchNumber,
         onClickSearchPokemonNumber = onClickSearchPokemonNumber,
         onClickSearchTypeButton = onClickSearchTypeButton,
@@ -74,7 +72,7 @@ private fun SearchScreen(
 @Composable
 private fun SearchScreen(
     onClickSearchType: (String) -> Unit,
-    onClickSearchName: (String) -> Unit,
+    searchByName: (String) -> Unit,
     onClickSearchNumber: (Int) -> Unit,
     onClickSearchPokemonNumber: () -> Unit,
     onClickSearchTypeButton: () -> Unit,
@@ -97,7 +95,8 @@ private fun SearchScreen(
         SearchName(
             value = valueName,
             onValueChange = { valueName = it },
-            onClickSearchName = onClickSearchName,
+            searchByName = searchByName,
+            onClickSearchPokemonNumber = onClickSearchPokemonNumber,
             modifier = modifier
         )
         SearchNumber(
@@ -170,7 +169,8 @@ private fun SearchType(
 private fun SearchName(
     value: String,
     onValueChange: (String) -> Unit,
-    onClickSearchName: (String) -> Unit,
+    searchByName: (String) -> Unit,
+    onClickSearchPokemonNumber: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -200,7 +200,10 @@ private fun SearchName(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
             Button(
-                onClick = { onClickSearchName.invoke(value) },
+                onClick = {
+                    searchByName.invoke(value)
+                    onClickSearchPokemonNumber.invoke()
+                },
                 modifier = modifier
                     .padding(2.dp),
                 shape = RoundedCornerShape(4.dp)

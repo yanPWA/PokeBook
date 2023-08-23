@@ -63,7 +63,7 @@ fun HomeScreen(
         onClickBack = homeViewModel::onClickBack,
         onClickCard = onClickCard,
         updateIsFirst = homeViewModel::updateIsFirst,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData,
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesById,
         onClickRetryGetList = homeViewModel::getPokemonList
     )
 }

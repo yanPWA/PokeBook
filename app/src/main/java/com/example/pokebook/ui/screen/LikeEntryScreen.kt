@@ -3,7 +3,6 @@ package com.example.pokebook.ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,11 +35,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
-import com.example.pokebook.ui.AppViewModelProvider
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 
@@ -78,7 +75,7 @@ fun LikeEntryScreen(
         updateIsLike = likeEntryViewModel::updateIsLike,
         deleteLike = likeEntryViewModel::deleteLike,
         getAllList = likeEntryViewModel::getAllList,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesById
     )
 }
 
@@ -113,6 +110,7 @@ private fun LikeEntryBody(
         is LikeUiState.Loading -> {
             LoadingScreen()
         }
+
         is LikeUiState.Fetched -> {
             if ((state as LikeUiState.Fetched).uiDataList.isNotEmpty()) {
                 LikeScreen(

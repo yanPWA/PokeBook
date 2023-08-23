@@ -31,11 +31,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
-import com.example.pokebook.ui.AppViewModelProvider
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import com.example.pokebook.ui.viewModel.Search.SearchConditionState
@@ -65,7 +63,7 @@ fun SearchListScreen(
         onClickCard = onClickCard,
         updateButtonStates = searchViewModel::updateButtonStates,
         updateIsFirst = searchViewModel::updateIsFirst,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData,
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesById,
         onClickBackSearchScreen = onClickBackSearchScreen,
         onClickBackButton = onClickBackSearchScreen
     )
@@ -85,13 +83,13 @@ private fun SearchListScreen(
     updateIsFirst: (Boolean) -> Unit,
     getPokemonSpecies: (PokemonListUiData) -> Unit,
     onClickBackSearchScreen: () -> Unit,
-    onClickBackButton:()->Unit
+    onClickBackButton: () -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiStateEvent.collectAsStateWithLifecycle(initialValue = null)
     val searchWord = conditionState.value.pokemonTypeName
 
-    when(uiEvent) {
+    when (uiEvent) {
         is SearchUiEvent.Error -> {
             ErrorScreen(
                 consumeEvent = consumeEvent,
@@ -133,7 +131,7 @@ private fun SearchListScreen(
                         stringResource(R.string.header_title_search_list_1),
                         searchWord
                     ) + stringResource(id = R.string.header_title_search_list_loading),
-                    onClickBackButton=onClickBackButton
+                    onClickBackButton = onClickBackButton
                 )
                 LoadingScreen()
             }
@@ -163,7 +161,7 @@ private fun SearchListScreen(
     updateButtonStates: (Boolean, Boolean) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     getPokemonSpecies: (PokemonListUiData) -> Unit,
-    onClickBackSearchScreen:()->Unit,
+    onClickBackSearchScreen: () -> Unit,
 ) {
     Column(
         modifier = Modifier
