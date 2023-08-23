@@ -22,8 +22,7 @@ object AppViewModelProvider {
         }
         initializer {
             SearchViewModel(
-                pokemonApplication().container.searchRepository,
-                pokemonApplication().container.pokemonDataRepository
+                pokemonApplication().container.searchRepository
             )
         }
         initializer {
@@ -33,7 +32,8 @@ object AppViewModelProvider {
         }
         initializer {
             PokemonDetailViewModel(
-                pokemonApplication().container.pokemonDetailRepository
+                pokemonApplication().container.pokemonDetailRepository,
+                pokemonApplication().container.pokemonDataRepository
             )
         }
     }

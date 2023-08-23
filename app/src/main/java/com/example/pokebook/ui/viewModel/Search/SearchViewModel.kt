@@ -7,25 +7,28 @@ import androidx.lifecycle.viewModelScope
 import com.example.pokebook.data.pokemonData.PokemonDataRepository
 import com.example.pokebook.model.PokemonPersonalData
 import com.example.pokebook.model.PokemonSpecies
-import com.example.pokebook.repository.DefaultSearchRepository
+import com.example.pokebook.model.StatType
+import com.example.pokebook.repository.PokemonDetailRepository
 import com.example.pokebook.repository.SearchRepository
 import com.example.pokebook.ui.screen.convertToJaTypeName
 import com.example.pokebook.ui.viewModel.DefaultHeader
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
+import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiState
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val DISPLAY_UI_DATA_LIST_ITEM = 20
 
-class SearchViewModel(
-    private val searchRepository: SearchRepository,
-    private val pokemonDataRepository: PokemonDataRepository
-) : ViewModel(),
+class SearchViewModel(private val searchRepository: SearchRepository) : ViewModel(),
     DefaultHeader {
     private var _uiState: MutableStateFlow<SearchUiState> =
         MutableStateFlow(SearchUiState.InitialState)
@@ -162,20 +165,6 @@ class SearchViewModel(
             )
         }
         _uiState.emit(SearchUiState.Fetched(searchList = displayUiDataList[pagePosition].list))
-    }
-
-    /**
-     * 名前検索
-     */
-    fun getPokemonByName(name: String) = viewModelScope.launch {
-        _uiState.emit(SearchUiState.Loading)
-        runCatching {
-//            repository.getPokemonPersonalData(name)
-        }.onSuccess {
-            // TODO 返ってきたURLから個別情報取得する
-        }.onFailure {
-            Log.d("error", "e[getPokemonList]:$it")
-        }
     }
 
     /**

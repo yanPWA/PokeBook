@@ -10,6 +10,7 @@ sealed class PokemonDetailUiState {
     object Fetched : PokemonDetailUiState()
     object InitialState : PokemonDetailUiState()
     object ResultError: PokemonDetailUiState()
+    object SearchError: PokemonDetailUiState()
 }
 
 
