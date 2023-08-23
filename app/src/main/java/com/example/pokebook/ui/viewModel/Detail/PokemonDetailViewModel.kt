@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pokebook.data.like.LikesRepository
 import com.example.pokebook.data.pokemonData.PokemonDataRepository
 import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.model.StatType
@@ -20,7 +21,8 @@ import kotlinx.coroutines.withContext
 
 class PokemonDetailViewModel(
     private val detailRepository: PokemonDetailRepository,
-    private val dataRepository: PokemonDataRepository
+    private val dataRepository: PokemonDataRepository,
+    private val likesRepository: LikesRepository
 ) : ViewModel() {
     private var _uiState: MutableStateFlow<PokemonDetailUiState> =
         MutableStateFlow(PokemonDetailUiState.InitialState)
@@ -120,7 +122,7 @@ class PokemonDetailViewModel(
                     weight = it.weight / 10.0
                 )
             }
-            _uiState.emit(PokemonDetailUiState.Fetched)
+            _uiState.emit(PokemonDetailUiState.Fetched(detailUiCondition = DetailUiCondition()))
         }.onFailure {
             send(PokemonDetailUiEvent.Error(it))
             _uiState.emit(PokemonDetailUiState.ResultError)
@@ -220,7 +222,7 @@ class PokemonDetailViewModel(
                     weight = it.weight / 10.0
                 )
             }
-            _uiState.emit(PokemonDetailUiState.Fetched)
+            _uiState.emit(PokemonDetailUiState.Fetched(detailUiCondition = DetailUiCondition()))
         }.onFailure {
             send(PokemonDetailUiEvent.Error(it))
             _uiState.emit(PokemonDetailUiState.ResultError)
@@ -230,7 +232,7 @@ class PokemonDetailViewModel(
     /**
      * Likeフラグを更新
      */
-    fun updateIsLike(isLike: Boolean, pokemonNumber: Int) {
+    fun updateIsLike(isLike: Boolean, pokemonNumber: Int) = viewModelScope.launch {
         if (conditionState.value.pokemonNumber == pokemonNumber) {
             _conditionState.update { currentState ->
                 currentState.copy(
@@ -238,5 +240,39 @@ class PokemonDetailViewModel(
                 )
             }
         }
+
+        _uiState.emit(
+            PokemonDetailUiState.Fetched(
+                DetailUiCondition(
+                    isLike = isLike
+                )
+            )
+        )
+    }
+
+    /**
+     * RoomのLikeテーブルに該当ポケモンが存在するかどうか
+     */
+    suspend fun checkIfRoomLike(pokemonNumber: Int) {
+        runCatching {
+            withContext(Dispatchers.IO) {
+                likesRepository.searchPokemonByName(pokemonNumber)
+            }
+        }
+            .onSuccess {
+                _uiState.emit(
+                    PokemonDetailUiState.Fetched(
+                        detailUiCondition = DetailUiCondition(isLike = it != null && it.pokemonNumber == pokemonNumber)
+                    )
+                )
+                _conditionState.update { currentState ->
+                    currentState.copy(
+                        isLike = it != null && it.pokemonNumber == pokemonNumber
+                    )
+                }
+            }
+            .onFailure {
+                Log.d("error", "error：$it")
+            }
     }
 }

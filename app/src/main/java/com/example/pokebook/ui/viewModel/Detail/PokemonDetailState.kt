@@ -7,12 +7,15 @@ import java.util.UUID
  */
 sealed class PokemonDetailUiState {
     object Loading : PokemonDetailUiState()
-    object Fetched : PokemonDetailUiState()
+    data class Fetched(val detailUiCondition:DetailUiCondition ) : PokemonDetailUiState()
     object InitialState : PokemonDetailUiState()
-    object ResultError: PokemonDetailUiState()
-    object SearchError: PokemonDetailUiState()
+    object ResultError : PokemonDetailUiState()
+    object SearchError : PokemonDetailUiState()
 }
 
+data class DetailUiCondition(
+    val isLike:Boolean = false
+)
 
 /**
  *　ID
@@ -40,7 +43,7 @@ data class PokemonDetailScreenUiData(
     val imageUri: String = "",
     val height: Double = 0.0,
     val weight: Double = 0.0,
-    val isLike:Boolean = false
+    val isLike: Boolean = false
 )
 
 /**

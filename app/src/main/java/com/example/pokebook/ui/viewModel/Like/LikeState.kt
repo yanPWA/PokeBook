@@ -59,16 +59,7 @@ fun LikeDetails.toLike(): Like = Like(
     pokemonNumber = pokemonNumber,
     name = name,
     displayName = displayName,
-    description = description,
-    genus = genus,
-//    type = type,
-    hp = hp,
-    attack = attack,
-    defense = defense,
-    speed = speed,
     imageUrl = imageUrl,
-    height = height,
-    weight = weight
 )
 
 
@@ -114,16 +105,7 @@ fun List<Like>.toPokemonListUiDataList(): MutableList<LikeDetails> {
                 pokemonNumber = like.pokemonNumber,
                 name = like.name,
                 displayName = like.displayName,
-                description = like.description,
-                genus = like.genus,
-//                type =like.,
-                hp = like.hp,
-                attack = like.attack,
-                defense = like.defense,
-                speed = like.speed,
                 imageUrl = like.imageUrl,
-                height = like.height,
-                weight = like.weight,
                 isLike = true
             )
         }

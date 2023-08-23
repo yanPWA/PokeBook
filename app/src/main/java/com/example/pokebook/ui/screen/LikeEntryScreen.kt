@@ -236,9 +236,9 @@ private fun LikePokeCard(
                             .clickable {
                                 coroutineScope.launch {
                                     deleteLike.invoke(pokemon)
-                                    getAllList.invoke()
                                 }
                                 updateIsLike.invoke(!pokemon.isLike, pokemon.pokemonNumber)
+                                getAllList.invoke()
                             }
                     )
                 }

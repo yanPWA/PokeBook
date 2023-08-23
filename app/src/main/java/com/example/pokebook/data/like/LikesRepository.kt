@@ -22,7 +22,12 @@ interface LikesRepository {
     suspend fun deleteItem(like: Like)
 
     /**
-     * データソースの項目を更新
+     * データ・ソースの項目を更新
      */
     suspend fun updateItem(like: Like)
+
+    /**
+     * データ・ソースから項目をキーワードの項目を検索
+     */
+    suspend fun searchPokemonByName(pokemonNumber: Int):Like
 }
