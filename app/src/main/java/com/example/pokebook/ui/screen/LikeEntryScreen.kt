@@ -129,8 +129,12 @@ private fun LikeEntryBody(
                 )
             }
         }
+
         is LikeUiState.ResultError -> {
-            ResultError(onClickBackSearchScreen = onClickBackButton)
+            ResultError(
+                text = stringResource(R.string.result_error_text),
+                onClickBackSearchScreen = onClickBackButton
+            )
         }
 
         else -> {

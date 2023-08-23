@@ -141,6 +141,7 @@ private fun SearchListScreen(
 
         SearchUiState.ResultError -> {
             ResultError(
+                text = stringResource(R.string.result_error_text),
                 onClickBackSearchScreen = onClickBackSearchScreen
             )
         }
