@@ -39,8 +39,8 @@ class LikeEntryViewModel(private val likesRepository: LikesRepository) : ViewMod
     }
 
     // 表示用リスト
-    private val uiDataList = mutableListOf<LikeDetails>()
-    
+    private var uiDataList = mutableListOf<LikeDetails>()
+
     /**
      * Room データベースにアイテムを挿入
      */
@@ -63,14 +63,12 @@ class LikeEntryViewModel(private val likesRepository: LikesRepository) : ViewMod
      * データベースから全てのアイテムを取得
      */
     fun getAllList() = viewModelScope.launch {
-        uiDataList.clear()
         _uiState.emit(LikeUiState.Loading)
-
         runCatching {
             withContext(Dispatchers.IO) {
-                likesRepository.getAllItemsStream().apply {
-                    uiDataList += this.toPokemonListUiDataList()
-                }
+                val stream = likesRepository.getAllItemsStream()
+                val dataList = stream.toList()
+                uiDataList = dataList.toPokemonListUiDataList()
             }
         }
             .onSuccess {
@@ -84,10 +82,10 @@ class LikeEntryViewModel(private val likesRepository: LikesRepository) : ViewMod
     }
 
     /**
-     * Likeフラグを更新
+     * 一覧表示を更新する
      */
-    fun updateIsLike(isLike: Boolean, pokemonNumber: Int) {
-        uiDataList.map { data ->
+    fun updateIsLike(isLike: Boolean, pokemonNumber: Int) = viewModelScope.launch {
+        uiDataList.forEach { data ->
             if (data.pokemonNumber == pokemonNumber) {
                 data.isLike = isLike
             }

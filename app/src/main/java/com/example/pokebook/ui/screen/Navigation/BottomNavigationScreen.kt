@@ -169,6 +169,7 @@ fun NavGraphBuilder.likeGraph(
         route = BottomNavItems.Like.route
     ) {
         composable(LikeScreen.LikeListScreen.route) {
+            likeEntryViewModel.getAllList()
             LikeEntryScreen(
                 onClickCard = { navController.navigate(LikeScreen.LikeDetailScreen.route) },
                 onClickBackButton = { navController.navigateUp() },
