@@ -91,7 +91,6 @@ private fun LikeEntryBody(
     getAllList: () -> Unit,
     getPokemonSpecies: (PokemonListUiData) -> Unit
 ) {
-    getAllList.invoke()
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiEventState.collectAsStateWithLifecycle(initialValue = null)
 
@@ -112,7 +111,11 @@ private fun LikeEntryBody(
         }
 
         is LikeUiState.Fetched -> {
-            if ((state as LikeUiState.Fetched).uiDataList.isNotEmpty()) {
+            if ((state as LikeUiState.Fetched).uiDataList.isEmpty()) {
+                PokemonNotFound(
+                    onClickBackSearchScreen = onClickBackButton
+                )
+            } else {
                 LikeScreen(
                     likeList = (state as LikeUiState.Fetched).uiDataList,
                     onClickCard = onClickCard,
@@ -120,10 +123,6 @@ private fun LikeEntryBody(
                     deleteLike = deleteLike,
                     getAllList = getAllList,
                     getPokemonSpecies = getPokemonSpecies
-                )
-            } else {
-                PokemonNotFound(
-                    onClickBackSearchScreen = onClickBackButton
                 )
             }
         }
@@ -236,9 +235,9 @@ private fun LikePokeCard(
                             .clickable {
                                 coroutineScope.launch {
                                     deleteLike.invoke(pokemon)
+                                    updateIsLike.invoke(!pokemon.isLike, pokemon.pokemonNumber)
+                                    getAllList.invoke()
                                 }
-                                updateIsLike.invoke(!pokemon.isLike, pokemon.pokemonNumber)
-                                getAllList.invoke()
                             }
                     )
                 }
