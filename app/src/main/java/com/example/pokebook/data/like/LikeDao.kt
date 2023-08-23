@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.pokebook.data.like.Like
+import com.example.pokebook.data.pokemonData.PokemonData
 
 @Dao
 interface LikeDao {
@@ -24,4 +25,7 @@ interface LikeDao {
 
     @Query("SELECT * from likes ORDER BY name ASC")
     fun getAllItems(): List<Like>
+
+    @Query("SELECT * FROM likes WHERE pokemonNumber = :pokemonNumber")
+    fun searchByName(pokemonNumber: Int): Like
 }

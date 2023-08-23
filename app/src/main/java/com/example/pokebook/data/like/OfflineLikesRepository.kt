@@ -12,4 +12,5 @@ class OfflineLikesRepository(private val likeDao: LikeDao) : LikesRepository {
     override suspend fun deleteItem(like: Like) = likeDao.delete(like)
 
     override suspend fun updateItem(like: Like) = likeDao.update(like)
+    override suspend fun searchPokemonByName(pokemonNumber: Int): Like  = likeDao.searchByName(pokemonNumber)
 }
