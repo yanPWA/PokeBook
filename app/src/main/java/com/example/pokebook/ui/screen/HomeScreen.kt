@@ -51,8 +51,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    pokemonDetailViewModel: PokemonDetailViewModel,
-    onClickCard: () -> Unit
+    onClickCard: (Int) -> Unit
 ) {
     HomeScreen(
         uiState = homeViewModel.uiState,
@@ -63,7 +62,6 @@ fun HomeScreen(
         onClickBack = homeViewModel::onClickBack,
         onClickCard = onClickCard,
         updateIsFirst = homeViewModel::updateIsFirst,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData,
         onClickRetryGetList = homeViewModel::getPokemonList
     )
 }
@@ -77,9 +75,8 @@ private fun HomeScreen(
     consumeEvent: (HomeUiEvent) -> Unit,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
     onClickRetryGetList: (Boolean) -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
@@ -109,7 +106,6 @@ private fun HomeScreen(
                 onClickBack = onClickBack,
                 onClickCard = onClickCard,
                 updateIsFirst = updateIsFirst,
-                getPokemonSpecies = getPokemonSpecies,
                 lazyGridState = lazyGridState,
                 coroutineScope = coroutineScope
             )
@@ -149,9 +145,8 @@ private fun PokeList(
     isFirst: Boolean,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
@@ -173,7 +168,6 @@ private fun PokeList(
             isFirst = isFirst,
             onClickCard = onClickCard,
             updateIsFirst = updateIsFirst,
-            getPokemonSpecies = getPokemonSpecies,
             lazyGridState = lazyGridState,
             coroutineScope = coroutineScope
         )
@@ -187,9 +181,8 @@ private fun PokeList(
 fun PokeList(
     pokemonUiDataList: List<PokemonListUiData>,
     isFirst: Boolean,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
@@ -209,7 +202,6 @@ fun PokeList(
             PokeCard(
                 pokemon = listItem,
                 onClickCard = onClickCard,
-                getPokemonSpecies = getPokemonSpecies
             )
         }
     }
@@ -219,17 +211,13 @@ fun PokeList(
 @Composable
 fun PokeCard(
     pokemon: PokemonListUiData,
-    onClickCard: () -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
+    onClickCard: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = cardElevation(4.dp),
-        onClick = {
-            getPokemonSpecies.invoke(pokemon)
-            onClickCard.invoke()
-        }
+        onClick = { onClickCard.invoke(pokemon.pokemonNumber) }
     ) {
         Box(
             contentAlignment = Alignment.BottomCenter
@@ -278,14 +266,4 @@ fun PokeCard(
             )
         }
     }
-}
-
-@Preview
-@Composable
-private fun PokeCardPreview() {
-    PokeCard(
-        pokemon = PokemonListUiData(name = "ピカチュウ"),
-        onClickCard = {},
-        getPokemonSpecies = {}
-    )
 }

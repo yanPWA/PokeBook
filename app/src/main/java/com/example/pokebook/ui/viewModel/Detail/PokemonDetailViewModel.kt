@@ -9,7 +9,6 @@ import com.example.pokebook.data.pokemonData.PokemonDataRepository
 import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.model.StatType
 import com.example.pokebook.repository.PokemonDetailRepository
-import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -132,7 +131,7 @@ class PokemonDetailViewModel(
     /**
      * ポケモンの種類に関する情報を取得（名前検索）
      */
-    fun searchByName(searchName: String) = viewModelScope.launch {
+    fun getPokemonSpeciesByName(searchName: String) = viewModelScope.launch {
         _uiState.emit(PokemonDetailUiState.Loading)
         runCatching {
             withContext(Dispatchers.IO) {
@@ -152,80 +151,6 @@ class PokemonDetailViewModel(
             Log.d("error", "e[getPokemonList]:$it")
             send(PokemonDetailUiEvent.Error(it))
             _uiState.emit(PokemonDetailUiState.SearchError)
-        }
-    }
-
-    /**
-     * ポケモンの種類に関する情報を取得（uiDataを引数で渡す）
-     */
-    fun getPokemonSpeciesByUiData(pokemonListUiData: PokemonListUiData) = viewModelScope.launch {
-        _uiState.emit(PokemonDetailUiState.Loading)
-        runCatching {
-            detailRepository.getPokemonPersonalData(pokemonListUiData.pokemonNumber)
-        }.onSuccess {
-            val speciesNumber = Uri.parse(it.species.url).lastPathSegment
-            speciesNumber?.let { num ->
-                // ポケモン特性を取得
-                species = detailRepository.getPokemonSpecies(num.toInt())
-            }
-
-            // 説明
-            val description = species.flavorTextEntries.firstOrNull { flavorTextEntries ->
-                flavorTextEntries.language.name == "ja"
-            }?.flavorText ?: ""
-
-            // 分類
-            val genus =
-                species.genera.firstOrNull { genera -> genera.language.name == "ja" }?.genus ?: ""
-
-            // タイプ
-            val type: MutableList<String> =
-                it.types.map { type -> type.type.name }.toMutableList()
-
-            // HP 攻撃　防御　スピード
-            it.stats.onEach { stats ->
-                _conditionState.update { currentState ->
-                    when (stats.stat.name) {
-                        StatType.HP.type -> {
-                            currentState.copy(
-                                hp = stats.baseStat
-                            )
-                        }
-
-                        StatType.ATTACK.type -> currentState.copy(
-                            attack = stats.baseStat
-                        )
-
-                        StatType.DEFENSE.type -> currentState.copy(
-                            defense = stats.baseStat
-                        )
-
-                        StatType.SPEED.type -> currentState.copy(
-                            speed = stats.baseStat
-                        )
-
-                        else -> currentState
-                    }
-                }
-            }
-
-            // id 日本語名　説明　属性
-            _conditionState.update { currentState ->
-                currentState.copy(
-                    pokemonNumber = pokemonListUiData.pokemonNumber,
-                    name = pokemonListUiData.displayName,
-                    type = type,
-                    description = description,
-                    genus = genus,
-                    imageUri = pokemonListUiData.imageUrl ?: "",
-                    height = it.height / 10.0,
-                    weight = it.weight / 10.0
-                )
-            }
-            _uiState.emit(PokemonDetailUiState.Fetched(detailUiCondition = DetailUiCondition()))
-        }.onFailure {
-            send(PokemonDetailUiEvent.Error(it))
-            _uiState.emit(PokemonDetailUiState.ResultError)
         }
     }
 

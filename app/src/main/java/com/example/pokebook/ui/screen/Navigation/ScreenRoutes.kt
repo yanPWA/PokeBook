@@ -15,7 +15,8 @@ sealed class SearchScreen(val route: String) {
     object SearchTopScreen : SearchScreen("search/searchScreen")
     object PokemonListScreen : SearchScreen("search/pokemonListScreen")
     object PokemonNotFound : SearchScreen("search/pokemonNotFound")
-    object PokemonDetailScreen : SearchScreen("search/pokemonDetailScreen")
+    object PokemonDetailScreenByName : SearchScreen("search/PokemonDetailScreenByName")
+    object PokemonDetailScreenByNumber : SearchScreen("search/PokemonDetailScreenByNumber")
 }
 
 /**
