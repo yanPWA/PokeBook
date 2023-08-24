@@ -75,7 +75,7 @@ fun LikeEntryScreen(
         updateIsLike = likeEntryViewModel::updateIsLike,
         deleteLike = likeEntryViewModel::deleteLike,
         getAllList = likeEntryViewModel::getAllList,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesById
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData
     )
 }
 

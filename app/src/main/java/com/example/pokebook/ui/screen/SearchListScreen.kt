@@ -63,7 +63,7 @@ fun SearchListScreen(
         onClickCard = onClickCard,
         updateButtonStates = searchViewModel::updateButtonStates,
         updateIsFirst = searchViewModel::updateIsFirst,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesById,
+        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData,
         onClickBackSearchScreen = onClickBackSearchScreen,
         onClickBackButton = onClickBackSearchScreen
     )

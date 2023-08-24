@@ -158,7 +158,7 @@ class PokemonDetailViewModel(
     /**
      * ポケモンの種類に関する情報を取得（uiDataを引数で渡す）
      */
-    fun getPokemonSpeciesById(pokemonListUiData: PokemonListUiData) = viewModelScope.launch {
+    fun getPokemonSpeciesByUiData(pokemonListUiData: PokemonListUiData) = viewModelScope.launch {
         _uiState.emit(PokemonDetailUiState.Loading)
         runCatching {
             detailRepository.getPokemonPersonalData(pokemonListUiData.pokemonNumber)
