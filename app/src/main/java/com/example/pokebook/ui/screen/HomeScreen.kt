@@ -51,8 +51,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    pokemonDetailViewModel: PokemonDetailViewModel,
-    onClickCard: () -> Unit
+    onClickCard: (Int) -> Unit
 ) {
     HomeScreen(
         uiState = homeViewModel.uiState,
@@ -76,7 +75,7 @@ private fun HomeScreen(
     consumeEvent: (HomeUiEvent) -> Unit,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     onClickRetryGetList: (Boolean) -> Unit
 ) {
@@ -146,7 +145,7 @@ private fun PokeList(
     isFirst: Boolean,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
@@ -182,7 +181,7 @@ private fun PokeList(
 fun PokeList(
     pokemonUiDataList: List<PokemonListUiData>,
     isFirst: Boolean,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
@@ -212,15 +211,13 @@ fun PokeList(
 @Composable
 fun PokeCard(
     pokemon: PokemonListUiData,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = cardElevation(4.dp),
-        onClick = {
-            onClickCard.invoke()
-        }
+        onClick = { onClickCard.invoke(pokemon.pokemonNumber) }
     ) {
         Box(
             contentAlignment = Alignment.BottomCenter
@@ -269,14 +266,4 @@ fun PokeCard(
             )
         }
     }
-}
-
-@Preview
-@Composable
-private fun PokeCardPreview() {
-    PokeCard(
-        pokemon = PokemonListUiData(name = "ピカチュウ"),
-        onClickCard = {},
-        getPokemonSpecies = {}
-    )
 }

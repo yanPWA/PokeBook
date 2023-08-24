@@ -49,8 +49,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SearchListScreen(
     searchViewModel: SearchViewModel,
-    pokemonDetailViewModel: PokemonDetailViewModel,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     onClickBackSearchScreen: () -> Unit
 ) {
     SearchListScreen(
@@ -63,7 +62,6 @@ fun SearchListScreen(
         onClickCard = onClickCard,
         updateButtonStates = searchViewModel::updateButtonStates,
         updateIsFirst = searchViewModel::updateIsFirst,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData,
         onClickBackSearchScreen = onClickBackSearchScreen,
         onClickBackButton = onClickBackSearchScreen
     )
@@ -78,10 +76,9 @@ private fun SearchListScreen(
     conditionState: StateFlow<SearchConditionState>,
     onClickBack: () -> Unit,
     onClickNext: () -> Unit,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     updateButtonStates: (Boolean, Boolean) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
     onClickBackSearchScreen: () -> Unit,
     onClickBackButton: () -> Unit
 ) {
@@ -118,7 +115,6 @@ private fun SearchListScreen(
                     onClickCard = onClickCard,
                     updateButtonStates = updateButtonStates,
                     updateIsFirst = updateIsFirst,
-                    getPokemonSpecies = getPokemonSpecies,
                     onClickBackSearchScreen = onClickBackSearchScreen
                 )
             }
@@ -157,10 +153,9 @@ private fun SearchListScreen(
     maxPage: String,
     onClickBack: () -> Unit,
     onClickNext: () -> Unit,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     updateButtonStates: (Boolean, Boolean) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
     onClickBackSearchScreen: () -> Unit,
 ) {
     Column(
@@ -194,7 +189,6 @@ private fun SearchListScreen(
             isFirst = isFirst,
             onClickCard = onClickCard,
             updateIsFirst = updateIsFirst,
-            getPokemonSpecies = getPokemonSpecies,
             lazyGridState = lazyGridState,
             coroutineScope = coroutineScope
         )
@@ -205,9 +199,8 @@ private fun SearchListScreen(
 private fun PokeTypeList(
     pokemonUiDataList: List<PokemonListUiData>,
     isFirst: Boolean,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
@@ -229,7 +222,6 @@ private fun PokeTypeList(
             PokeTypeCard(
                 pokemon = listItem,
                 onClickCard = onClickCard,
-                getPokemonSpecies = getPokemonSpecies
             )
         }
     }
@@ -239,16 +231,14 @@ private fun PokeTypeList(
 @Composable
 private fun PokeTypeCard(
     pokemon: PokemonListUiData,
-    onClickCard: () -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
+    onClickCard: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = {
-            getPokemonSpecies.invoke(pokemon)
-            onClickCard.invoke()
+            onClickCard.invoke(pokemon.pokemonNumber)
         }
     ) {
         if (!pokemon.imageUrl.isNullOrEmpty()) {

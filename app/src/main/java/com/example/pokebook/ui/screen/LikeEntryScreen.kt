@@ -50,20 +50,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/**
- * ここでやりたいこと
- * DBに保存されているデータを表示すること
- * 一覧画面はホームタブと同じ感じ
- * Likeの登録削除ボタンを実装
- * 詳細画面表示
- * 戻るボタン
- *
- */
 @Composable
 fun LikeEntryScreen(
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     onClickBackButton: () -> Unit,
-    pokemonDetailViewModel: PokemonDetailViewModel,
     likeEntryViewModel: LikeEntryViewModel
 ) {
     LikeEntryBody(
@@ -75,7 +65,6 @@ fun LikeEntryScreen(
         updateIsLike = likeEntryViewModel::updateIsLike,
         deleteLike = likeEntryViewModel::deleteLike,
         getAllList = likeEntryViewModel::getAllList,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData
     )
 }
 
@@ -84,12 +73,11 @@ private fun LikeEntryBody(
     uiState: StateFlow<LikeUiState>,
     uiEventState: Flow<LikeUiEvent?>,
     consumeEvent: (LikeUiEvent) -> Unit,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     onClickBackButton: () -> Unit,
     updateIsLike: (Boolean, Int) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
     getAllList: () -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiEventState.collectAsStateWithLifecycle(initialValue = null)
@@ -122,7 +110,6 @@ private fun LikeEntryBody(
                     updateIsLike = updateIsLike,
                     deleteLike = deleteLike,
                     getAllList = getAllList,
-                    getPokemonSpecies = getPokemonSpecies
                 )
             }
         }
@@ -142,11 +129,10 @@ private fun LikeEntryBody(
 @Composable
 fun LikeScreen(
     likeList: MutableList<LikeDetails>,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     updateIsLike: (Boolean, Int) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
     getAllList: () -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -171,7 +157,6 @@ fun LikeScreen(
                     updateIsLike = updateIsLike,
                     deleteLike = deleteLike,
                     getAllList = getAllList,
-                    getPokemonSpecies = getPokemonSpecies
                 )
             }
         }
@@ -182,19 +167,17 @@ fun LikeScreen(
 @Composable
 private fun LikePokeCard(
     pokemon: LikeDetails,
-    onClickCard: () -> Unit,
+    onClickCard: (Int) -> Unit,
     updateIsLike: (Boolean, Int) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
     getAllList: () -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = {
-            getPokemonSpecies.invoke(pokemon.toPokemonListUiDataByLikeDetails())
-            onClickCard.invoke()
+            onClickCard.invoke(pokemon.pokemonNumber)
         },
     ) {
         Box(

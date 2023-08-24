@@ -38,15 +38,14 @@ import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 @Composable
 fun SearchScreen(
     searchViewModel: SearchViewModel,
-    pokemonDetailViewModel: PokemonDetailViewModel,
-    onClickSearchPokemonNumber: () -> Unit,
+    onClickSearchName: (String) -> Unit,
+    onClickSearchNumber: (Int) -> Unit,
     onClickSearchTypeButton: () -> Unit,
 ) {
     SearchScreen(
         onClickSearchType = searchViewModel::getPokemonByType,
-        searchByName = pokemonDetailViewModel::searchByName,
-        onClickSearchNumber = pokemonDetailViewModel::getPokemonSpeciesById,
-        onClickSearchPokemonNumber = onClickSearchPokemonNumber,
+        onClickSearchName = onClickSearchName,
+        onClickSearchNumber = onClickSearchNumber,
         onClickSearchTypeButton = onClickSearchTypeButton
     )
 }
@@ -54,27 +53,8 @@ fun SearchScreen(
 @Composable
 private fun SearchScreen(
     onClickSearchType: (String) -> Unit,
-    searchByName: (String) -> Unit,
+    onClickSearchName: (String) -> Unit,
     onClickSearchNumber: (Int) -> Unit,
-    onClickSearchPokemonNumber: () -> Unit,
-    onClickSearchTypeButton: () -> Unit
-) {
-    SearchScreen(
-        onClickSearchType = onClickSearchType,
-        searchByName = searchByName,
-        onClickSearchNumber = onClickSearchNumber,
-        onClickSearchPokemonNumber = onClickSearchPokemonNumber,
-        onClickSearchTypeButton = onClickSearchTypeButton,
-        modifier = Modifier
-    )
-}
-
-@Composable
-private fun SearchScreen(
-    onClickSearchType: (String) -> Unit,
-    searchByName: (String) -> Unit,
-    onClickSearchNumber: (Int) -> Unit,
-    onClickSearchPokemonNumber: () -> Unit,
     onClickSearchTypeButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -95,15 +75,13 @@ private fun SearchScreen(
         SearchName(
             value = valueName,
             onValueChange = { valueName = it },
-            searchByName = searchByName,
-            onClickSearchPokemonNumber = onClickSearchPokemonNumber,
+            onClickSearchName = onClickSearchName,
             modifier = modifier
         )
         SearchNumber(
             value = valueNumber,
             onValueChange = { valueNumber = it },
             onClickSearchNumber = onClickSearchNumber,
-            onClickSearchPokemonNumber = onClickSearchPokemonNumber,
             modifier = modifier
         )
     }
@@ -169,8 +147,7 @@ private fun SearchType(
 private fun SearchName(
     value: String,
     onValueChange: (String) -> Unit,
-    searchByName: (String) -> Unit,
-    onClickSearchPokemonNumber: () -> Unit,
+    onClickSearchName: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -201,8 +178,7 @@ private fun SearchName(
             )
             Button(
                 onClick = {
-                    searchByName.invoke(value)
-                    onClickSearchPokemonNumber.invoke()
+                    onClickSearchName.invoke(value)
                 },
                 modifier = modifier
                     .padding(2.dp),
@@ -227,7 +203,6 @@ private fun SearchNumber(
     value: String,
     onValueChange: (String) -> Unit,
     onClickSearchNumber: (Int) -> Unit,
-    onClickSearchPokemonNumber: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -259,7 +234,6 @@ private fun SearchNumber(
             Button(
                 onClick = {
                     onClickSearchNumber.invoke(value.toInt())
-                    onClickSearchPokemonNumber.invoke()
                 },
                 modifier = modifier
                     .padding(2.dp),
