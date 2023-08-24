@@ -9,7 +9,6 @@ import com.example.pokebook.data.pokemonData.PokemonDataRepository
 import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.model.StatType
 import com.example.pokebook.repository.PokemonDetailRepository
-import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -132,7 +131,7 @@ class PokemonDetailViewModel(
     /**
      * ポケモンの種類に関する情報を取得（名前検索）
      */
-    fun searchByName(searchName: String) = viewModelScope.launch {
+    fun getPokemonSpeciesByName(searchName: String) = viewModelScope.launch {
         _uiState.emit(PokemonDetailUiState.Loading)
         runCatching {
             withContext(Dispatchers.IO) {
