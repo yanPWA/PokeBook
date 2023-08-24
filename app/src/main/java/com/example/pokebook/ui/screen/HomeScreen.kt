@@ -63,7 +63,6 @@ fun HomeScreen(
         onClickBack = homeViewModel::onClickBack,
         onClickCard = onClickCard,
         updateIsFirst = homeViewModel::updateIsFirst,
-        getPokemonSpecies = pokemonDetailViewModel::getPokemonSpeciesByUiData,
         onClickRetryGetList = homeViewModel::getPokemonList
     )
 }
@@ -79,7 +78,6 @@ private fun HomeScreen(
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
     onClickRetryGetList: (Boolean) -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
@@ -109,7 +107,6 @@ private fun HomeScreen(
                 onClickBack = onClickBack,
                 onClickCard = onClickCard,
                 updateIsFirst = updateIsFirst,
-                getPokemonSpecies = getPokemonSpecies,
                 lazyGridState = lazyGridState,
                 coroutineScope = coroutineScope
             )
@@ -151,7 +148,6 @@ private fun PokeList(
     onClickBack: () -> Unit,
     onClickCard: () -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
@@ -173,7 +169,6 @@ private fun PokeList(
             isFirst = isFirst,
             onClickCard = onClickCard,
             updateIsFirst = updateIsFirst,
-            getPokemonSpecies = getPokemonSpecies,
             lazyGridState = lazyGridState,
             coroutineScope = coroutineScope
         )
@@ -189,7 +184,6 @@ fun PokeList(
     isFirst: Boolean,
     onClickCard: () -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
@@ -209,7 +203,6 @@ fun PokeList(
             PokeCard(
                 pokemon = listItem,
                 onClickCard = onClickCard,
-                getPokemonSpecies = getPokemonSpecies
             )
         }
     }
@@ -220,14 +213,12 @@ fun PokeList(
 fun PokeCard(
     pokemon: PokemonListUiData,
     onClickCard: () -> Unit,
-    getPokemonSpecies: (PokemonListUiData) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = cardElevation(4.dp),
         onClick = {
-            getPokemonSpecies.invoke(pokemon)
             onClickCard.invoke()
         }
     ) {
