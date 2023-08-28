@@ -16,4 +16,13 @@ class OfflinePokemonDataRepository(private val pokemonDataDao: PokemonDataDao) :
     override suspend fun updateItem(pokemon: PokemonData) = pokemonDataDao.update(pokemon)
     override suspend fun searchPokemonByKeyword(keyword: String): PokemonData =
         pokemonDataDao.searchByJapaneseName(keyword)
+
+    override suspend fun getAllItemsBetweenIds(startId: Int, endId: Int): List<PokemonData> =
+        pokemonDataDao.getAllItemsBetweenIds(startId, endId).apply {
+            Log.d("test","startId:$startId,endId:$endId")
+        }
+
+    override suspend fun updatePokemonData(id: Int, imageUrl: String,speciesNumber:String?) {
+        pokemonDataDao.updatePokemonData(id, imageUrl,speciesNumber)
+    }
 }

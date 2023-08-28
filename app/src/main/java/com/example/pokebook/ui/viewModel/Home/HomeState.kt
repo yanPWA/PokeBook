@@ -31,11 +31,9 @@ data class PokemonListUiData(
 )
 
 data class HomeScreenConditionState(
-    val count: Int = 0,
-    val offset: String = "20",
-    val previous: String = "",
-    val currentNumberStart: String = "1",
-    val isScrollTop:Boolean = true
+    val isScrollTop:Boolean = true,
+    val pagePosition:Int = 0,
+    val speciesNumber:String? = ""
 )
 
 /**

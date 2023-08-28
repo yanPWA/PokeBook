@@ -121,7 +121,7 @@ fun PokemonNotFound(
  */
 @Composable
 fun HomeResultError(
-    onClickRetryGetList: (Boolean) -> Unit,
+    onClickRetryGetList: () -> Unit,
     isFirst: Boolean,
 ) {
     Column(
@@ -151,7 +151,7 @@ fun HomeResultError(
                 .padding(bottom = 10.dp)
         )
         Button(
-            onClick = { onClickRetryGetList.invoke(isFirst) },
+            onClick = { onClickRetryGetList.invoke() },
             shape = RoundedCornerShape(4.dp),
         ) {
             Text(

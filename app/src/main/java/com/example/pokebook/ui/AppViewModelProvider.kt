@@ -27,7 +27,8 @@ object AppViewModelProvider {
         }
         initializer {
             HomeViewModel(
-                pokemonApplication().container.homeRepository
+                pokemonApplication().container.homeRepository,
+                pokemonApplication().container.pokemonDataRepository
             )
         }
         initializer {
