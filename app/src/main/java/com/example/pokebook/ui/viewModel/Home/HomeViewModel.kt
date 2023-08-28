@@ -76,21 +76,23 @@ class HomeViewModel(
                                     repository.getPokemonPersonalData(index.id)
                                         .pokemonPersonalDataToPokemonData()
 
-                                // imageUrlを取得したらDBに保存する
-                                pokemonPersonalData.imageUrl?.let{
-                                    pokemonDataRepository.updatePokemonData(
-                                        id = index.id,
-                                        imageUrl = pokemonPersonalData.imageUrl,
-                                        speciesNumber = pokemonPersonalData.speciesNumber
-                                    )
-                                }
+                                async{
+                                    // imageUrlを取得したらDBに保存する
+                                    pokemonPersonalData.imageUrl?.let{
+                                        pokemonDataRepository.updatePokemonData(
+                                            id = index.id,
+                                            imageUrl = pokemonPersonalData.imageUrl,
+                                            speciesNumber = pokemonPersonalData.speciesNumber
+                                        )
+                                    }
 
-                                // 表示用リストに追加する
-                                uiDataList += PokemonListUiData(
-                                    pokemonNumber = index.id,
-                                    displayName = index.japaneseName,
-                                    imageUrl = pokemonPersonalData.imageUrl
-                                )
+                                    // 表示用リストに追加する
+                                    uiDataList += PokemonListUiData(
+                                        pokemonNumber = index.id,
+                                        displayName = index.japaneseName,
+                                        imageUrl = pokemonPersonalData.imageUrl
+                                    )
+                                }.await()
 
                                 // HomeScreenConditionStateを更新
                                 _conditionState.update { currentState ->
