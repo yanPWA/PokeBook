@@ -1,12 +1,18 @@
 package com.example.pokebook.ui.viewModel.Home
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pokebook.data.pokemonData.PokemonData
+import com.example.pokebook.data.pokemonData.PokemonDataRepository
+import com.example.pokebook.data.pokemonData.pokemonPersonalDataToPokemonData
 import com.example.pokebook.model.Pokemon
+import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.repository.DefaultHomeRepository
 import com.example.pokebook.repository.HomeRepository
 import com.example.pokebook.ui.viewModel.DefaultHeader
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
@@ -15,9 +21,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeViewModel(
-    private val repository: HomeRepository
+    private val repository: HomeRepository,
+    private val pokemonDataRepository: PokemonDataRepository
 ) : ViewModel(), DefaultHeader {
     private var _uiState: MutableStateFlow<HomeUiState> =
         MutableStateFlow(HomeUiState.InitialState)
@@ -44,70 +52,64 @@ class HomeViewModel(
     private val uiDataList = mutableListOf<PokemonListUiData>()
 
     init {
-        getPokemonList(true)
+        getPokemonList()
     }
-
     /**
      * ポケモンリスト取得
      */
-    fun getPokemonList(isFirst: Boolean, isBackButton: Boolean = false) {
+    fun getPokemonList() {
         viewModelScope.launch {
             _uiState.emit(HomeUiState.Loading)
             updateIsFirst(true)
             runCatching {
-                if (isFirst) {
-                    repository.getPokemonList()
-                } else {
-                    when (isBackButton) {
-                        true -> repository.getPokemonList(conditionState.value.previous)
-                        false -> repository.getPokemonList(conditionState.value.offset)
+                withContext(Dispatchers.IO) {
+                    // DBからとってきて中身をチェックする（20件ずつ）
+                    pokemonDataRepository.getAllItemsBetweenIds(
+                        startId = conditionState.value.pagePosition * 20 + 1,
+                        endId = conditionState.value.pagePosition * 20 + 20
+                    ).apply {
+                        uiDataList.clear()
+                        for (index in this) {
+                            // imageUrlがなければAPIを叩く
+                            if (index.imageUrl?.isEmpty() == true) {
+                                val pokemonPersonalData =
+                                    repository.getPokemonPersonalData(index.id)
+                                        .pokemonPersonalDataToPokemonData()
+
+                                // imageUrlを取得したらDBに保存する
+                                pokemonPersonalData.imageUrl?.let{
+                                    pokemonDataRepository.updatePokemonData(
+                                        id = index.id,
+                                        imageUrl = pokemonPersonalData.imageUrl,
+                                        speciesNumber = pokemonPersonalData.speciesNumber
+                                    )
+                                }
+
+                                // 表示用リストに追加する
+                                uiDataList += PokemonListUiData(
+                                    pokemonNumber = index.id,
+                                    displayName = index.japaneseName,
+                                    imageUrl = pokemonPersonalData.imageUrl
+                                )
+
+                                // HomeScreenConditionStateを更新
+                                _conditionState.update { currentState ->
+                                    currentState.copy(
+                                        speciesNumber = pokemonPersonalData.speciesNumber
+                                    )
+                                }
+                            }else {
+                                uiDataList += PokemonListUiData(
+                                    pokemonNumber = index.id,
+                                    displayName = index.japaneseName,
+                                    imageUrl = index.imageUrl
+                                )
+                            }
+                        }
                     }
                 }
             }
                 .onSuccess {
-                    uiDataList.clear()
-                    updateConditionState(it)
-                    uiDataList += it.results.map { item ->
-                        PokemonListUiData(
-                            name = item.name,
-                            url = item.url
-                        )
-                    }.toMutableList()
-                    // 一覧に表示する画像を取得
-                    val pokemonPersonalDataList = it.results.map { item ->
-                        val pokemonNumber = Uri.parse(item.url).lastPathSegment
-                        async {
-                            pokemonNumber?.let { number ->
-                                // ポケモンのパーソナル情報を取得
-                                repository.getPokemonPersonalData(number.toInt())
-                            }
-                        }
-                    }.awaitAll()
-                    uiDataList.onEachIndexed { index, item ->
-                        item.imageUrl =
-                            pokemonPersonalDataList[index]?.sprites?.other?.officialArtwork?.imgUrl
-                                ?: ""
-                    }
-
-                    // 一覧に表示するポケモンの日本語名を取得
-                    val pokemonSpeciesList = it.results.map { item ->
-                        val pokemonNumber = Uri.parse(item.url).lastPathSegment
-                        async {
-                            pokemonNumber?.let { number ->
-                                val data = repository.getPokemonPersonalData(number.toInt())
-                                val speciesNumber = Uri.parse(data.species.url).lastPathSegment
-                                speciesNumber?.let { num ->
-                                    repository.getPokemonSpecies(num.toInt())
-                                }
-                            }
-                        }
-                    }.awaitAll()
-                    uiDataList.onEachIndexed { index, item ->
-                        item.displayName =
-                            pokemonSpeciesList[index]?.names?.firstOrNull { name -> name.language.name == "ja" }?.name
-                                ?: ""
-                        item.pokemonNumber = pokemonSpeciesList[index]?.id ?: 0
-                    }
                     _uiState.emit(HomeUiState.Fetched(uiDataList = uiDataList))
                 }
                 .onFailure {
@@ -121,32 +123,24 @@ class HomeViewModel(
      * 「次へ」ボタン押下してポケモンリスト取得
      */
     override fun onClickNext() {
-        getPokemonList(isFirst = false)
+        _conditionState.update { currentState ->
+            currentState.copy(
+                pagePosition = conditionState.value.pagePosition.plus(1)
+            )
+        }
+        getPokemonList()
     }
 
     /**
      * 「戻る」ボタン押下して一つ前のポケモンリストを取得
      */
     override fun onClickBack() {
-        getPokemonList(isFirst = false, isBackButton = true)
-    }
-
-    /**
-     * nextUrlからクエリを取得してOffsetを更新する
-     */
-    private fun updateConditionState(pokemon: Pokemon) {
-        val offsetValue = Uri.parse(pokemon.next).getQueryParameter("offset") ?: return
-        val previousValue = pokemon.previous?.let {
-            Uri.parse(it).getQueryParameter("offset")
-        }
         _conditionState.update { currentState ->
             currentState.copy(
-                count = pokemon.count,
-                offset = offsetValue,
-                previous = previousValue ?: "",
-                currentNumberStart = offsetValue.toInt().minus(19).toString()
+                pagePosition = conditionState.value.pagePosition.minus(1)
             )
         }
+        getPokemonList()
     }
 
     /**
