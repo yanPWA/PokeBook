@@ -6,7 +6,7 @@
     <string name="icon_setting">setting</string>
     <string name="loading">loading</string>
     <string name="loading_failed">読み込みに失敗しました</string>
-    <string name="header_title_displayed_number">#%s 〜 #%s</string>
+    <string name="header_title_displayed_number">#%s - #%s</string>
     <string name="back_button">◀︎戻る︎</string>
     <string name="next_button">次へ ▶︎︎</string>
     <string name="pokemon_genus">分類：%s</string>
