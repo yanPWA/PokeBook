@@ -77,7 +77,7 @@ private fun HomeScreen(
     onClickBack: () -> Unit,
     onClickCard: (Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
-    onClickRetryGetList: (Boolean) -> Unit
+    onClickRetryGetList: () -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
@@ -98,8 +98,8 @@ private fun HomeScreen(
     when (state) {
         is HomeUiState.Fetched -> {
             PokeList(
-                currentNumberStart = homeUiConditionState.value.currentNumberStart,
-                currentNumberEnd = homeUiConditionState.value.offset,
+                startId = homeUiConditionState.value.pagePosition * 20 + 1,
+                endId = homeUiConditionState.value.pagePosition * 20 + 20,
                 pokemonUiDataList = (state as HomeUiState.Fetched).uiDataList,
                 isFirst = homeUiConditionState.value.isScrollTop,
                 onClickNext = onClickNext,
@@ -116,8 +116,8 @@ private fun HomeScreen(
                 DefaultHeader(
                     title = String.format(
                         stringResource(id = R.string.header_title_displayed_number),
-                        homeUiConditionState.value.currentNumberStart,
-                        homeUiConditionState.value.offset
+                        homeUiConditionState.value.pagePosition * 20 + 1,
+                        homeUiConditionState.value.pagePosition * 20 + 20
                     ),
                     onClickNext = onClickNext,
                     onClickBack = onClickBack,
@@ -139,8 +139,8 @@ private fun HomeScreen(
 
 @Composable
 private fun PokeList(
-    currentNumberStart: String,
-    currentNumberEnd: String,
+    startId: Int,
+    endId: Int,
     pokemonUiDataList: List<PokemonListUiData>,
     isFirst: Boolean,
     onClickNext: () -> Unit,
@@ -157,8 +157,8 @@ private fun PokeList(
         DefaultHeader(
             title = String.format(
                 stringResource(id = R.string.header_title_displayed_number),
-                currentNumberStart,
-                currentNumberEnd
+                startId,
+                endId
             ),
             onClickNext = onClickNext,
             onClickBack = onClickBack
