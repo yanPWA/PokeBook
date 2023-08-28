@@ -42,7 +42,7 @@ fun PokemonDataByJson.toPokemonData(): PokemonData = PokemonData(
     japaneseName = this.name.japanese,
 //    typy = this.type,
     hp = this.base.hp,
-    Attack = this.base.attack,
-    Defense = this.base.defense,
-    Speed = this.base.speed
+    attack = this.base.attack,
+    defense = this.base.defense,
+    speed = this.base.speed
 )
