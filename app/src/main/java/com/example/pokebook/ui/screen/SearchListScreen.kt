@@ -108,7 +108,7 @@ private fun SearchListScreen(
                     pokemonUiDataList = (state as SearchUiState.Fetched).searchList,
                     isFirst = conditionState.value.isFirst,
                     searchWord = searchWord,
-                    pagePosition = conditionState.value.pagePosition.plus(1),
+                    pagePosition = conditionState.value.pagePosition,
                     maxPage = conditionState.value.maxPage,
                     onClickBack = onClickBack,
                     onClickNext = onClickNext,
@@ -123,6 +123,7 @@ private fun SearchListScreen(
         SearchUiState.Loading -> {
             Column {
                 DefaultHeader(
+                    pagePosition = conditionState.value.pagePosition,
                     title = String.format(
                         stringResource(R.string.header_title_search_list_1),
                         searchWord
@@ -166,6 +167,7 @@ private fun SearchListScreen(
         val coroutineScope = rememberCoroutineScope()
 
         DefaultHeader(
+            pagePosition = pagePosition,
             title = String.format(
                 stringResource(R.string.header_title_search_list_1),
                 searchWord
@@ -174,10 +176,11 @@ private fun SearchListScreen(
             } else {
                 String.format(
                     stringResource(R.string.header_title_search_list_2),
-                    pagePosition,
+                    pagePosition.plus(1),
                     maxPage
                 )
             },
+            maxPage = maxPage,
             updateButtonStates = updateButtonStates,
             onClickBack = onClickBack,
             onClickNext = onClickNext,
