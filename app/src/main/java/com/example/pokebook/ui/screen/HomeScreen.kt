@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -98,8 +99,7 @@ private fun HomeScreen(
     when (state) {
         is HomeUiState.Fetched -> {
             PokeList(
-                startId = homeUiConditionState.value.pagePosition * 20 + 1,
-                endId = homeUiConditionState.value.pagePosition * 20 + 20,
+                pagePosition = homeUiConditionState.value.pagePosition,
                 pokemonUiDataList = (state as HomeUiState.Fetched).uiDataList,
                 isFirst = homeUiConditionState.value.isScrollTop,
                 onClickNext = onClickNext,
@@ -114,6 +114,7 @@ private fun HomeScreen(
         HomeUiState.Loading -> {
             Column {
                 DefaultHeader(
+                    pagePosition = homeUiConditionState.value.pagePosition,
                     title = String.format(
                         stringResource(id = R.string.header_title_displayed_number),
                         homeUiConditionState.value.pagePosition * 20 + 1,
@@ -139,8 +140,7 @@ private fun HomeScreen(
 
 @Composable
 private fun PokeList(
-    startId: Int,
-    endId: Int,
+    pagePosition: Int,
     pokemonUiDataList: List<PokemonListUiData>,
     isFirst: Boolean,
     onClickNext: () -> Unit,
@@ -152,13 +152,15 @@ private fun PokeList(
 ) {
     Column(
         modifier = Modifier
+            .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
         DefaultHeader(
+            pagePosition = pagePosition,
             title = String.format(
                 stringResource(id = R.string.header_title_displayed_number),
-                startId,
-                endId
+                pagePosition * 20 + 1,
+                pagePosition * 20 + 20,
             ),
             onClickNext = onClickNext,
             onClickBack = onClickBack

@@ -8,6 +8,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,7 +33,9 @@ import com.example.pokebook.R
  */
 @Composable
 fun DefaultHeader(
+    pagePosition: Int,
     title: String,
+    maxPage: String = "500",
     updateButtonStates: (Boolean, Boolean) -> Unit = { _, _ -> },
     onClickNext: () -> Unit = {},
     onClickBack: () -> Unit = {},
@@ -72,53 +75,62 @@ fun DefaultHeader(
             modifier = Modifier
                 .padding(vertical = 6.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .weight(1F)
-                    .wrapContentHeight()
-                    .clickable {
-                        updateButtonStates.invoke(true, false)
-                        onClickBack.invoke()
-                    },
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Text(
-                    text = stringResource(R.string.back_button),
-                    color = MaterialTheme.colorScheme.onBackground,
+            if (pagePosition != 0) {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = Color.DarkGray,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .padding(4.dp),
-                    textAlign = TextAlign.Center
-                )
+                        .weight(1F)
+                        .wrapContentHeight()
+                        .clickable {
+                            updateButtonStates.invoke(true, false)
+                            onClickBack.invoke()
+                        },
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+
+                    Text(
+                        text = stringResource(R.string.back_button),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                width = 1.dp,
+                                color = Color.DarkGray,
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(4.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.weight(1F))
             }
-            Box(
-                modifier = Modifier
-                    .weight(1F)
-                    .wrapContentHeight()
-                    .clickable {
-                        updateButtonStates.invoke(false, true)
-                        onClickNext.invoke()
-                    },
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Text(
-                    text = stringResource(R.string.next_button),
-                    color = MaterialTheme.colorScheme.onBackground,
+            if (pagePosition == maxPage.toInt().minus(1)) {
+                Spacer(modifier = Modifier.weight(1F))
+            } else {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = Color.DarkGray,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .padding(4.dp),
-                    textAlign = TextAlign.Center
-                )
+                        .weight(1F)
+                        .wrapContentHeight()
+                        .clickable {
+                            updateButtonStates.invoke(false, true)
+                            onClickNext.invoke()
+                        },
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Text(
+                        text = stringResource(R.string.next_button),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                width = 1.dp,
+                                color = Color.DarkGray,
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(4.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
