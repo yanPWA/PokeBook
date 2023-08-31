@@ -2,4 +2,12 @@
 <resources>
 
     <style name="Theme.PokeBook" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Application Theme -->
+    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Application Theme -->
+    <style name="Theme.SplashScreen.IconBackground" parent="Theme.SplashScreen">
+        <item name="android:windowBackground">@color/black</item>
+    </style>
+
 </resources>

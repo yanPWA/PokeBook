@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.pokebook"
-        minSdk 24
+        minSdk 22
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -89,4 +89,6 @@ dependencies {
     implementation "androidx.room:room-runtime:2.5.0"
     implementation "androidx.room:room-ktx:2.5.0"
     kapt "androidx.room:room-compiler:2.5.0"
+    // splashscreen
+    implementation "androidx.core:core-splashscreen:1.0.0-alpha01"
 }
