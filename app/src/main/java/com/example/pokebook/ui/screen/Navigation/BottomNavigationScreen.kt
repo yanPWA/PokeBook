@@ -32,8 +32,8 @@ import com.example.pokebook.ui.screen.PokemonDetailScreen
 import com.example.pokebook.ui.screen.PokemonNotFound
 import com.example.pokebook.ui.screen.SearchListScreen
 import com.example.pokebook.ui.screen.SearchScreen
-import com.example.pokebook.ui.viewModel.Home.HomeViewModel
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Home.HomeViewModel
 import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
 import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -96,6 +96,7 @@ fun NavGraphBuilder.homeGraph(
         route = BottomNavItems.Home.route
     ) {
         composable(HomeScreen.PokemonListScreen.route) {
+            homeViewModel.getPokemonList()
             HomeScreen(
                 homeViewModel = homeViewModel,
                 onClickCard = { pokemonNumber ->

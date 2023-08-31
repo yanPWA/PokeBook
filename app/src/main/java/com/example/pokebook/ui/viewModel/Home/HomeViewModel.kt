@@ -1,20 +1,18 @@
 package com.example.pokebook.ui.viewModel.Home
 
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokebook.data.pokemonData.PokemonData
 import com.example.pokebook.data.pokemonData.PokemonDataRepository
 import com.example.pokebook.data.pokemonData.pokemonPersonalDataToPokemonData
-import com.example.pokebook.model.Pokemon
-import com.example.pokebook.model.PokemonSpecies
-import com.example.pokebook.repository.DefaultHomeRepository
+import com.example.pokebook.model.PokemonPersonalData
 import com.example.pokebook.repository.HomeRepository
 import com.example.pokebook.ui.viewModel.DefaultHeader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,73 +49,82 @@ class HomeViewModel(
 
     private val uiDataList = mutableListOf<PokemonListUiData>()
 
-    init {
-        getPokemonList()
-    }
     /**
      * ポケモンリスト取得
      */
-    fun getPokemonList() {
-        viewModelScope.launch {
-            _uiState.emit(HomeUiState.Loading)
-            updateIsFirst(true)
-            runCatching {
-                withContext(Dispatchers.IO) {
-                    // DBからとってきて中身をチェックする（20件ずつ）
-                    pokemonDataRepository.getAllItemsBetweenIds(
-                        startId = conditionState.value.pagePosition * 20 + 1,
-                        endId = conditionState.value.pagePosition * 20 + 20
-                    ).apply {
-                        uiDataList.clear()
-                        for (index in this) {
-                            // imageUrlがなければAPIを叩く
-                            if (index.imageUrl?.isEmpty() == true) {
-                                val pokemonPersonalData =
-                                    repository.getPokemonPersonalData(index.id)
-                                        .pokemonPersonalDataToPokemonData()
-
-                                async{
-                                    // imageUrlを取得したらDBに保存する
-                                    pokemonPersonalData.imageUrl?.let{
-                                        pokemonDataRepository.updatePokemonData(
-                                            id = index.id,
-                                            imageUrl = pokemonPersonalData.imageUrl,
-                                            speciesNumber = pokemonPersonalData.speciesNumber
-                                        )
-                                    }
-
-                                    // 表示用リストに追加する
-                                    uiDataList += PokemonListUiData(
-                                        pokemonNumber = index.id,
-                                        displayName = index.japaneseName,
-                                        imageUrl = pokemonPersonalData.imageUrl
-                                    )
-                                }.await()
-
-                                // HomeScreenConditionStateを更新
-                                _conditionState.update { currentState ->
-                                    currentState.copy(
-                                        speciesNumber = pokemonPersonalData.speciesNumber
-                                    )
-                                }
-                            }else {
-                                uiDataList += PokemonListUiData(
-                                    pokemonNumber = index.id,
-                                    displayName = index.japaneseName,
-                                    imageUrl = index.imageUrl
-                                )
-                            }
-                        }
+    fun getPokemonList() = viewModelScope.launch {
+        _uiState.emit(HomeUiState.Loading)
+        updateIsFirst(true)
+        uiDataList.clear()
+        val dbList = getAllItemsBetweenIds()
+        runCatching {
+            for (index in dbList) {
+                if (index.imageUrl?.isEmpty() == true) {
+                    // 画像URL情報がない場合はAPIから取得してくる
+                    val pokemonPersonalData = getPokemonPersonalData(index.id)
+                    pokemonPersonalData.imageUrl?.let {
+                        updatePokemonData(
+                            indexId = index.id,
+                            pokemonPersonalData = pokemonPersonalData
+                        )
                     }
+                    uiDataList += PokemonListUiData(
+                        pokemonNumber = index.id,
+                        displayName = index.japaneseName,
+                        imageUrl = pokemonPersonalData.imageUrl
+                    )
+                    _conditionState.update { currentState ->
+                        currentState.copy(
+                            speciesNumber = pokemonPersonalData.speciesNumber
+                        )
+                    }
+                } else {
+                    uiDataList += PokemonListUiData(
+                        pokemonNumber = index.id,
+                        displayName = index.japaneseName,
+                        imageUrl = index.imageUrl
+                    )
                 }
             }
-                .onSuccess {
-                    _uiState.emit(HomeUiState.Fetched(uiDataList = uiDataList))
-                }
-                .onFailure {
-                    send(HomeUiEvent.Error(it))
-                    _uiState.emit(HomeUiState.ResultError)
-                }
+        }.onSuccess {
+            _uiState.emit(HomeUiState.Fetched(uiDataList = uiDataList))
+        }.onFailure {
+            send(HomeUiEvent.Error(it))
+            _uiState.emit(HomeUiState.ResultError)
+        }
+    }
+
+    /**
+     * DBからリストを取得(20件)
+     */
+    private suspend fun getAllItemsBetweenIds(): List<PokemonData> {
+        return withContext(Dispatchers.IO) {
+            pokemonDataRepository.getAllItemsBetweenIds(
+                startId = conditionState.value.pagePosition * 20 + 1,
+                endId = conditionState.value.pagePosition * 20 + 20
+            )
+        }
+    }
+
+    /**
+     * APIから画像URLを取得
+     */
+    private suspend fun getPokemonPersonalData(indexId: Int): PokemonData {
+        return withContext(Dispatchers.IO) {
+            repository.getPokemonPersonalData(indexId).pokemonPersonalDataToPokemonData()
+        }
+    }
+
+    /**
+     * DBに情報を更新
+     */
+    private suspend fun updatePokemonData(indexId: Int, pokemonPersonalData: PokemonData) {
+        withContext(Dispatchers.IO) {
+            pokemonDataRepository.updatePokemonData(
+                id = indexId,
+                imageUrl = pokemonPersonalData.imageUrl ?: "",
+                speciesNumber = pokemonPersonalData.speciesNumber
+            )
         }
     }
 

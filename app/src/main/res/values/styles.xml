@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- SplashScreen Theme-->
+    <style name="AppTheme.SplashScreen" parent="Theme.SplashScreen">
+
+        <!-- 表示するアイコンを設定する。(必須)-->
+        <!-- アイコン自体をアニメーションさせたい場合は、AnimationDrawableかAnimatedVectorDrawableを使用したdrawableリソースを設定する。 -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/monster_ball</item>
+
+        <!-- アイコンの背景色を設定する。-->
+        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="s">@color/black</item>
+
+        <!-- SplashScreenの背景色を設定する。 -->
+        <item name="windowSplashScreenBackground">@color/black</item>
+
+        <!-- アイコンがアニメーションする場合、アニメーションさせる時間を設定する。 -->
+        <!-- デフォルトでは、10000ms。推奨は、1000ms以内-->
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+
+        <!-- SplashScreenを表示するActivityのThemeを設定する。(必須) -->
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
+</resources>

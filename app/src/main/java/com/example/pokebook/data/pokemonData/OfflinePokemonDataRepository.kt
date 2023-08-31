@@ -9,7 +9,7 @@ class OfflinePokemonDataRepository(private val pokemonDataDao: PokemonDataDao) :
     PokemonDataRepository {
     override fun getAllItemsStream(): List<PokemonData> = pokemonDataDao.getAllItems()
 
-    override suspend fun insertItem(pokemon: PokemonData) = pokemonDataDao.insert(pokemon)
+    override suspend fun insertItem(pokemonList: List<PokemonData>) = pokemonDataDao.insert(pokemonList)
 
     override suspend fun deleteItem(pokemon: PokemonData) = pokemonDataDao.delete(pokemon)
 
@@ -18,9 +18,7 @@ class OfflinePokemonDataRepository(private val pokemonDataDao: PokemonDataDao) :
         pokemonDataDao.searchByJapaneseName(keyword)
 
     override suspend fun getAllItemsBetweenIds(startId: Int, endId: Int): List<PokemonData> =
-        pokemonDataDao.getAllItemsBetweenIds(startId, endId).apply {
-            Log.d("test","startId:$startId,endId:$endId")
-        }
+        pokemonDataDao.getAllItemsBetweenIds(startId, endId)
 
     override suspend fun updatePokemonData(id: Int, imageUrl: String,speciesNumber:String?) {
         pokemonDataDao.updatePokemonData(id, imageUrl,speciesNumber)

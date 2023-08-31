@@ -8,6 +8,7 @@ import com.example.pokebook.PokemonApplication
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Home.HomeViewModel
 import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
+import com.example.pokebook.ui.viewModel.Main.MainViewModel
 import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 
 /**
@@ -15,6 +16,11 @@ import com.example.pokebook.ui.viewModel.Search.SearchViewModel
  */
 object AppViewModelProvider {
     val Factory = viewModelFactory {
+        initializer {
+            MainViewModel(
+                pokemonApplication().container.pokemonDataRepository
+            )
+        }
         initializer {
             LikeEntryViewModel(
                 pokemonApplication().container.likesRepository
