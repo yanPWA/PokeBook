@@ -3,7 +3,7 @@ package com.example.pokebook.data.pokemonData
 import com.example.pokebook.data.pokemonData.PokemonData
 
 /**
- * 与えられたデータソースから[Like]の挿入、更新、削除、取得を提供するリポジトリ
+ * Jsonデータを元に作成されたDBに対して操作を行うRepository
  */
 interface PokemonDataRepository {
     /**
@@ -14,7 +14,7 @@ interface PokemonDataRepository {
     /**
      * データ・ソースに項目を挿入
      */
-    suspend fun insertItem(pokemon: PokemonData)
+    suspend fun insertItem(pokemonList: List<PokemonData>)
 
     /**
      * データ・ソースから項目を削除

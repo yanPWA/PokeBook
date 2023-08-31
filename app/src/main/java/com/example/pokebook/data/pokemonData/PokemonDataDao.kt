@@ -12,7 +12,7 @@ import com.example.pokebook.data.pokemonData.PokemonData
 interface PokemonDataDao {
     //挿入
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(pokemon: PokemonData)
+    suspend fun insert(pokemonList: List<PokemonData>)
 
     // 同じ主キーを持つエンティティを更新
     @Update
