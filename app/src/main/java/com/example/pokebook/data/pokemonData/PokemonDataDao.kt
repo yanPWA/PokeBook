@@ -31,11 +31,32 @@ interface PokemonDataDao {
     @Query("SELECT * FROM pokemonData WHERE japaneseName = :keyword")
     fun searchByJapaneseName(keyword: String): PokemonData
 
+    // id完全一致の検索
+    @Query("SELECT * FROM pokemonData WHERE id = :id")
+    fun searchById(id: Int): PokemonData
+
     // 指定された範囲のデータの検索
     @Query("SELECT id,imageUrl,japaneseName FROM pokemonData WHERE id BETWEEN :startId AND :endId")
     fun getAllItemsBetweenIds(startId: Int, endId: Int): List<PokemonData>
 
-    //　指定したIDのimageUrlにデータを挿入
+    //　指定したIDのimageUrlとspeciesNumberにデータを挿入
     @Query("UPDATE pokemonData SET imageUrl = :imageUrl,speciesNumber = :speciesNumber WHERE id = :id")
     suspend fun updatePokemonData(id: Int, imageUrl: String, speciesNumber: String?)
+
+    // 指定したIDの必要なカラムを更新
+    @Query("UPDATE pokemonData SET englishName = :englishName, japaneseName = :japaneseName, description = :description,hp = :hp, attack = :attack, defense = :defense, speed = :speed, imageUrl = :imageUrl,speciesNumber = :speciesNumber,genus=:genus,type=:type WHERE id = :id")
+    suspend fun updatePokemonAllData(
+        id: Int? = null,
+        englishName: String? = null,
+        japaneseName: String? = null,
+        description: String? = null,
+        hp: Int? = null,
+        attack: Int? = null,
+        defense: Int? = null,
+        speed: Int? = null,
+        imageUrl: String? = null,
+        genus: String?,
+        type: List<String>?,
+        speciesNumber: String?
+    )
 }

@@ -39,5 +39,33 @@ interface PokemonDataRepository {
     /**
      * 指定したIDのimageUrl、speciesNumberにデータを挿入
      */
-    suspend fun updatePokemonData(id: Int, imageUrl: String, speciesNumber: String?)
+    suspend fun updatePokemonData(
+        id: Int,
+        imageUrl: String,
+        speciesNumber: String? = null
+    )
+
+    /**
+     * 指定したIDの必要なカラムを更新
+     */
+    suspend fun updatePokemonAllData(
+        id: Int?=null,
+        englishName: String? = null,
+        japaneseName: String? = null,
+        description: String? = null,
+        hp: Int? = null,
+        attack: Int? = null,
+        defense: Int? = null,
+        speed: Int? = null,
+        imageUrl: String? =null,
+        genus: String? = null,
+        type: List<String>? = null,
+        speciesNumber: String? = null
+    )
+
+
+    /**
+     * id完全一致の検索
+     */
+    suspend fun searchById(id: Int): PokemonData
 }

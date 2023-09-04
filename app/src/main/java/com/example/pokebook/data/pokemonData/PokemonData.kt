@@ -20,6 +20,8 @@ data class PokemonData(
     val id: Int = 0,
     val englishName: String? = "",
     val japaneseName: String = "",
+    val genus: String? = "",
+    val description: String? = "",
     val type: List<String>? = emptyList(),
     val hp: Int? = 0,
     val attack: Int? = 0,
