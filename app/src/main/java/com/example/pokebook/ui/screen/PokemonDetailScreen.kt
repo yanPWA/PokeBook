@@ -40,9 +40,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
+import com.example.pokebook.ui.AppViewModelProvider
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiEvent
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiState
@@ -56,10 +58,20 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PokemonDetailScreen(
+    pokemonNumber: Int? = null,
+    pokemonName: String? = null,
     likeEntryViewModel: LikeEntryViewModel,
-    pokemonDetailViewModel: PokemonDetailViewModel,
+    pokemonDetailViewModel: PokemonDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onClickBackButton: () -> Unit
 ) {
+    if (pokemonNumber != null) {
+        pokemonDetailViewModel.getPokemonSpeciesById(pokemonNumber)
+    } else if (pokemonName != null) {
+        pokemonDetailViewModel.getPokemonSpeciesByName(pokemonName)
+    } else {
+        // 何もしない
+    }
+
     PokemonDetailScreen(
         uiState = pokemonDetailViewModel.uiState,
         uiEvent = pokemonDetailViewModel.uiEvent,
@@ -182,7 +194,7 @@ private fun PokemonDetailScreen(
                 text = String.format(
                     stringResource(id = R.string.pokemon_name),
                     uiData.pokemonNumber,
-                    uiData.name
+                    uiData.japaneseName
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = modifier

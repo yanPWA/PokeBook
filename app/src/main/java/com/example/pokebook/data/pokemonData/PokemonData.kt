@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import com.example.pokebook.json.PokemonDataByJson
 import com.example.pokebook.model.PokemonPersonalData
 import com.example.pokebook.model.PokemonSpecies
@@ -13,12 +14,15 @@ import com.example.pokebook.model.PokemonSpecies
  * データベーステーブル
  */
 @Entity(tableName = "pokemonData")
+@TypeConverters(StringListTypeConverter::class)
 data class PokemonData(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val englishName: String? = "",
     val japaneseName: String = "",
-//    val type:List<String>
+    val genus: String? = "",
+    val description: String? = "",
+    val type: List<String>? = emptyList(),
     val hp: Int? = 0,
     val attack: Int? = 0,
     val defense: Int? = 0,

@@ -9,7 +9,8 @@ class OfflinePokemonDataRepository(private val pokemonDataDao: PokemonDataDao) :
     PokemonDataRepository {
     override fun getAllItemsStream(): List<PokemonData> = pokemonDataDao.getAllItems()
 
-    override suspend fun insertItem(pokemonList: List<PokemonData>) = pokemonDataDao.insert(pokemonList)
+    override suspend fun insertItem(pokemonList: List<PokemonData>) =
+        pokemonDataDao.insert(pokemonList)
 
     override suspend fun deleteItem(pokemon: PokemonData) = pokemonDataDao.delete(pokemon)
 
@@ -20,7 +21,43 @@ class OfflinePokemonDataRepository(private val pokemonDataDao: PokemonDataDao) :
     override suspend fun getAllItemsBetweenIds(startId: Int, endId: Int): List<PokemonData> =
         pokemonDataDao.getAllItemsBetweenIds(startId, endId)
 
-    override suspend fun updatePokemonData(id: Int, imageUrl: String,speciesNumber:String?) {
-        pokemonDataDao.updatePokemonData(id, imageUrl,speciesNumber)
-    }
+    override suspend fun updatePokemonData(
+        id: Int,
+        imageUrl: String,
+        speciesNumber: String?
+    ) = pokemonDataDao.updatePokemonData(
+        id = id,
+        imageUrl = imageUrl,
+        speciesNumber = speciesNumber
+    )
+
+    override suspend fun updatePokemonAllData(
+        id: Int?,
+        englishName: String?,
+        japaneseName: String?,
+        description: String?,
+        hp: Int?,
+        attack: Int?,
+        defense: Int?,
+        speed: Int?,
+        imageUrl: String?,
+        genus: String?,
+        type: List<String>?,
+        speciesNumber: String?
+    ) = pokemonDataDao.updatePokemonAllData(
+        id = id,
+        englishName = englishName,
+        japaneseName = japaneseName,
+        description = description,
+        hp = hp,
+        attack = attack,
+        defense = defense,
+        speed = speed,
+        imageUrl = imageUrl,
+        genus = genus,
+        type = type,
+        speciesNumber = speciesNumber
+    )
+
+    override suspend fun searchById(id: Int): PokemonData = pokemonDataDao.searchById(id)
 }

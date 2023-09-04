@@ -9,11 +9,12 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class PokemonPersonalData(
+    val id: Int,
     val species: Species,
     val sprites: Sprites,
     val stats: List<Stats>,
     val types: List<Types>,
-    val height:Int,
+    val height: Int,
     val weight: Int
 )
 
@@ -43,7 +44,7 @@ data class Species(
 @Serializable
 data class Stats(
     @SerialName("base_stat")
-    val baseStat:Int,
+    val baseStat: Int,
     val stat: Stat
 )
 
@@ -107,7 +108,7 @@ data class Genera(
     val language: Language
 )
 
-enum class StatType(val type: String){
+enum class StatType(val type: String) {
     HP("hp"),
     ATTACK("attack"),
     DEFENSE("defense"),

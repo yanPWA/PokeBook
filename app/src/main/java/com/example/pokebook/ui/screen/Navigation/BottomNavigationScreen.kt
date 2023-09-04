@@ -49,7 +49,6 @@ private fun NavigationHost(
     navController: NavHostController = rememberNavController(),
     searchViewModel: SearchViewModel = viewModel(factory = AppViewModelProvider.Factory),
     homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    pokemonDetailViewModel: PokemonDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
     likeEntryViewModel: LikeEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
@@ -61,18 +60,15 @@ private fun NavigationHost(
         homeGraph(
             navController = navController,
             homeViewModel = homeViewModel,
-            pokemonDetailViewModel = pokemonDetailViewModel,
             likeEntryViewModel = likeEntryViewModel
         )
         searchGraph(
             navController = navController,
             searchViewModel = searchViewModel,
-            pokemonDetailViewModel = pokemonDetailViewModel,
             likeEntryViewModel = likeEntryViewModel
         )
         likeGraph(
             navController = navController,
-            pokemonDetailViewModel = pokemonDetailViewModel,
             likeEntryViewModel = likeEntryViewModel
         )
 
@@ -88,7 +84,6 @@ private fun NavigationHost(
 fun NavGraphBuilder.homeGraph(
     navController: NavController,
     homeViewModel: HomeViewModel,
-    pokemonDetailViewModel: PokemonDetailViewModel,
     likeEntryViewModel: LikeEntryViewModel
 ) {
     navigation(
@@ -111,9 +106,8 @@ fun NavGraphBuilder.homeGraph(
             )
         ) { backStackEntry ->
             val pokemonNumber = backStackEntry.arguments?.getInt("pokemonNumber") ?: 0
-            pokemonDetailViewModel.getPokemonSpeciesById(pokemonNumber)
             PokemonDetailScreen(
-                pokemonDetailViewModel = pokemonDetailViewModel,
+                pokemonNumber = pokemonNumber,
                 likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() }
             )
@@ -127,7 +121,6 @@ fun NavGraphBuilder.homeGraph(
 fun NavGraphBuilder.searchGraph(
     navController: NavController,
     searchViewModel: SearchViewModel,
-    pokemonDetailViewModel: PokemonDetailViewModel,
     likeEntryViewModel: LikeEntryViewModel
 ) {
     navigation(
@@ -167,9 +160,8 @@ fun NavGraphBuilder.searchGraph(
             )
         ) { backStackEntry ->
             val pokemonName = backStackEntry.arguments?.getString("pokemonName") ?: ""
-            pokemonDetailViewModel.getPokemonSpeciesByName(pokemonName)
             PokemonDetailScreen(
-                pokemonDetailViewModel = pokemonDetailViewModel,
+                pokemonName = pokemonName,
                 likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() }
             )
@@ -181,9 +173,8 @@ fun NavGraphBuilder.searchGraph(
             )
         ) { backStackEntry ->
             val pokemonNumber = backStackEntry.arguments?.getInt("pokemonNumber") ?: 0
-            pokemonDetailViewModel.getPokemonSpeciesById(pokemonNumber)
             PokemonDetailScreen(
-                pokemonDetailViewModel = pokemonDetailViewModel,
+                pokemonNumber = pokemonNumber,
                 likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() }
             )
@@ -196,7 +187,6 @@ fun NavGraphBuilder.searchGraph(
  */
 fun NavGraphBuilder.likeGraph(
     navController: NavController,
-    pokemonDetailViewModel: PokemonDetailViewModel,
     likeEntryViewModel: LikeEntryViewModel
 ) {
     navigation(
@@ -220,9 +210,8 @@ fun NavGraphBuilder.likeGraph(
             )
         ) { backStackEntry ->
             val pokemonNumber = backStackEntry.arguments?.getInt("pokemonNumber") ?: 0
-            pokemonDetailViewModel.getPokemonSpeciesById(pokemonNumber)
             PokemonDetailScreen(
-                pokemonDetailViewModel = pokemonDetailViewModel,
+                pokemonNumber = pokemonNumber,
                 likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() }
             )

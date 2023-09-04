@@ -4,12 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import com.example.pokebook.data.like.Like
 import com.example.pokebook.data.like.LikeDao
 import com.example.pokebook.data.pokemonData.PokemonData
 import com.example.pokebook.data.pokemonData.PokemonDataDao
+import com.example.pokebook.data.pokemonData.StringListTypeConverter
 
 @Database(entities = [Like::class, PokemonData::class ], version = 1, exportSchema = false)
+@TypeConverters(StringListTypeConverter::class)
 abstract class PokemonDatabase : RoomDatabase() {
     abstract fun likeDao(): LikeDao
     abstract fun pokemonDataDao(): PokemonDataDao
