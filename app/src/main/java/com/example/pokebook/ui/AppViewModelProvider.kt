@@ -41,7 +41,8 @@ object AppViewModelProvider {
             PokemonDetailViewModel(
                 pokemonApplication().container.pokemonDetailRepository,
                 pokemonApplication().container.pokemonDataRepository,
-                pokemonApplication().container.likesRepository
+                pokemonApplication().container.likesRepository,
+                pokemonApplication().container.pokemonDataRepository
             )
         }
     }
