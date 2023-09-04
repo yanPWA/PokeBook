@@ -5,10 +5,12 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.TypeConverters
 import androidx.room.Update
 import com.example.pokebook.data.pokemonData.PokemonData
 
 @Dao
+@TypeConverters(StringListTypeConverter::class)
 interface PokemonDataDao {
     //挿入
     @Insert(onConflict = OnConflictStrategy.IGNORE)
