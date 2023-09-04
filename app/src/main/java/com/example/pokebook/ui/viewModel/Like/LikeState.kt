@@ -68,8 +68,8 @@ fun LikeDetails.toLike(): Like = Like(
  */
 fun PokemonDetailScreenUiData.toLikeDetails(): LikeDetails = LikeDetails(
     pokemonNumber = this.pokemonNumber,
-    name = this.name,
-    displayName = this.name,
+    name = this.japaneseName,
+    displayName = this.japaneseName,
     description = this.description,
     genus = this.genus,
     type = this.type,
