@@ -39,7 +39,8 @@ data class LikeDetails(
     val imageUrl: String = "",
     val height: Double = 0.0,
     val weight: Double = 0.0,
-    var isLike: Boolean = true
+    var isLike: Boolean = true,
+    var speciesNumber:Int =0
 )
 
 /**
@@ -60,6 +61,7 @@ fun LikeDetails.toLike(): Like = Like(
     name = name,
     displayName = displayName,
     imageUrl = imageUrl,
+    speciesNumber = speciesNumber
 )
 
 
@@ -80,7 +82,8 @@ fun PokemonDetailScreenUiData.toLikeDetails(): LikeDetails = LikeDetails(
     imageUrl = this.imageUri,
     height = this.height,
     weight = this.weight,
-    isLike = this.isLike
+    isLike = this.isLike,
+    speciesNumber = this.speciesNumber.toInt()
 )
 
 /**
@@ -106,7 +109,8 @@ fun List<Like>.toPokemonListUiDataList(): MutableList<LikeDetails> {
                 name = like.name,
                 displayName = like.displayName,
                 imageUrl = like.imageUrl,
-                isLike = true
+                isLike = true,
+                speciesNumber = like.speciesNumber
             )
         }
     )
