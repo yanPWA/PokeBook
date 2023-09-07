@@ -5,12 +5,14 @@ import com.example.pokebook.data.like.LikesRepository
 import com.example.pokebook.data.like.OfflineLikesRepository
 import com.example.pokebook.data.pokemonData.OfflinePokemonDataRepository
 import com.example.pokebook.data.pokemonData.PokemonDataRepository
+import com.example.pokebook.data.searchType.OfflineSearchTypeListRepository
+import com.example.pokebook.data.searchType.SearchTypeListRepository
 import com.example.pokebook.repository.DefaultHomeRepository
 import com.example.pokebook.repository.DefaultPokemonDetailRepository
 import com.example.pokebook.repository.DefaultSearchRepository
 import com.example.pokebook.repository.HomeRepository
 import com.example.pokebook.repository.PokemonDetailRepository
-import com.example.pokebook.repository.SearchRepository
+import com.example.pokebook.repository.ApiSearchRepository
 
 /**
  * 依存性注入のためのアプリコンテナ
@@ -18,9 +20,10 @@ import com.example.pokebook.repository.SearchRepository
 interface AppContainer {
     val likesRepository: LikesRepository
     val pokemonDataRepository: PokemonDataRepository
-    val searchRepository: SearchRepository
+    val searchRepository: ApiSearchRepository
     val pokemonDetailRepository: PokemonDetailRepository
     val homeRepository: HomeRepository
+    val searchTypeListRepository: SearchTypeListRepository
 }
 
 /**
@@ -36,7 +39,7 @@ class AppDataContainer(private val context: Context) : AppContainer {
     override val pokemonDataRepository: PokemonDataRepository by lazy {
         OfflinePokemonDataRepository(PokemonDatabase.getDatabase(context).pokemonDataDao())
     }
-    override val searchRepository: SearchRepository by lazy {
+    override val searchRepository: ApiSearchRepository by lazy {
         DefaultSearchRepository()
     }
     override val pokemonDetailRepository: PokemonDetailRepository by lazy {
@@ -44,5 +47,8 @@ class AppDataContainer(private val context: Context) : AppContainer {
     }
     override val homeRepository: HomeRepository by lazy {
         DefaultHomeRepository()
+    }
+    override val searchTypeListRepository: SearchTypeListRepository by lazy {
+        OfflineSearchTypeListRepository(PokemonDatabase.getDatabase(context).searchTypeListDao())
     }
 }

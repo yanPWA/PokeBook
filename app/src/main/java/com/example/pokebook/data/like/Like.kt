@@ -16,4 +16,5 @@ data class Like(
     val name: String,
     val displayName: String,
     val imageUrl: String,
+    val speciesNumber:Int
 )

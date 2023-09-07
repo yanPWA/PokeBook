@@ -1,18 +1,19 @@
 package com.example.pokebook.repository
 
+import android.util.Log
 import com.example.pokebook.model.PokemonPersonalData
 import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.model.PokemonTypeSearchResult
 import com.example.pokebook.network.PokeApi
 import retrofit2.http.Path
 
-interface SearchRepository {
+interface ApiSearchRepository {
     suspend fun getPokemonPersonalData(pokemon: Int): PokemonPersonalData
     suspend fun getPokemonByType(@Path("path") typeNumber: String): PokemonTypeSearchResult
     suspend fun getPokemonSpecies(@Path("path") number: Int): PokemonSpecies
 }
 
-class DefaultSearchRepository : SearchRepository {
+class DefaultSearchRepository : ApiSearchRepository {
     override suspend fun getPokemonPersonalData(pokemon: Int): PokemonPersonalData {
         return PokeApi.retrofitService.getPokemonPersonalData(pokemon)
     }

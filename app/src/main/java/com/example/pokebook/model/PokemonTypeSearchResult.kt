@@ -8,13 +8,20 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class PokemonTypeSearchResult(
-    val pokemon: List<PokemonItem>
+    val pokemon: List<PokemonItem>,
+    val id: Int,
+    @SerialName("names")
+    val typeName: List<Name>
 )
 
 @Serializable
 data class PokemonItem(
     @SerialName("pokemon")
-    val pokemonItem:PokemonListItem
+    val pokemonItem: PokemonListItem
 )
 
-
+@Serializable
+data class Name(
+    val language: Language,
+    val name: String
+)

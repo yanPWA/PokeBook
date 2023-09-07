@@ -33,6 +33,7 @@ class OfflinePokemonDataRepository(private val pokemonDataDao: PokemonDataDao) :
 
     override suspend fun updatePokemonAllData(
         id: Int?,
+        pokemonNumber: Int?,
         englishName: String?,
         japaneseName: String?,
         description: String?,
@@ -45,7 +46,7 @@ class OfflinePokemonDataRepository(private val pokemonDataDao: PokemonDataDao) :
         type: List<String>?,
         speciesNumber: String?
     ) = pokemonDataDao.updatePokemonAllData(
-        id = id,
+        pokemonNumber = pokemonNumber,
         englishName = englishName,
         japaneseName = japaneseName,
         description = description,

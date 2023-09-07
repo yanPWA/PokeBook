@@ -49,6 +49,10 @@ class HomeViewModel(
 
     private val uiDataList = mutableListOf<PokemonListUiData>()
 
+    init {
+        if (uiDataList.isEmpty()) getPokemonList()
+    }
+
     /**
      * ポケモンリスト取得
      */
@@ -60,29 +64,26 @@ class HomeViewModel(
         runCatching {
             for (index in dbList) {
                 if (index.imageUrl?.isEmpty() == true) {
-                    // 画像URL情報がない場合はAPIから取得してくる
-                    val pokemonPersonalData = getPokemonPersonalData(index.id)
+                    // DBに画像URL情報がない場合はAPIから取得してくる
+                    val pokemonPersonalData = getPokemonPersonalData(index.pokemonNumber)
                     pokemonPersonalData.imageUrl?.let {
                         updatePokemonData(
-                            indexId = index.id,
+                            indexId = index.pokemonNumber,
                             pokemonPersonalData = pokemonPersonalData
                         )
                     }
                     uiDataList += PokemonListUiData(
-                        pokemonNumber = index.id,
+                        pokemonNumber = index.pokemonNumber,
                         displayName = index.japaneseName,
-                        imageUrl = pokemonPersonalData.imageUrl
+                        imageUrl = pokemonPersonalData.imageUrl,
+                        speciesNumber = pokemonPersonalData.speciesNumber
                     )
-                    _conditionState.update { currentState ->
-                        currentState.copy(
-                            speciesNumber = pokemonPersonalData.speciesNumber
-                        )
-                    }
                 } else {
                     uiDataList += PokemonListUiData(
-                        pokemonNumber = index.id,
+                        pokemonNumber = index.pokemonNumber,
                         displayName = index.japaneseName,
-                        imageUrl = index.imageUrl
+                        imageUrl = index.imageUrl,
+                        speciesNumber = index.speciesNumber
                     )
                 }
             }

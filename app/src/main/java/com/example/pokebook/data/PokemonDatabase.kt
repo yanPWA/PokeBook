@@ -11,12 +11,19 @@ import com.example.pokebook.data.like.LikeDao
 import com.example.pokebook.data.pokemonData.PokemonData
 import com.example.pokebook.data.pokemonData.PokemonDataDao
 import com.example.pokebook.data.pokemonData.StringListTypeConverter
+import com.example.pokebook.data.searchType.SearchTypeList
+import com.example.pokebook.data.searchType.SearchTypeListDao
 
-@Database(entities = [Like::class, PokemonData::class ], version = 1, exportSchema = false)
+@Database(
+    entities = [Like::class, PokemonData::class, SearchTypeList::class],
+    version = 1,
+    exportSchema = false
+)
 @TypeConverters(StringListTypeConverter::class)
 abstract class PokemonDatabase : RoomDatabase() {
     abstract fun likeDao(): LikeDao
     abstract fun pokemonDataDao(): PokemonDataDao
+    abstract fun searchTypeListDao(): SearchTypeListDao
 
     companion object {
         @Volatile

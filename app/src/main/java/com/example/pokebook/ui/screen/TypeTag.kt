@@ -112,8 +112,8 @@ enum class TypeName(
 /**
  * 日本語名 -> TypeNumber
  */
-fun String.convertToTypeNumber(): String {
-    return TypeName.values().find { it.jaTypeName == this }?.number ?: ""
+fun String.convertToTypeNumber(): Int {
+    return TypeName.values().find { it.jaTypeName == this }?.number?.toInt() ?: 0
 }
 
 /**

@@ -9,7 +9,8 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class PokemonDataByJson(
-    val id: Int,
+    @SerialName("id")
+    val pokemonNumber: Int,
     val name: Name,
     val type: List<String>,
     val base: Base
@@ -31,18 +32,4 @@ data class Base(
     val defense: Int,
     @SerialName("Speed")
     val speed: Int
-)
-
-/**
- * PokemonDataByJson -> PokemonData
- */
-fun PokemonDataByJson.toPokemonData(): PokemonData = PokemonData(
-    id = this.id,
-    englishName = this.name.english,
-    japaneseName = this.name.japanese,
-//    typy = this.type,
-    hp = this.base.hp,
-    attack = this.base.attack,
-    defense = this.base.defense,
-    speed = this.base.speed
 )

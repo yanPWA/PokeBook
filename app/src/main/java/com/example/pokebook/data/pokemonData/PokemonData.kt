@@ -1,6 +1,7 @@
 package com.example.pokebook.data.pokemonData
 
 import android.net.Uri
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
@@ -16,8 +17,9 @@ import com.example.pokebook.model.PokemonSpecies
 @Entity(tableName = "pokemonData")
 @TypeConverters(StringListTypeConverter::class)
 data class PokemonData(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    @ColumnInfo(name = "id")
+    val pokemonNumber:Int = 0,
     val englishName: String? = "",
     val japaneseName: String = "",
     val genus: String? = "",
@@ -35,12 +37,7 @@ data class PokemonData(
  * PokemonPersonalData -> PokemonData
  */
 fun PokemonPersonalData.pokemonPersonalDataToPokemonData(): PokemonData = PokemonData(
+    pokemonNumber = this.id,
     imageUrl = this.sprites.other.officialArtwork.imgUrl ?: "",
     speciesNumber = if (!this.species.url.isNullOrEmpty()) Uri.parse(this.species.url).lastPathSegment else ""
-)
-
-/**
- * PokemonSpecies -> PokemonData
- */
-fun PokemonSpecies.convertSpeciesToPokemonData(): PokemonData = PokemonData(
 )

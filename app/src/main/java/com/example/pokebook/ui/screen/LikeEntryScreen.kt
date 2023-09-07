@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LikeEntryScreen(
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     onClickBackButton: () -> Unit,
     likeEntryViewModel: LikeEntryViewModel
 ) {
@@ -73,7 +73,7 @@ private fun LikeEntryBody(
     uiState: StateFlow<LikeUiState>,
     uiEventState: Flow<LikeUiEvent?>,
     consumeEvent: (LikeUiEvent) -> Unit,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     onClickBackButton: () -> Unit,
     updateIsLike: (Boolean, Int) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
@@ -129,7 +129,7 @@ private fun LikeEntryBody(
 @Composable
 fun LikeScreen(
     likeList: MutableList<LikeDetails>,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     updateIsLike: (Boolean, Int) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
     getAllList: () -> Unit,
@@ -167,7 +167,7 @@ fun LikeScreen(
 @Composable
 private fun LikePokeCard(
     pokemon: LikeDetails,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     updateIsLike: (Boolean, Int) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
     getAllList: () -> Unit,
@@ -177,7 +177,7 @@ private fun LikePokeCard(
         modifier = modifier.padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = {
-            onClickCard.invoke(pokemon.pokemonNumber)
+            onClickCard.invoke(pokemon.speciesNumber, pokemon.pokemonNumber)
         },
     ) {
         Box(

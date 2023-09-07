@@ -1,6 +1,7 @@
 package com.example.pokebook.ui.screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -52,7 +53,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    onClickCard: (Int) -> Unit
+    onClickCard: (Int, Int) -> Unit
 ) {
     HomeScreen(
         uiState = homeViewModel.uiState,
@@ -76,7 +77,7 @@ private fun HomeScreen(
     consumeEvent: (HomeUiEvent) -> Unit,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     onClickRetryGetList: () -> Unit
 ) {
@@ -145,7 +146,7 @@ private fun PokeList(
     isFirst: Boolean,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
@@ -183,7 +184,7 @@ private fun PokeList(
 fun PokeList(
     pokemonUiDataList: List<PokemonListUiData>,
     isFirst: Boolean,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
@@ -213,13 +214,15 @@ fun PokeList(
 @Composable
 fun PokeCard(
     pokemon: PokemonListUiData,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = cardElevation(4.dp),
-        onClick = { onClickCard.invoke(pokemon.pokemonNumber) }
+        onClick = {
+            Log.d("test","詳細画面を開く時の情報：$pokemon")
+            onClickCard.invoke(pokemon.speciesNumber?.toInt() ?: 0, pokemon.pokemonNumber) }
     ) {
         Box(
             contentAlignment = Alignment.BottomCenter

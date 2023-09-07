@@ -1,5 +1,6 @@
 package com.example.pokebook.ui.viewModel.Detail
 
+import com.example.pokebook.model.PokemonPersonalData
 import java.util.UUID
 
 /**

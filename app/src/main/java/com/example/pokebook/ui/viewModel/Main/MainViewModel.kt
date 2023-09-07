@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pokebook.data.PokemonDatabase
 import com.example.pokebook.data.pokemonData.PokemonData
 import com.example.pokebook.data.pokemonData.PokemonDataRepository
 import com.example.pokebook.data.pokemonData.pokemonDataByJson
@@ -15,16 +16,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 
 class MainViewModel(
     private val pokemonDataRepository: PokemonDataRepository
 ) : ViewModel() {
-    //    private val _isDataReady: MutableStateFlow<Boolean> = MutableStateFlow(false)
-//    val isDataReady = _isDataReady.asStateFlow()
-// TODO LiveDataとFlowどちらが適切なのか？
-    private val _isReady: MutableLiveData<Boolean> = MutableLiveData(false)
-    val isReady: LiveData<Boolean> get() = _isReady
-
     private val json = Json {
         ignoreUnknownKeys = true
     }
@@ -40,13 +37,10 @@ class MainViewModel(
                 // DB書き込み
                 convertAndWriteToDB(pokemonList)
             }
-            delay(2000) // DB書き込みがない場合スプラッシュが一瞬で消えるため、デフォルト２秒表示させる
         }.onSuccess {
-//            _isDataReady.emit(true)
-            _isReady.postValue(true)
+            // 次のメソッドに移行するため、何もしない
         }.onFailure {
-//            _isDataReady.emit(false)
-            _isReady.postValue(false)
+           //TODO いずれエラー処理を実装
         }
     }
 
@@ -56,7 +50,7 @@ class MainViewModel(
     private suspend fun convertAndWriteToDB(pokemonList: List<PokemonDataByJson>) {
         val pokemonDataList = pokemonList.map {
             PokemonData(
-                id = it.id,
+                pokemonNumber = it.pokemonNumber,
                 englishName = it.name.english,
                 japaneseName = it.name.japanese,
                 hp = it.base.hp,
