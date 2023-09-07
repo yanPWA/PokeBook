@@ -1,6 +1,7 @@
 package com.example.pokebook.ui.screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,10 +49,13 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SearchListScreen(
+    typeNumber: Int,
     searchViewModel: SearchViewModel,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     onClickBackSearchScreen: () -> Unit
 ) {
+    searchViewModel.showPokemonTypeList(typeNumber)
+
     SearchListScreen(
         uiState = searchViewModel.uiState,
         uiStateEvent = searchViewModel.uiEvent,
@@ -76,7 +80,7 @@ private fun SearchListScreen(
     conditionState: StateFlow<SearchConditionState>,
     onClickBack: () -> Unit,
     onClickNext: () -> Unit,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     updateButtonStates: (Boolean, Boolean) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     onClickBackSearchScreen: () -> Unit,
@@ -154,7 +158,7 @@ private fun SearchListScreen(
     maxPage: String,
     onClickBack: () -> Unit,
     onClickNext: () -> Unit,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     updateButtonStates: (Boolean, Boolean) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     onClickBackSearchScreen: () -> Unit,
@@ -202,7 +206,7 @@ private fun SearchListScreen(
 private fun PokeTypeList(
     pokemonUiDataList: List<PokemonListUiData>,
     isFirst: Boolean,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
@@ -234,15 +238,13 @@ private fun PokeTypeList(
 @Composable
 private fun PokeTypeCard(
     pokemon: PokemonListUiData,
-    onClickCard: (Int) -> Unit,
+    onClickCard: (Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        onClick = {
-            onClickCard.invoke(pokemon.pokemonNumber)
-        }
+        onClick = { onClickCard.invoke(pokemon.speciesNumber?.toInt() ?: 0, pokemon.pokemonNumber) }
     ) {
         if (!pokemon.imageUrl.isNullOrEmpty()) {
             Box(

@@ -37,25 +37,9 @@ import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun SearchScreen(
-    searchViewModel: SearchViewModel,
     onClickSearchName: (String) -> Unit,
     onClickSearchNumber: (Int) -> Unit,
-    onClickSearchTypeButton: () -> Unit,
-) {
-    SearchScreen(
-        onClickSearchType = searchViewModel::getPokemonByType,
-        onClickSearchName = onClickSearchName,
-        onClickSearchNumber = onClickSearchNumber,
-        onClickSearchTypeButton = onClickSearchTypeButton
-    )
-}
-
-@Composable
-private fun SearchScreen(
-    onClickSearchType: (String) -> Unit,
-    onClickSearchName: (String) -> Unit,
-    onClickSearchNumber: (Int) -> Unit,
-    onClickSearchTypeButton: () -> Unit,
+    onClickSearchTypeButton: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var valueName by remember { mutableStateOf("") }
@@ -69,7 +53,6 @@ private fun SearchScreen(
             .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
     ) {
         SearchType(
-            onClickType = onClickSearchType,
             onClickSearchTypeButton = onClickSearchTypeButton
         )
         SearchName(
@@ -93,8 +76,7 @@ private fun SearchScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SearchType(
-    onClickType: (String) -> Unit,
-    onClickSearchTypeButton: () -> Unit,
+    onClickSearchTypeButton: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -129,8 +111,7 @@ private fun SearchType(
                         )
                         .padding(2.dp)
                         .clickable {
-                            onClickType.invoke(item.convertToTypeNumber())
-                            onClickSearchTypeButton.invoke()
+                            onClickSearchTypeButton.invoke(item.convertToTypeNumber())
                         }
                 )
             }
