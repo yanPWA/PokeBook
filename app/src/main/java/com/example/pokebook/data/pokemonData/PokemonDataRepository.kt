@@ -50,6 +50,7 @@ interface PokemonDataRepository {
      */
     suspend fun updatePokemonAllData(
         id: Int?=null,
+        pokemonNumber:Int? = null,
         englishName: String? = null,
         japaneseName: String? = null,
         description: String? = null,
