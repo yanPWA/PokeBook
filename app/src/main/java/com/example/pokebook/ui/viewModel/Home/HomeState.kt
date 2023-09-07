@@ -1,5 +1,7 @@
 package com.example.pokebook.ui.viewModel.Home
 
+import android.os.Parcel
+import android.os.Parcelable
 import java.util.UUID
 
 /**
@@ -12,7 +14,7 @@ sealed class HomeUiState {
     ) : HomeUiState()
 
     object InitialState : HomeUiState()
-    object ResultError: HomeUiState()
+    object ResultError : HomeUiState()
 }
 
 /**
@@ -27,13 +29,13 @@ data class PokemonListUiData(
     val name: String = "",
     var displayName: String = "",
     val url: String = "",
-    var imageUrl: String? = ""
+    var imageUrl: String? = "",
+    val speciesNumber: String? = ""
 )
 
 data class HomeScreenConditionState(
-    val isScrollTop:Boolean = true,
-    val pagePosition:Int = 0,
-    val speciesNumber:String? = ""
+    val isScrollTop: Boolean = true,
+    val pagePosition: Int = 0,
 )
 
 /**

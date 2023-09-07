@@ -91,22 +91,24 @@ fun NavGraphBuilder.homeGraph(
         route = BottomNavItems.Home.route
     ) {
         composable(HomeScreen.PokemonListScreen.route) {
-            homeViewModel.getPokemonList()
             HomeScreen(
                 homeViewModel = homeViewModel,
-                onClickCard = { pokemonNumber ->
-                    navController.navigate("${HomeScreen.PokemonDetailScreen.route}/$pokemonNumber")
+                onClickCard = { speciesNumber, pokemonNumber ->
+                    navController.navigate("${HomeScreen.PokemonDetailScreen.route}/$speciesNumber/$pokemonNumber")
                 }
             )
         }
         composable(
-            route = "${HomeScreen.PokemonDetailScreen.route}/{pokemonNumber}",
+            route = "${HomeScreen.PokemonDetailScreen.route}/{speciesNumber}/{pokemonNumber}",
             arguments = listOf(
+                navArgument("speciesNumber") { type = NavType.IntType },
                 navArgument("pokemonNumber") { type = NavType.IntType }
             )
         ) { backStackEntry ->
+            val speciesNumber = backStackEntry.arguments?.getInt("speciesNumber") ?: 0
             val pokemonNumber = backStackEntry.arguments?.getInt("pokemonNumber") ?: 0
             PokemonDetailScreen(
+                speciesNumber = speciesNumber,
                 pokemonNumber = pokemonNumber,
                 likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() }
@@ -129,21 +131,29 @@ fun NavGraphBuilder.searchGraph(
     ) {
         composable(SearchScreen.SearchTopScreen.route) {
             SearchScreen(
-                searchViewModel = searchViewModel,
                 onClickSearchNumber = { pokemonNumber ->
                     navController.navigate("${SearchScreen.PokemonDetailScreenByNumber.route}/$pokemonNumber")
                 },
                 onClickSearchName = { pokemonName ->
                     navController.navigate("${SearchScreen.PokemonDetailScreenByName.route}/$pokemonName")
                 },
-                onClickSearchTypeButton = { navController.navigate(SearchScreen.PokemonListScreen.route) },
+                onClickSearchTypeButton = { typeNumber ->
+                    navController.navigate("${SearchScreen.PokemonListScreen.route}/$typeNumber")
+                },
             )
         }
-        composable(SearchScreen.PokemonListScreen.route) {
+        composable(
+            route = "${SearchScreen.PokemonListScreen.route}/{typeNumber}",
+            arguments = listOf(
+                navArgument("typeNumber") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val typeNumber = backStackEntry.arguments?.getInt("typeNumber") ?: 0
             SearchListScreen(
+                typeNumber = typeNumber,
                 searchViewModel = searchViewModel,
-                onClickCard = { pokemonNumber ->
-                    navController.navigate("${SearchScreen.PokemonDetailScreenByNumber.route}/$pokemonNumber")
+                onClickCard = { speciesNumber, pokemonNumber ->
+                    navController.navigate("${SearchScreen.PokemonDetailScreenByNumber.route}/$speciesNumber/$pokemonNumber")
                 },
                 onClickBackSearchScreen = { navController.navigateUp() }
             )
@@ -167,13 +177,16 @@ fun NavGraphBuilder.searchGraph(
             )
         }
         composable(
-            route = "${SearchScreen.PokemonDetailScreenByNumber.route}/{pokemonNumber}",
+            route = "${SearchScreen.PokemonDetailScreenByNumber.route}/{speciesNumber}/{pokemonNumber}",
             arguments = listOf(
-                navArgument("pokemonNumber") { type = NavType.IntType },
+                navArgument("speciesNumber") { type = NavType.IntType },
+                navArgument("pokemonNumber") { type = NavType.IntType }
             )
         ) { backStackEntry ->
+            val speciesNumber = backStackEntry.arguments?.getInt("speciesNumber") ?: 0
             val pokemonNumber = backStackEntry.arguments?.getInt("pokemonNumber") ?: 0
             PokemonDetailScreen(
+                speciesNumber = speciesNumber,
                 pokemonNumber = pokemonNumber,
                 likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() }
@@ -196,21 +209,24 @@ fun NavGraphBuilder.likeGraph(
         composable(LikeScreen.LikeListScreen.route) {
             likeEntryViewModel.getAllList()
             LikeEntryScreen(
-                onClickCard = { pokemonNumber ->
-                    navController.navigate("${LikeScreen.LikeDetailScreen.route}/$pokemonNumber")
+                onClickCard = { speciesNumber, pokemonNumber ->
+                    navController.navigate("${LikeScreen.LikeDetailScreen.route}/$speciesNumber/$pokemonNumber")
                 },
                 onClickBackButton = { navController.navigateUp() },
                 likeEntryViewModel = likeEntryViewModel
             )
         }
         composable(
-            route = "${LikeScreen.LikeDetailScreen.route}/{pokemonNumber}",
+            route = "${LikeScreen.LikeDetailScreen.route}/{speciesNumber}/{pokemonNumber}",
             arguments = listOf(
+                navArgument("speciesNumber") { type = NavType.IntType },
                 navArgument("pokemonNumber") { type = NavType.IntType },
             )
         ) { backStackEntry ->
+            val speciesNumber = backStackEntry.arguments?.getInt("speciesNumber") ?: 0
             val pokemonNumber = backStackEntry.arguments?.getInt("pokemonNumber") ?: 0
             PokemonDetailScreen(
+                speciesNumber = speciesNumber,
                 pokemonNumber = pokemonNumber,
                 likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() }
