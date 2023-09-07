@@ -11,8 +11,8 @@ import com.example.pokebook.model.PokemonPersonalData
 import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.model.StatType
 import com.example.pokebook.repository.PokemonDetailRepository
+import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.reflect.typeOf
 
 class PokemonDetailViewModel(
     private val detailRepository: PokemonDetailRepository,
@@ -35,6 +34,9 @@ class PokemonDetailViewModel(
     private var _conditionState: MutableStateFlow<PokemonDetailScreenUiData> =
         MutableStateFlow(PokemonDetailScreenUiData())
     val conditionState = _conditionState.asStateFlow()
+
+    private var _pokemonListUiDataConditionState: MutableStateFlow<PokemonListUiData> =
+        MutableStateFlow(PokemonListUiData())
 
     private val _uiEvent: MutableStateFlow<List<PokemonDetailUiEvent>> = MutableStateFlow(listOf())
     val uiEvent: Flow<PokemonDetailUiEvent?>
@@ -51,38 +53,43 @@ class PokemonDetailViewModel(
     }
 
     /**
-     *　ポケモンの種類に関する情報を取得（番号検索）
+     *　ポケモンの種類に関する情報を取得
      */
-    fun getPokemonSpeciesById(pokeId: Int) = viewModelScope.launch {
+    fun getPokemonSpeciesById(
+        pokemonNumber: Int,
+        speciesNumber: Int = 0
+    ) = viewModelScope.launch {
         _uiState.emit(PokemonDetailUiState.Loading)
         runCatching {
             withContext(Dispatchers.IO) {
                 // DBを検索
-                val roomResult = pokemonDataRepository.searchById(pokeId)
+                val roomResult = pokemonDataRepository.searchById(pokemonNumber)
 
-                // DBに[description]がない場合
-                if (roomResult.description.isNullOrEmpty()) {
-                    val apiResult = detailRepository.getPokemonPersonalData(pokeId)
-                    val speciesNumber = Uri.parse(apiResult.species.url).lastPathSegment
-
-                    speciesNumber?.let { num ->
-                        // ポケモン特性を取得
-                        val species = detailRepository.getPokemonSpecies(num.toInt())
-                        // 必要情報を取得してconditionStateを更新
-                        getInfo(
-                            roomResult = roomResult,
-                            apiResult = apiResult,
-                            species = species
-                        )
-                    }
+                // DBにデータが存在していなければAPIを叩く
+                if (roomResult == null) {
+                    val result = getApiPokemonData(pokemonNumber, speciesNumber)
+                    // 必要情報を取得してconditionStateを更新
+                    updateCondition(
+                        apiResult = result.personalData,
+                        species = result.species
+                    )
+                    // DBにdescriptionがない場合
+                } else if (roomResult.description.isNullOrEmpty()) {
+                    val result = getApiPokemonData(pokemonNumber, speciesNumber)
+                    // 必要情報を取得してconditionStateを更新
+                    updateCondition(
+                        roomResult = roomResult,
+                        apiResult = result.personalData,
+                        species = result.species
+                    )
                 } else {
                     //conditionStateを更新
                     _conditionState.update { currentState ->
                         currentState.copy(
-                            pokemonNumber = roomResult.id,
+                            pokemonNumber = roomResult.pokemonNumber,
                             englishName = roomResult.englishName ?: "",
                             japaneseName = roomResult.japaneseName,
-                            description = roomResult.description ?: "",
+                            description = roomResult.description,
                             hp = roomResult.hp ?: 0,
                             attack = roomResult.attack ?: 0,
                             defense = roomResult.defense ?: 0,
@@ -94,35 +101,78 @@ class PokemonDetailViewModel(
                         )
                     }
                 }
-                // DBに保存
-                pokemonDataRepository.updatePokemonAllData(
-                    id = pokeId,
-                    englishName = conditionState.value.englishName,
-                    japaneseName = conditionState.value.japaneseName,
-                    description = conditionState.value.description,
-                    hp = conditionState.value.hp,
-                    attack = conditionState.value.attack,
-                    defense = conditionState.value.defense,
-                    speed = conditionState.value.speed,
-                    imageUrl = conditionState.value.imageUri,
-                    speciesNumber = conditionState.value.speciesNumber,
-                    type = conditionState.value.type,
-                    genus = conditionState.value.genus
-                )
+
+                if (roomResult == null) {
+                    // 新規でDBに保存
+                    pokemonDataRepository.insertItem(
+                        listOf(
+                            PokemonData(
+                                pokemonNumber = pokemonNumber,
+                                englishName = conditionState.value.englishName,
+                                japaneseName = conditionState.value.japaneseName,
+                                description = conditionState.value.description,
+                                hp = conditionState.value.hp,
+                                attack = conditionState.value.attack,
+                                defense = conditionState.value.defense,
+                                speed = conditionState.value.speed,
+                                imageUrl = conditionState.value.imageUri,
+                                speciesNumber = conditionState.value.speciesNumber,
+                                type = conditionState.value.type,
+                                genus = conditionState.value.genus
+                            )
+                        )
+                    )
+                } else {
+                    // pokemonNumberに該当するDBの情報を更新
+                    pokemonDataRepository.updatePokemonAllData(
+                        pokemonNumber = pokemonNumber,
+                        englishName = conditionState.value.englishName,
+                        japaneseName = conditionState.value.japaneseName,
+                        description = conditionState.value.description,
+                        hp = conditionState.value.hp,
+                        attack = conditionState.value.attack,
+                        defense = conditionState.value.defense,
+                        speed = conditionState.value.speed,
+                        imageUrl = conditionState.value.imageUri,
+                        speciesNumber = conditionState.value.speciesNumber,
+                        type = conditionState.value.type,
+                        genus = conditionState.value.genus
+                    )
+                }
             }
         }.onSuccess {
             _uiState.emit(PokemonDetailUiState.Fetched(detailUiCondition = DetailUiCondition()))
         }.onFailure {
+            Log.d("error", "e[getPokemonSpeciesById]:$it")
             send(PokemonDetailUiEvent.Error(it))
             _uiState.emit(PokemonDetailUiState.ResultError)
         }
     }
 
     /**
-     * ポケモンの詳細情報を取得してStat更新
+     * APIから詳細情報を取得
      */
-    private fun getInfo(
-        roomResult: PokemonData?,
+    private suspend fun getApiPokemonData(
+        pokemonNumber: Int,
+        speciesNumber: Int,
+    ): ApiResult {
+        var localSpeciesNumber = speciesNumber
+        val personalData = detailRepository.getPokemonPersonalData(pokemonNumber)
+
+        localSpeciesNumber =
+            if (localSpeciesNumber == 0) Uri.parse(personalData.species.url).lastPathSegment?.toInt()
+                ?: 0 else speciesNumber
+
+        // ポケモン特性を取得
+        val species = detailRepository.getPokemonSpecies(localSpeciesNumber)
+        return ApiResult(personalData = personalData, species = species)
+    }
+
+    /**
+     * Stat更新
+     */
+    private fun updateCondition(
+        roomResult: PokemonData? = null,
         apiResult: PokemonPersonalData,
         species: PokemonSpecies
     ) {
@@ -130,13 +180,14 @@ class PokemonDetailViewModel(
         if (roomResult == null) {
             _conditionState.update { currentState ->
                 currentState.copy(
+                    pokemonNumber = apiResult.id,
                     englishName = species.names.firstOrNull { names -> names.language.name == "en" }?.name
                         ?: "",
                     japaneseName = species.names.firstOrNull { names -> names.language.name == "ja" }?.name
                         ?: "",
                     description = species.flavorTextEntries.firstOrNull { flavorTextEntries ->
                         flavorTextEntries.language.name == "ja"
-                    }?.flavorText ?: "",
+                    }?.flavorText ?: "日本語の説明が存在しません...",
                     imageUri = apiResult.sprites.other.officialArtwork.imgUrl ?: "",
                     speciesNumber = apiResult.id.toString()
                 )
@@ -187,13 +238,13 @@ class PokemonDetailViewModel(
             }
 
             // speciesNumberがない場合
-            if(roomResult.speciesNumber.isNullOrEmpty()){
+            if (roomResult.speciesNumber.isNullOrEmpty()) {
                 _conditionState.update { currentState ->
                     currentState.copy(
-                        speciesNumber = apiResult.id.toString()
+                        speciesNumber = Uri.parse(apiResult.species.url).lastPathSegment ?: ""
                     )
                 }
-            }else {
+            } else {
                 _conditionState.update { currentState ->
                     currentState.copy(
                         speciesNumber = roomResult.speciesNumber
@@ -204,7 +255,7 @@ class PokemonDetailViewModel(
             // DB情報を使ってconditionStateを更新
             _conditionState.update { currentState ->
                 currentState.copy(
-                    pokemonNumber = roomResult.id,
+                    pokemonNumber = roomResult.pokemonNumber,
                     englishName = roomResult.englishName ?: "",
                     japaneseName = roomResult.japaneseName,
                     hp = roomResult.hp ?: 0,
@@ -218,7 +269,8 @@ class PokemonDetailViewModel(
         _conditionState.update { currentState ->
             currentState.copy(
                 genus = species.genera.firstOrNull { genera -> genera.language.name == "ja" }?.genus
-                    ?: "",
+                    ?: species.genera.firstOrNull { genera -> genera.language.name == "ja-Hrkt" }?.genus
+                    ?: "該当する分類が存在しません...",
                 type = apiResult.types.map { types -> types.type.name },
                 height = apiResult.height / 10.0,
                 weight = apiResult.weight / 10.0
@@ -234,17 +286,19 @@ class PokemonDetailViewModel(
         runCatching {
             withContext(Dispatchers.IO) {
                 val result = dataRepository.searchPokemonByKeyword(searchName)
-                val searchId = if (searchName == result.japaneseName) result.id else null
-                searchId?.let {
-                    _conditionState.update { currentState ->
-                        currentState.copy(
-                            pokemonNumber = it
-                        )
-                    }
+                val searchId = if (searchName == result.japaneseName) result.pokemonNumber else 0
+                _pokemonListUiDataConditionState.update { currentState ->
+                    currentState.copy(
+                        pokemonNumber = searchId,
+                        displayName = result.japaneseName,
+                        imageUrl = result.imageUrl,
+                    )
                 }
             }
         }.onSuccess {
-            getPokemonSpeciesById(conditionState.value.pokemonNumber)
+            getPokemonSpeciesById(
+                pokemonNumber = _pokemonListUiDataConditionState.value.pokemonNumber,
+            )
         }.onFailure {
             Log.d("error", "e[getPokemonList]:$it")
             send(PokemonDetailUiEvent.Error(it))
@@ -299,3 +353,8 @@ class PokemonDetailViewModel(
             }
     }
 }
+
+data class ApiResult(
+    val personalData: PokemonPersonalData,
+    val species: PokemonSpecies
+)

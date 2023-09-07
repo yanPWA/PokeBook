@@ -49,6 +49,7 @@ import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiEvent
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiState
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
+import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import com.example.pokebook.ui.viewModel.Like.LikeDetails
 import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
 import com.example.pokebook.ui.viewModel.Like.toLikeDetails
@@ -58,15 +59,16 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PokemonDetailScreen(
+    speciesNumber: Int = 0,
     pokemonNumber: Int? = null,
-    pokemonName: String? = null,
+    pokemonName: String? = "",
     likeEntryViewModel: LikeEntryViewModel,
     pokemonDetailViewModel: PokemonDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onClickBackButton: () -> Unit
 ) {
     if (pokemonNumber != null) {
-        pokemonDetailViewModel.getPokemonSpeciesById(pokemonNumber)
-    } else if (pokemonName != null) {
+        pokemonDetailViewModel.getPokemonSpeciesById(pokemonNumber, speciesNumber)
+    } else if (!pokemonName.isNullOrEmpty()) {
         pokemonDetailViewModel.getPokemonSpeciesByName(pokemonName)
     } else {
         // 何もしない
@@ -157,6 +159,7 @@ private fun PokemonDetailScreen(
 ) {
     Column(
         modifier = Modifier
+            .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(
                 state = rememberScrollState(),
