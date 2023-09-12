@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.pokebook.model.PokemonListItem
 import com.example.pokebook.model.PokemonTypeSearchResult
+import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 
 /**
  * 初回起動時に検索タイプ一覧を取得するためのエンティティ
@@ -24,7 +25,7 @@ data class SearchTypeList(
 )
 
 /**
- * PokemonTypeSearchResult -> SearchTypeList
+ * PokemonTypeSearchResult -> List<SearchTypeList>
  */
 fun PokemonTypeSearchResult.toSearchTypeList(): List<SearchTypeList> {
     val resultList = mutableListOf<SearchTypeList>()
@@ -43,4 +44,16 @@ fun PokemonTypeSearchResult.toSearchTypeList(): List<SearchTypeList> {
         )
     }
     return resultList
+}
+
+/**
+ * List<PokemonListUiData> -> List<SearchTypeList>
+ */
+fun List<PokemonListUiData>.toSearchTypeListByPokemonListUiData(): List<SearchTypeList> {
+    return this.map { item ->
+        SearchTypeList(
+            japaneseName = item.displayName,
+            pokemonNumber = item.pokemonNumber
+        )
+    }
 }
