@@ -7,13 +7,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokebook.data.pokemonData.PokemonDataRepository
+import com.example.pokebook.data.searchType.SearchTypeList
 import com.example.pokebook.data.searchType.SearchTypeListRepository
 import com.example.pokebook.data.searchType.toSearchTypeList
+import com.example.pokebook.data.searchType.toSearchTypeListByPokemonListUiData
 import com.example.pokebook.repository.ApiSearchRepository
 import com.example.pokebook.ui.screen.convertToJaTypeName
 import com.example.pokebook.ui.viewModel.DefaultHeader
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.mutate
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +26,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.collections.immutable.toPersistentList
+import okhttp3.internal.immutableListOf
+import okhttp3.internal.toImmutableList
 
 const val DISPLAY_UI_DATA_LIST_ITEM = 20
 const val TYPE_NORMAL = "1"
@@ -46,7 +57,8 @@ const val TYPE_SHADOW = "10002"
 
 class SearchViewModel(
     private val searchRepository: ApiSearchRepository,
-    private val searchTypeListRepository: SearchTypeListRepository
+    private val searchTypeListRepository: SearchTypeListRepository,
+    private val pokemonDataRepository: PokemonDataRepository
 ) : ViewModel(), DefaultHeader {
     private var _uiState: MutableStateFlow<SearchUiState> =
         MutableStateFlow(SearchUiState.InitialState)
@@ -55,9 +67,6 @@ class SearchViewModel(
     private var _conditionState: MutableStateFlow<SearchConditionState> =
         MutableStateFlow(SearchConditionState())
     val conditionState = _conditionState.asStateFlow()
-
-    // APIから取得したタイプ別一覧を格納するリスト
-    private val responseUiDataList = mutableListOf<List<PokemonListUiData>>()
 
     private val _uiEvent: MutableStateFlow<List<SearchUiEvent>> = MutableStateFlow(listOf())
     val uiEvent: Flow<SearchUiEvent?>
@@ -76,8 +85,8 @@ class SearchViewModel(
     // splash画面起動して良いかどうか
     private val _isReady: MutableLiveData<Boolean> = MutableLiveData(false)
     val isReady: LiveData<Boolean> get() = _isReady
-
-    private val searchedTypeList = mutableListOf<SearchedType>()
+    private val responseUiDataList = mutableListOf<PokemonListUiData>()
+    private var showUiDataList: List<List<PokemonListUiData>> = emptyList()
 
     /**
      * 初回起動でAPIからType一覧を取得してDBに保存
@@ -145,14 +154,23 @@ class SearchViewModel(
     }
 
     /**
+     * タイプ別ボタンが押された時に呼ばれる
+     */
+    fun onLoad(typeNumber: Int) {
+        // タイプボタン押下した時は必ず１ページ目を表示
+        _conditionState.update { currentState ->
+            currentState.copy(
+                pagePosition = 0
+            )
+        }
+        // type一覧取得
+        getPokemonTypeList(typeNumber)
+    }
+
+    /**
      * DBから指定されたType一覧を取得して表示
      */
-    fun showPokemonTypeList(typeNumber: Int) = viewModelScope.launch {
-        // リスト取得済みかどうかを確認
-        searchedTypeList.forEach { item ->
-            if (item.typeNumber == typeNumber && item.isFetched) return@launch
-        }
-
+    private fun getPokemonTypeList(typeNumber: Int) = viewModelScope.launch {
         _uiState.emit(SearchUiState.Loading)
         // タイトル名の更新
         _conditionState.update { currentState ->
@@ -161,88 +179,121 @@ class SearchViewModel(
             )
         }
         runCatching {
+            // 表示に関わるListを初期化
+            showUiDataList = mutableListOf()
+
             withContext(Dispatchers.IO) {
-                // DBから該当する一覧を取得（全カラム）
+                // DBから該当するタイプ一覧を取得
                 val roomResult = searchTypeListRepository.searchByTypeNumber(typeNumber)
+                    .chunked(DISPLAY_UI_DATA_LIST_ITEM)
+                // 表示するデータがない場合は早期return
+                if (roomResult.isEmpty()) {
+                    showPokemonTypeList()
+                    return@withContext
+                }
                 // maxPageを更新
                 _conditionState.update { currentState ->
                     currentState.copy(
-                        maxPage = roomResult.size.div(DISPLAY_UI_DATA_LIST_ITEM).plus(1).toString()
+                        maxPage = roomResult.size.toString()
                     )
                 }
-
-                // 不足データがあればAPIから取得してDB保存する
-                roomResult.forEach { pokemon ->
-                    if (pokemon.japaneseName.isNullOrEmpty()) {
-                        //APIから取得
-                        val japaneseName =
-                            searchRepository.getPokemonSpecies(pokemon.speciesNumber).names.firstOrNull { name -> name.language.name == "ja" }?.name
-                                ?: ""
-
-                        // DBに保存
-                        searchTypeListRepository.updateJapaneseName(
-                            pokemonNumber = pokemon.pokemonNumber,
-                            japaneseName = japaneseName
-                        )
+                var japaneseName = ""
+                roomResult.forEach { childList ->
+                    responseUiDataList.clear()
+                    childList.forEach { pokemon ->
+                        if (pokemon.japaneseName.isNullOrEmpty()) {
+                            // pokemonDataテーブルに存在していない時だけAPIを叩く
+                            japaneseName =
+                                if (pokemonDataRepository.searchById(pokemon.pokemonNumber) != null) {
+                                    pokemonDataRepository.searchById(pokemon.pokemonNumber).japaneseName
+                                } else {
+                                    searchRepository.getPokemonSpecies(pokemon.speciesNumber).names.firstOrNull { name -> name.language.name == "ja" }?.name
+                                        ?: ""
+                                }
+                            responseUiDataList.add(
+                                PokemonListUiData(
+                                    pokemonNumber = pokemon.pokemonNumber,
+                                    displayName = japaneseName,
+                                    imageUrl = pokemon.imageUrl ?: "",
+                                    speciesNumber = pokemon.speciesNumber.toString()
+                                )
+                            )
+                        } else {
+                            // DBに存在している時はDBの情報を取得
+                            responseUiDataList.add(
+                                PokemonListUiData(
+                                    pokemonNumber = pokemon.pokemonNumber,
+                                    displayName = pokemon.japaneseName,
+                                    imageUrl = pokemon.imageUrl ?: "",
+                                    speciesNumber = pokemon.speciesNumber.toString()
+                                )
+                            )
+                        }
                     }
+                    val mutableList = showUiDataList.toMutableList()
+                    mutableList.add(responseUiDataList.toImmutableList())
+                    showUiDataList = mutableList
+                    showPokemonTypeList()
                 }
-                // 取得したListを20件ずつのListに変換
-                val updateRoomResult = searchTypeListRepository.searchByTypeNumber(typeNumber)
-                // 20件ずつに分割したリストを生成
-                val chunkedList = updateRoomResult.map { item ->
-                    PokemonListUiData(
-                        pokemonNumber = item.pokemonNumber,
-                        displayName = item.japaneseName ?: "",
-                        imageUrl = item.imageUrl,
-                        speciesNumber = item.speciesNumber.toString()
-                    )
-                }.chunked(DISPLAY_UI_DATA_LIST_ITEM).toMutableList()
-
-                // 最後のリストを調整
-                val lastChunkList = chunkedList.lastOrNull()?.take(DISPLAY_UI_DATA_LIST_ITEM)
-                if (lastChunkList != null) {
-                    chunkedList[chunkedList.size.minus(1)] = lastChunkList
-                }
-                responseUiDataList.clear()
-                responseUiDataList += chunkedList
             }
         }.onSuccess {
-            // 該当するListを表示
-            showUiDataList()
-            searchedTypeList.add(
-                SearchedType(
-                    typeNumber = typeNumber,
-                    isFetched = true
-                )
-            )
+            // DB保存
+            saveSearchTypeResult(showUiDataList)
         }.onFailure {
             send(SearchUiEvent.Error(it))
             _uiState.emit(SearchUiState.ResultError)
-            Log.d("test", "e[showPokemonTypeList]：$it")
+            Log.d("test", "e[getPokemonTypeList]：$it")
         }
     }
 
     /**
      * 指定したpagePositionのリストを表示
      */
-    private fun showUiDataList(pagePosition: Int = 0) = viewModelScope.launch {
+    private fun showPokemonTypeList(pagePosition: Int = 0) = viewModelScope.launch {
         _conditionState.update { currentState ->
             currentState.copy(
                 pagePosition = pagePosition,
-                isFirst = true,
             )
         }
 
-        _uiState.emit(
-            SearchUiState.Fetched(
-                searchList = if (responseUiDataList.size != 0) {
-                    responseUiDataList[pagePosition]
-                } else {
-                    emptyList()
-                }
+        try {
+            _uiState.emit(
+                SearchUiState.Fetched(
+                    searchList = if (showUiDataList.isNotEmpty()) {
+                        showUiDataList[conditionState.value.pagePosition].toImmutableSet()
+                            .toImmutableList() // TODO 謎。いつか調べたい。一発で.toImmutableList()で変換したい
+                    } else {
+                        persistentListOf()
+                    }
+                )
             )
-        )
+        } catch (e: Exception) {
+            Log.d("test", "e[showPokemonTypeList]:$e")
+        }
     }
+
+    /**
+     * 作成したタイプ別一覧をDBに保存
+     */
+    private fun saveSearchTypeResult(resultList: List<List<PokemonListUiData>>) =
+        viewModelScope.launch {
+            var saveList: List<List<SearchTypeList>>
+            withContext(Dispatchers.IO) {
+                // DB保存用データ型に変換
+                saveList = resultList.toMutableList().map { childList ->
+                    childList.toSearchTypeListByPokemonListUiData()
+                }
+                // DBに保存
+                saveList.forEach { childList ->
+                    childList.forEach { pokemon ->
+                        searchTypeListRepository.updateJapaneseName(
+                            pokemonNumber = pokemon.pokemonNumber,
+                            japaneseName = pokemon.japaneseName ?: ""
+                        )
+                    }
+                }
+            }
+        }
 
     /**
      * どのボタンが押下されたかを更新
@@ -269,8 +320,9 @@ class SearchViewModel(
     }
 
     override fun onClickNext() {
+        updateIsFirst(true)
         val pagePosition = conditionState.value.pagePosition
-        if (pagePosition < responseUiDataList.size.minus(1)) showUiDataList(
+        if (pagePosition < responseUiDataList.size.minus(1)) showPokemonTypeList(
             conditionState.value.pagePosition.plus(
                 1
             )
@@ -278,15 +330,8 @@ class SearchViewModel(
     }
 
     override fun onClickBack() {
+        updateIsFirst(true)
         val pagePosition = conditionState.value.pagePosition
-        if (pagePosition > 0) showUiDataList(pagePosition.minus(1))
+        if (pagePosition > 0) showPokemonTypeList(pagePosition.minus(1))
     }
 }
-
-/**
- * 検索一覧表示用
- */
-data class SearchedType(
-    val typeNumber: Int,
-    val isFetched: Boolean
-)

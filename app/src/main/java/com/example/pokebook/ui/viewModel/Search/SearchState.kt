@@ -1,6 +1,7 @@
 package com.example.pokebook.ui.viewModel.Search
 
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
+import kotlinx.collections.immutable.ImmutableList
 import java.util.UUID
 
 /**
@@ -9,7 +10,7 @@ import java.util.UUID
 sealed class SearchUiState {
     object Loading : SearchUiState()
     data class Fetched(
-        val searchList: List<PokemonListUiData>
+        val searchList: ImmutableList<PokemonListUiData>
     ) : SearchUiState()
 
     object InitialState : SearchUiState()

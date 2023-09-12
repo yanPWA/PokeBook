@@ -2,6 +2,7 @@ package com.example.pokebook.ui.screen
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,12 +37,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
-import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import com.example.pokebook.ui.viewModel.Search.SearchConditionState
 import com.example.pokebook.ui.viewModel.Search.SearchUiEvent
 import com.example.pokebook.ui.viewModel.Search.SearchUiState
 import com.example.pokebook.ui.viewModel.Search.SearchViewModel
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,13 +51,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SearchListScreen(
-    typeNumber: Int,
     searchViewModel: SearchViewModel,
     onClickCard: (Int, Int) -> Unit,
     onClickBackSearchScreen: () -> Unit
 ) {
-    searchViewModel.showPokemonTypeList(typeNumber)
-
     SearchListScreen(
         uiState = searchViewModel.uiState,
         uiStateEvent = searchViewModel.uiEvent,
@@ -89,6 +88,8 @@ private fun SearchListScreen(
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiStateEvent.collectAsStateWithLifecycle(initialValue = null)
     val searchWord = conditionState.value.pokemonTypeName
+    val lazyGridState = rememberLazyGridState()
+    val coroutineScope = rememberCoroutineScope()
 
     when (uiEvent) {
         is SearchUiEvent.Error -> {
@@ -119,7 +120,9 @@ private fun SearchListScreen(
                     onClickCard = onClickCard,
                     updateButtonStates = updateButtonStates,
                     updateIsFirst = updateIsFirst,
-                    onClickBackSearchScreen = onClickBackSearchScreen
+                    onClickBackSearchScreen = onClickBackSearchScreen,
+                    lazyGridState = lazyGridState,
+                    coroutineScope = coroutineScope
                 )
             }
         }
@@ -151,7 +154,7 @@ private fun SearchListScreen(
 
 @Composable
 private fun SearchListScreen(
-    pokemonUiDataList: List<PokemonListUiData>,
+    pokemonUiDataList: ImmutableList<PokemonListUiData>,
     isFirst: Boolean,
     searchWord: String,
     pagePosition: Int,
@@ -162,14 +165,13 @@ private fun SearchListScreen(
     updateButtonStates: (Boolean, Boolean) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
     onClickBackSearchScreen: () -> Unit,
+    lazyGridState: LazyGridState,
+    coroutineScope: CoroutineScope
 ) {
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background),
     ) {
-        val lazyGridState = rememberLazyGridState()
-        val coroutineScope = rememberCoroutineScope()
-
         DefaultHeader(
             pagePosition = pagePosition,
             title = String.format(
@@ -204,7 +206,7 @@ private fun SearchListScreen(
 
 @Composable
 private fun PokeTypeList(
-    pokemonUiDataList: List<PokemonListUiData>,
+    pokemonUiDataList: ImmutableList<PokemonListUiData>,
     isFirst: Boolean,
     onClickCard: (Int, Int) -> Unit,
     updateIsFirst: (Boolean) -> Unit,
@@ -225,7 +227,7 @@ private fun PokeTypeList(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        items(pokemonUiDataList) { listItem ->
+        items(pokemonUiDataList.toMutableList()) { listItem ->
             PokeTypeCard(
                 pokemon = listItem,
                 onClickCard = onClickCard,
@@ -246,10 +248,19 @@ private fun PokeTypeCard(
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = { onClickCard.invoke(pokemon.speciesNumber?.toInt() ?: 0, pokemon.pokemonNumber) }
     ) {
-        if (!pokemon.imageUrl.isNullOrEmpty()) {
-            Box(
-                contentAlignment = Alignment.BottomCenter
-            ) {
+        Box(
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            if (pokemon.imageUrl.isNullOrEmpty()) {
+                Image(
+                    painter = painterResource(id = R.drawable.no_image),
+                    modifier = Modifier
+                        .size(200.dp)
+                        .padding(bottom = 20.dp),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null
+                )
+            } else {
                 AsyncImage(
                     model = ImageRequest.Builder(context = LocalContext.current)
                         .data(pokemon.imageUrl)
@@ -261,27 +272,27 @@ private fun PokeTypeCard(
                     contentScale = ContentScale.Crop,
                     contentDescription = null
                 )
-                Text(
-                    text = String.format(
-                        stringResource(R.string.pokemon_name),
-                        pokemon.pokemonNumber,
-                        pokemon.displayName
-                    ),
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = Modifier
-                        .shadow(
-                            elevation = 1.dp,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(bottom = 2.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.secondary,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(3.dp)
-                )
             }
+            Text(
+                text = String.format(
+                    stringResource(R.string.pokemon_name),
+                    pokemon.pokemonNumber,
+                    pokemon.displayName
+                ),
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSecondary,
+                modifier = Modifier
+                    .shadow(
+                        elevation = 1.dp,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(bottom = 2.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(3.dp)
+            )
         }
     }
 }
