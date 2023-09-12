@@ -46,7 +46,8 @@ const val TYPE_SHADOW = "10002"
 
 class SearchViewModel(
     private val searchRepository: ApiSearchRepository,
-    private val searchTypeListRepository: SearchTypeListRepository
+    private val searchTypeListRepository: SearchTypeListRepository,
+    private val pokemonDataRepository: PokemonDataRepository
 ) : ViewModel(), DefaultHeader {
     private var _uiState: MutableStateFlow<SearchUiState> =
         MutableStateFlow(SearchUiState.InitialState)
