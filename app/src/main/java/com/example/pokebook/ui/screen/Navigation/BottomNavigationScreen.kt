@@ -138,19 +138,13 @@ fun NavGraphBuilder.searchGraph(
                     navController.navigate("${SearchScreen.PokemonDetailScreenByName.route}/$pokemonName")
                 },
                 onClickSearchTypeButton = { typeNumber ->
-                    navController.navigate("${SearchScreen.PokemonListScreen.route}/$typeNumber")
+                    navController.navigate("${SearchScreen.PokemonListScreen.route}")
+                    searchViewModel.onLoad(typeNumber)
                 },
             )
         }
-        composable(
-            route = "${SearchScreen.PokemonListScreen.route}/{typeNumber}",
-            arguments = listOf(
-                navArgument("typeNumber") { type = NavType.IntType }
-            )
-        ) { backStackEntry ->
-            val typeNumber = backStackEntry.arguments?.getInt("typeNumber") ?: 0
+        composable(SearchScreen.PokemonListScreen.route) {
             SearchListScreen(
-                typeNumber = typeNumber,
                 searchViewModel = searchViewModel,
                 onClickCard = { speciesNumber, pokemonNumber ->
                     navController.navigate("${SearchScreen.PokemonDetailScreenByNumber.route}/$speciesNumber/$pokemonNumber")
