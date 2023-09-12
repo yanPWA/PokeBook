@@ -248,10 +248,19 @@ private fun PokeTypeCard(
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = { onClickCard.invoke(pokemon.speciesNumber?.toInt() ?: 0, pokemon.pokemonNumber) }
     ) {
-        if (!pokemon.imageUrl.isNullOrEmpty()) {
-            Box(
-                contentAlignment = Alignment.BottomCenter
-            ) {
+        Box(
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            if (pokemon.imageUrl.isNullOrEmpty()) {
+                Image(
+                    painter = painterResource(id = R.drawable.no_image),
+                    modifier = Modifier
+                        .size(200.dp)
+                        .padding(bottom = 20.dp),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null
+                )
+            } else {
                 AsyncImage(
                     model = ImageRequest.Builder(context = LocalContext.current)
                         .data(pokemon.imageUrl)
@@ -263,27 +272,27 @@ private fun PokeTypeCard(
                     contentScale = ContentScale.Crop,
                     contentDescription = null
                 )
-                Text(
-                    text = String.format(
-                        stringResource(R.string.pokemon_name),
-                        pokemon.pokemonNumber,
-                        pokemon.displayName
-                    ),
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = Modifier
-                        .shadow(
-                            elevation = 1.dp,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(bottom = 2.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.secondary,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(3.dp)
-                )
             }
+            Text(
+                text = String.format(
+                    stringResource(R.string.pokemon_name),
+                    pokemon.pokemonNumber,
+                    pokemon.displayName
+                ),
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSecondary,
+                modifier = Modifier
+                    .shadow(
+                        elevation = 1.dp,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(bottom = 2.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(3.dp)
+            )
         }
     }
 }
