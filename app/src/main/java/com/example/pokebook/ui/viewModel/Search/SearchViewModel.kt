@@ -121,6 +121,7 @@ class SearchViewModel(
                     searchRepository.getPokemonByType(typeNumber).toSearchTypeList()
                 // DBに保存
                 searchTypeListRepository.insert(typeList)
+                _isReady.postValue(true)
                 withContext(Dispatchers.IO) {
                     // DBから該当する一覧を取得（全カラム）
                     val roomResult = searchTypeListRepository.searchByTypeNumber(typeNumber.toInt())
@@ -146,7 +147,7 @@ class SearchViewModel(
                 }
             }
         }.onSuccess {
-            _isReady.postValue(true)
+            // 何もしない
         }.onFailure {
             _isReady.postValue(false)
             Log.d("error", "e[getPokemonTypeList]：$it") // TODO　いずれエラーダイアログ遷移
