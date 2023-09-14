@@ -39,14 +39,14 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
 
         val content: View = findViewById(android.R.id.content)
-        var isReady=false
+        var isReady = false
 
         // 初回起動時のみ実施
         if (!AppLaunchChecker.hasStartedFromLauncher(this)) {
             mainViewModel.readJson()
             searchViewModel.getPokemonTypeList()
             AppLaunchChecker.onActivityCreate(this)
-        }else{
+        } else {
             isReady = true
         }
 
