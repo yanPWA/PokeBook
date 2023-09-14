@@ -1,7 +1,6 @@
 package com.example.pokebook.ui.screen
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,7 +30,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,7 +40,6 @@ import com.example.pokebook.ui.viewModel.Home.HomeScreenConditionState
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import com.example.pokebook.ui.viewModel.Home.HomeUiState
 import com.example.pokebook.ui.viewModel.Home.HomeViewModel
-import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Home.HomeUiEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -220,9 +217,7 @@ fun PokeCard(
     Card(
         modifier = modifier.padding(8.dp),
         elevation = cardElevation(4.dp),
-        onClick = {
-            Log.d("test","詳細画面を開く時の情報：$pokemon")
-            onClickCard.invoke(pokemon.speciesNumber?.toInt() ?: 0, pokemon.pokemonNumber) }
+        onClick = { onClickCard.invoke(pokemon.speciesNumber?.toInt() ?: 0, pokemon.pokemonNumber) }
     ) {
         Box(
             contentAlignment = Alignment.BottomCenter
