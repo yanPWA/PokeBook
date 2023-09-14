@@ -149,38 +149,27 @@ private fun PokemonDetailScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(
-                state = rememberScrollState(),
-                reverseScrolling = true
-            )
     ) {
-        Image(
-            imageVector = ImageVector.vectorResource(
-                id = if (isSystemInDarkTheme()) R.drawable.arrow_back_fillf else R.drawable.arrow_back_fill0
-            ),
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.Start)
-                .clickable {
-                    onClickBackButton.invoke()
-                }
-        )
-        TitleImage(
-            pokemon = uiData,
-            type = uiData.type.firstOrNull() ?: "",
-            updateIsLike = updateIsLike,
-            deleteLike = deleteLike,
-            saveLike = saveLike,
-            checkIfRoomLike = checkIfRoomLike
-        )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
-                .fillMaxSize()
-                .padding(6.dp)
-        ) {
+        Column {
+            Image(
+                imageVector = ImageVector.vectorResource(
+                    id = if (isSystemInDarkTheme()) R.drawable.arrow_back_fillf else R.drawable.arrow_back_fill0
+                ),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .clickable {
+                        onClickBackButton.invoke()
+                    }
+            )
+            TitleImage(
+                pokemon = uiData,
+                type = uiData.type.firstOrNull() ?: "",
+                updateIsLike = updateIsLike,
+                deleteLike = deleteLike,
+                saveLike = saveLike,
+                checkIfRoomLike = checkIfRoomLike
+            )
             AutoSizeableText(
                 text = String.format(
                     stringResource(id = R.string.pokemon_name),
@@ -191,6 +180,20 @@ private fun PokemonDetailScreen(
                 modifier = modifier
                     .align(Alignment.CenterHorizontally)
             )
+        }
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxSize()
+                .padding(6.dp)
+                .verticalScroll(
+                    state = rememberScrollState(),
+                    reverseScrolling = true
+                )
+        ) {
             Text(
                 text = uiData.description,
                 fontSize = 15.sp,
