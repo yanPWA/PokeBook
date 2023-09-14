@@ -49,7 +49,6 @@ private fun NavigationHost(
     startDestination: String = BottomNavItems.Home.route,
     navController: NavHostController = rememberNavController(),
     searchViewModel: SearchViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
     likeEntryViewModel: LikeEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
@@ -78,7 +77,6 @@ private fun NavigationHost(
     ) {
         homeGraph(
             navController = navController,
-            homeViewModel = homeViewModel,
             likeEntryViewModel = likeEntryViewModel,
             pokemonDetailViewModel = homeDetailViewModel
         )
@@ -105,7 +103,6 @@ private fun NavigationHost(
  */
 fun NavGraphBuilder.homeGraph(
     navController: NavController,
-    homeViewModel: HomeViewModel,
     pokemonDetailViewModel: PokemonDetailViewModel,
     likeEntryViewModel: LikeEntryViewModel
 ) {
@@ -114,6 +111,7 @@ fun NavGraphBuilder.homeGraph(
         route = BottomNavItems.Home.route
     ) {
         composable(HomeScreen.PokemonListScreen.route) {
+            val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
             HomeScreen(
                 homeViewModel = homeViewModel,
                 onClickCard = { speciesNumber, pokemonNumber ->
