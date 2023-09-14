@@ -38,14 +38,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
-import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
-import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 
 import com.example.pokebook.ui.viewModel.Like.LikeDetails
 import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
 import com.example.pokebook.ui.viewModel.Like.LikeUiEvent
 import com.example.pokebook.ui.viewModel.Like.LikeUiState
-import com.example.pokebook.ui.viewModel.Like.toPokemonListUiDataByLikeDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
