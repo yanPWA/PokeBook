@@ -2,6 +2,7 @@ package com.example.pokebook.ui.viewModel.Home
 
 import android.os.Parcel
 import android.os.Parcelable
+import kotlinx.collections.immutable.ImmutableList
 import java.util.UUID
 
 /**
@@ -10,7 +11,7 @@ import java.util.UUID
 sealed class HomeUiState {
     object Loading : HomeUiState()
     data class Fetched(
-        val uiDataList: MutableList<PokemonListUiData>
+        val uiDataList: ImmutableList<PokemonListUiData>
     ) : HomeUiState()
 
     object InitialState : HomeUiState()
