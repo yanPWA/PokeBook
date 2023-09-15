@@ -173,6 +173,7 @@ class SearchViewModel(
      */
     private fun getPokemonTypeList(typeNumber: Int) = viewModelScope.launch {
         _uiState.emit(SearchUiState.Loading)
+        updateIsFirst(true)
         // タイトル名の更新
         _conditionState.update { currentState ->
             currentState.copy(

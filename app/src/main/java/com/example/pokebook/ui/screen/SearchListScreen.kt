@@ -22,7 +22,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,7 +66,6 @@ fun SearchListScreen(
         onClickNext = searchViewModel::onClickNext,
         onClickCard = onClickCard,
         updateButtonStates = searchViewModel::updateButtonStates,
-        updateIsFirst = searchViewModel::updateIsFirst,
         onClickBackSearchScreen = onClickBackSearchScreen,
         onClickBackButton = onClickBackSearchScreen
     )
@@ -81,7 +82,6 @@ private fun SearchListScreen(
     onClickNext: () -> Unit,
     onClickCard: (Int, Int) -> Unit,
     updateButtonStates: (Boolean, Boolean) -> Unit,
-    updateIsFirst: (Boolean) -> Unit,
     onClickBackSearchScreen: () -> Unit,
     onClickBackButton: () -> Unit
 ) {
@@ -119,7 +119,6 @@ private fun SearchListScreen(
                     onClickNext = onClickNext,
                     onClickCard = onClickCard,
                     updateButtonStates = updateButtonStates,
-                    updateIsFirst = updateIsFirst,
                     onClickBackSearchScreen = onClickBackSearchScreen,
                     lazyGridState = lazyGridState,
                     coroutineScope = coroutineScope
@@ -163,7 +162,6 @@ private fun SearchListScreen(
     onClickNext: () -> Unit,
     onClickCard: (Int, Int) -> Unit,
     updateButtonStates: (Boolean, Boolean) -> Unit,
-    updateIsFirst: (Boolean) -> Unit,
     onClickBackSearchScreen: () -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
@@ -196,8 +194,8 @@ private fun SearchListScreen(
         PokeTypeList(
             pokemonUiDataList = pokemonUiDataList,
             isFirst = isFirst,
+            pagePosition = pagePosition,
             onClickCard = onClickCard,
-            updateIsFirst = updateIsFirst,
             lazyGridState = lazyGridState,
             coroutineScope = coroutineScope
         )
@@ -208,19 +206,19 @@ private fun SearchListScreen(
 private fun PokeTypeList(
     pokemonUiDataList: ImmutableList<PokemonListUiData>,
     isFirst: Boolean,
+    pagePosition:Int,
     onClickCard: (Int, Int) -> Unit,
-    updateIsFirst: (Boolean) -> Unit,
     lazyGridState: LazyGridState,
     coroutineScope: CoroutineScope
 ) {
-    LaunchedEffect(lazyGridState) {
-        coroutineScope.launch {
-            if (isFirst) {
+    if (isFirst) {
+        LaunchedEffect(pagePosition) {
+            coroutineScope.launch {
                 lazyGridState.scrollToItem(0)
-                updateIsFirst.invoke(false)
             }
         }
     }
+
     LazyVerticalGrid(
         state = lazyGridState,
         columns = GridCells.Adaptive(minSize = 150.dp),
