@@ -14,7 +14,7 @@ sealed class SearchUiState {
     ) : SearchUiState()
 
     object InitialState : SearchUiState()
-    object ResultError: SearchUiState()
+    object ResultError : SearchUiState()
 }
 
 data class SearchConditionState(
@@ -25,7 +25,7 @@ data class SearchConditionState(
     val isNextButton: Boolean = false,
     val pagePosition: Int = 0,
     val maxPage: String = "",
-    val isFirst:Boolean = true
+    val isFirst: Boolean = true
 )
 
 /**
