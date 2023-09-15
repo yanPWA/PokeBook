@@ -308,7 +308,7 @@ class SearchViewModel(
     }
 
     /**
-     * 初回取得時かどうか
+     * スクロールを先頭に戻すかどうか
      */
     fun updateIsFirst(isScrollTop: Boolean) {
         _conditionState.update { current ->

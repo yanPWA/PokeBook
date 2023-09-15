@@ -86,7 +86,6 @@ private fun SearchListScreen(
     val uiEvent by uiStateEvent.collectAsStateWithLifecycle(initialValue = null)
     val searchWord = conditionState.value.pokemonTypeName
     val lazyGridState = rememberLazyGridState()
-    val coroutineScope = rememberCoroutineScope()
 
     when (uiEvent) {
         is SearchUiEvent.Error -> {
@@ -118,7 +117,6 @@ private fun SearchListScreen(
                     updateButtonStates = updateButtonStates,
                     onClickBackSearchScreen = onClickBackSearchScreen,
                     lazyGridState = lazyGridState,
-                    coroutineScope = coroutineScope
                 )
             }
         }
@@ -161,7 +159,6 @@ private fun SearchListScreen(
     updateButtonStates: (Boolean, Boolean) -> Unit,
     onClickBackSearchScreen: () -> Unit,
     lazyGridState: LazyGridState,
-    coroutineScope: CoroutineScope
 ) {
     Column(
         modifier = Modifier
@@ -194,7 +191,6 @@ private fun SearchListScreen(
             pagePosition = pagePosition,
             onClickCard = onClickCard,
             lazyGridState = lazyGridState,
-            coroutineScope = coroutineScope
         )
     }
 }
@@ -206,13 +202,10 @@ private fun PokeTypeList(
     pagePosition:Int,
     onClickCard: (Int, Int) -> Unit,
     lazyGridState: LazyGridState,
-    coroutineScope: CoroutineScope
 ) {
     if (isFirst) {
         LaunchedEffect(pagePosition) {
-            coroutineScope.launch {
                 lazyGridState.scrollToItem(0)
-            }
         }
     }
 

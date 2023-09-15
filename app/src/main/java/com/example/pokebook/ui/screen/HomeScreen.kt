@@ -60,7 +60,6 @@ fun HomeScreen(
         onClickNext = homeViewModel::onClickNext,
         onClickBack = homeViewModel::onClickBack,
         onClickCard = onClickCard,
-        updateIsFirst = homeViewModel::updateIsFirst,
         onClickRetryGetList = homeViewModel::getPokemonList
     )
 }
@@ -75,13 +74,11 @@ private fun HomeScreen(
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
     onClickCard: (Int, Int) -> Unit,
-    updateIsFirst: (Boolean) -> Unit,
     onClickRetryGetList: () -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
     val lazyGridState = rememberLazyGridState()
-    val coroutineScope = rememberCoroutineScope()
 
     when (uiEvent) {
         is HomeUiEvent.Error -> {
@@ -99,13 +96,11 @@ private fun HomeScreen(
             PokeList(
                 pagePosition = homeUiConditionState.value.pagePosition,
                 pokemonUiDataList = (state as HomeUiState.Fetched).uiDataList,
-                isFirst = homeUiConditionState.value.isScrollTop,
+                isScrollTop = homeUiConditionState.value.isScrollTop,
                 onClickNext = onClickNext,
                 onClickBack = onClickBack,
                 onClickCard = onClickCard,
-                updateIsFirst = updateIsFirst,
                 lazyGridState = lazyGridState,
-                coroutineScope = coroutineScope
             )
         }
 
@@ -140,13 +135,11 @@ private fun HomeScreen(
 private fun PokeList(
     pagePosition: Int,
     pokemonUiDataList: List<PokemonListUiData>,
-    isFirst: Boolean,
+    isScrollTop: Boolean,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
     onClickCard: (Int, Int) -> Unit,
-    updateIsFirst: (Boolean) -> Unit,
     lazyGridState: LazyGridState,
-    coroutineScope: CoroutineScope
 ) {
     Column(
         modifier = Modifier
@@ -165,11 +158,10 @@ private fun PokeList(
         )
         PokeList(
             pokemonUiDataList = pokemonUiDataList,
-            isFirst = isFirst,
+            isScrollTop = isScrollTop,
+            pagePosition = pagePosition,
             onClickCard = onClickCard,
-            updateIsFirst = updateIsFirst,
             lazyGridState = lazyGridState,
-            coroutineScope = coroutineScope
         )
     }
 }
@@ -180,18 +172,15 @@ private fun PokeList(
 @Composable
 fun PokeList(
     pokemonUiDataList: List<PokemonListUiData>,
-    isFirst: Boolean,
+    isScrollTop: Boolean,
+    pagePosition:Int,
     onClickCard: (Int, Int) -> Unit,
-    updateIsFirst: (Boolean) -> Unit,
     lazyGridState: LazyGridState,
-    coroutineScope: CoroutineScope
 ) {
-    LaunchedEffect(lazyGridState) {
-        coroutineScope.launch {
-            if (isFirst) {
-                lazyGridState.scrollToItem(0)
-                updateIsFirst.invoke(false)
-            }
+    // スクロールを先頭に戻すかどうか
+    if (isScrollTop) {
+        LaunchedEffect(pagePosition) {
+            lazyGridState.scrollToItem(0)
         }
     }
     LazyVerticalGrid(
