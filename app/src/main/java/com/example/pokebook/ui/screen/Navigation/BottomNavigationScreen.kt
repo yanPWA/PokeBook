@@ -253,12 +253,14 @@ private fun BottomNavigationBar(
         val currentDestination = navBackStackEntry.value?.destination
 
         items.forEach { navItem ->
+            // 選択されたタブと現在表示中のタブが同じかどうか
+            val isTabSelected =
+                currentDestination?.hierarchy?.any { navItem.route == it.route } == true
             BottomNavigationItem(
                 label = { Text(navItem.name) },
                 alwaysShowLabel = true,
-                selected = currentDestination?.hierarchy?.any {
-                    navItem.route == it.route
-                } == true,
+                selectedContentColor = if (isTabSelected) Color.Cyan else Color(0xFFFFFFFF),
+                selected = isTabSelected,
                 icon = {
                     Icon(
                         imageVector = navItem.icon,
@@ -266,11 +268,18 @@ private fun BottomNavigationBar(
                     )
                 },
                 onClick = {
-                    navController.navigate(navItem.route) {
-                        launchSingleTop = true
-                        restoreState = true
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                    // 今選ばれてるタブと同じタブが押下されたら
+                    if (isTabSelected) {
+                        // 各タブのstartDestinationに移動する
+                        navController.navigate(navItem.route)
+                    } else {
+                        navController.navigate(navItem.route) {
+                            // 同じ項目を再選択するときに同じ宛先の複数のコピーを回避する
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
                         }
                     }
                 }
