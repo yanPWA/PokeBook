@@ -15,10 +15,7 @@ import com.example.pokebook.repository.ApiSearchRepository
 import com.example.pokebook.ui.screen.convertToJaTypeName
 import com.example.pokebook.ui.viewModel.DefaultHeader
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.mutate
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,8 +26,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
-import kotlinx.collections.immutable.toPersistentList
-import okhttp3.internal.immutableListOf
 import okhttp3.internal.toImmutableList
 
 const val DISPLAY_UI_DATA_LIST_ITEM = 20
@@ -173,6 +168,7 @@ class SearchViewModel(
      */
     private fun getPokemonTypeList(typeNumber: Int) = viewModelScope.launch {
         _uiState.emit(SearchUiState.Loading)
+        updateIsFirst(true)
         // タイトル名の更新
         _conditionState.update { currentState ->
             currentState.copy(
@@ -314,9 +310,9 @@ class SearchViewModel(
     /**
      * 初回取得時かどうか
      */
-    fun updateIsFirst(isFirst: Boolean) {
+    fun updateIsFirst(isScrollTop: Boolean) {
         _conditionState.update { current ->
-            current.copy(isFirst = isFirst)
+            current.copy(isScrollTop = isScrollTop)
         }
     }
 

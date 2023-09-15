@@ -175,6 +175,8 @@ fun NavGraphBuilder.searchGraph(
                         pokemonNumber = pokemonNumber,
                         speciesNumber = speciesNumber
                     )
+                    // 詳細画面遷移の際はスクロール位置を保持しておく
+                    searchViewModel.updateIsFirst(false)
                 },
                 onClickBackSearchScreen = { navController.navigateUp() }
             )
