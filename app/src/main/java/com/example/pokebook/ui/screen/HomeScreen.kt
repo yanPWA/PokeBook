@@ -1,6 +1,7 @@
 package com.example.pokebook.ui.screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,7 @@ import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import com.example.pokebook.ui.viewModel.Home.HomeUiState
 import com.example.pokebook.ui.viewModel.Home.HomeViewModel
 import com.example.pokebook.ui.viewModel.Home.HomeUiEvent
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -134,7 +136,7 @@ private fun HomeScreen(
 @Composable
 private fun PokeList(
     pagePosition: Int,
-    pokemonUiDataList: List<PokemonListUiData>,
+    pokemonUiDataList: ImmutableList<PokemonListUiData>,
     isScrollTop: Boolean,
     onClickNext: () -> Unit,
     onClickBack: () -> Unit,
@@ -171,7 +173,7 @@ private fun PokeList(
  */
 @Composable
 fun PokeList(
-    pokemonUiDataList: List<PokemonListUiData>,
+    pokemonUiDataList: ImmutableList<PokemonListUiData>,
     isScrollTop: Boolean,
     pagePosition:Int,
     onClickCard: (Int, Int) -> Unit,

@@ -9,6 +9,7 @@ import com.example.pokebook.data.pokemonData.pokemonPersonalDataToPokemonData
 import com.example.pokebook.model.PokemonPersonalData
 import com.example.pokebook.repository.HomeRepository
 import com.example.pokebook.ui.viewModel.DefaultHeader
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -88,7 +89,7 @@ class HomeViewModel(
                 }
             }
         }.onSuccess {
-            _uiState.emit(HomeUiState.Fetched(uiDataList = uiDataList))
+            _uiState.emit(HomeUiState.Fetched(uiDataList = uiDataList.toImmutableList()))
         }.onFailure {
             send(HomeUiEvent.Error(it))
             _uiState.emit(HomeUiState.ResultError)
