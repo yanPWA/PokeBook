@@ -120,6 +120,8 @@ fun NavGraphBuilder.homeGraph(
                         pokemonNumber = pokemonNumber,
                         speciesNumber = speciesNumber
                     )
+                    // 詳細画面遷移の際はスクロール位置を保持しておく
+                    homeViewModel.updateIsFirst(false)
                 }
             )
         }
