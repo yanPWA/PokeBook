@@ -133,6 +133,7 @@ class HomeViewModel(
      * 「次へ」ボタン押下してポケモンリスト取得
      */
     override fun onClickNext() {
+        updateIsFirst(true)
         _conditionState.update { currentState ->
             currentState.copy(
                 pagePosition = conditionState.value.pagePosition.plus(1)
@@ -145,6 +146,7 @@ class HomeViewModel(
      * 「戻る」ボタン押下して一つ前のポケモンリストを取得
      */
     override fun onClickBack() {
+        updateIsFirst(true)
         _conditionState.update { currentState ->
             currentState.copy(
                 pagePosition = conditionState.value.pagePosition.minus(1)
@@ -154,7 +156,7 @@ class HomeViewModel(
     }
 
     /**
-     * 初回取得時かどうか
+     * スクロールを先頭に戻すかどうか
      */
     fun updateIsFirst(isScrollTop: Boolean) {
         _conditionState.update { current ->
