@@ -49,8 +49,8 @@ interface PokemonDataRepository {
      * 指定したIDの必要なカラムを更新
      */
     suspend fun updatePokemonAllData(
-        id: Int?=null,
-        pokemonNumber:Int? = null,
+        id: Int? = null,
+        pokemonNumber: Int? = null,
         englishName: String? = null,
         japaneseName: String? = null,
         description: String? = null,
@@ -58,10 +58,11 @@ interface PokemonDataRepository {
         attack: Int? = null,
         defense: Int? = null,
         speed: Int? = null,
-        imageUrl: String? =null,
+        imageUrl: String? = null,
         genus: String? = null,
         type: List<String>? = null,
-        speciesNumber: String? = null
+        speciesNumber: String? = null,
+        evolutionChainNumber: String? = null
     )
 
 

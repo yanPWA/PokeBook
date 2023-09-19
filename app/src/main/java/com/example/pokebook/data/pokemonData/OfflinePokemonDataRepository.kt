@@ -44,7 +44,8 @@ class OfflinePokemonDataRepository(private val pokemonDataDao: PokemonDataDao) :
         imageUrl: String?,
         genus: String?,
         type: List<String>?,
-        speciesNumber: String?
+        speciesNumber: String?,
+        evolutionChainNumber:String?
     ) = pokemonDataDao.updatePokemonAllData(
         pokemonNumber = pokemonNumber,
         englishName = englishName,
@@ -57,7 +58,8 @@ class OfflinePokemonDataRepository(private val pokemonDataDao: PokemonDataDao) :
         imageUrl = imageUrl,
         genus = genus,
         type = type,
-        speciesNumber = speciesNumber
+        speciesNumber = speciesNumber,
+        evolutionChainNumber = evolutionChainNumber
     )
 
     override suspend fun searchById(id: Int): PokemonData = pokemonDataDao.searchById(id)

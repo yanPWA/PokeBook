@@ -46,7 +46,8 @@ data class PokemonDetailScreenUiData(
     val height: Double = 0.0,
     val weight: Double = 0.0,
     val isLike: Boolean = false,
-    val speciesNumber: String = ""
+    val speciesNumber: String = "",
+    val evolutionChainNumber: String = ""
 )
 
 /**

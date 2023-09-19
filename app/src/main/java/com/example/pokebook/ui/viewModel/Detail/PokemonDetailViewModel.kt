@@ -97,7 +97,8 @@ class PokemonDetailViewModel(
                             imageUri = roomResult.imageUrl ?: "",
                             type = roomResult.type ?: emptyList(),
                             genus = roomResult.genus ?: "",
-                            speciesNumber = roomResult.speciesNumber ?: ""
+                            speciesNumber = roomResult.speciesNumber ?: "",
+                            evolutionChainNumber = roomResult.evolutionChainNumber ?: ""
                         )
                     }
                 }
@@ -118,7 +119,8 @@ class PokemonDetailViewModel(
                                 imageUrl = conditionState.value.imageUri,
                                 speciesNumber = conditionState.value.speciesNumber,
                                 type = conditionState.value.type,
-                                genus = conditionState.value.genus
+                                genus = conditionState.value.genus,
+                                evolutionChainNumber = conditionState.value.evolutionChainNumber
                             )
                         )
                     )
@@ -136,7 +138,8 @@ class PokemonDetailViewModel(
                         imageUrl = conditionState.value.imageUri,
                         speciesNumber = conditionState.value.speciesNumber,
                         type = conditionState.value.type,
-                        genus = conditionState.value.genus
+                        genus = conditionState.value.genus,
+                        evolutionChainNumber = conditionState.value.evolutionChainNumber
                     )
                 }
             }
@@ -189,7 +192,8 @@ class PokemonDetailViewModel(
                         flavorTextEntries.language.name == "ja"
                     }?.flavorText ?: "日本語の説明が存在しません...",
                     imageUri = apiResult.sprites.other.officialArtwork.imgUrl ?: "",
-                    speciesNumber = apiResult.id.toString()
+                    speciesNumber = apiResult.id.toString(),
+                    evolutionChainNumber = Uri.parse(species.evolutionChain.url).lastPathSegment ?: ""
                 )
             }
             // hp attack defense speed
@@ -252,6 +256,21 @@ class PokemonDetailViewModel(
                 }
             }
 
+//            // evolutionChainNumberがない場合
+//            if (roomResult.evolutionChainNumber.isNullOrEmpty()) {
+//                _conditionState.update { currentState ->
+//                    currentState.copy(
+//                        evolutionChainNumber = Uri.parse(species.evolutionChain).lastPathSegment ?: ""
+//                    )
+//                }
+//            } else {
+//                _conditionState.update { currentState ->
+//                    currentState.copy(
+//                        evolutionChainNumber = roomResult.evolutionChainNumber
+//                    )
+//                }
+//            }
+
             // DB情報を使ってconditionStateを更新
             _conditionState.update { currentState ->
                 currentState.copy(
@@ -273,7 +292,8 @@ class PokemonDetailViewModel(
                     ?: "該当する分類が存在しません...",
                 type = apiResult.types.map { types -> types.type.name },
                 height = apiResult.height / 10.0,
-                weight = apiResult.weight / 10.0
+                weight = apiResult.weight / 10.0,
+                evolutionChainNumber = Uri.parse(species.evolutionChain.url).lastPathSegment ?: ""
             )
         }
     }
