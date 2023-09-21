@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.TypeConverters
 import androidx.room.Update
-import com.example.pokebook.data.pokemonData.PokemonData
 
 @Dao
 @TypeConverters(StringListTypeConverter::class)
@@ -28,8 +27,8 @@ interface PokemonDataDao {
     fun getAllItems(): List<PokemonData>
 
     // japaneseName完全一致の検索
-    @Query("SELECT * FROM pokemonData WHERE japaneseName = :keyword")
-    fun searchByJapaneseName(keyword: String): PokemonData
+    @Query("SELECT * FROM pokemonData WHERE LOWER(japaneseName) = LOWER(:keyword) OR LOWER(englishName) = LOWER(:keyword)")
+    fun searchPokemonByKeyword(keyword: String): PokemonData
 
     // id完全一致の検索
     @Query("SELECT * FROM pokemonData WHERE id = :id")
