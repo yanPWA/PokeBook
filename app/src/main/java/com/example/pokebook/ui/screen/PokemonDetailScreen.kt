@@ -1,6 +1,8 @@
 package com.example.pokebook.ui.screen
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,6 +46,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.pokebook.R
+import com.example.pokebook.model.Chain
+import com.example.pokebook.model.EvolutionChain
+import com.example.pokebook.model.Evolves
+import com.example.pokebook.model.EvolvesSpecies
+import com.example.pokebook.model.NextEvolves
 import com.example.pokebook.ui.AppViewModelProvider
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiEvent
@@ -60,6 +67,7 @@ import kotlinx.coroutines.launch
 fun PokemonDetailScreen(
     likeEntryViewModel: LikeEntryViewModel,
     pokemonDetailViewModel: PokemonDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    onClickEvolution: (String) -> Unit,
     onClickBackButton: () -> Unit
 ) {
     PokemonDetailScreen(
@@ -71,7 +79,8 @@ fun PokemonDetailScreen(
         updateIsLike = pokemonDetailViewModel::updateIsLike,
         saveLike = likeEntryViewModel::saveLike,
         deleteLike = likeEntryViewModel::deleteLike,
-        checkIfRoomLike = pokemonDetailViewModel::checkIfRoomLike
+        checkIfRoomLike = pokemonDetailViewModel::checkIfRoomLike,
+        onClickEvolution = onClickEvolution
     )
 }
 
@@ -86,7 +95,8 @@ private fun PokemonDetailScreen(
     updateIsLike: (Boolean, Int) -> Unit,
     saveLike: suspend (LikeDetails) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
-    checkIfRoomLike: suspend (Int) -> Unit
+    checkIfRoomLike: suspend (Int) -> Unit,
+    onClickEvolution: (String) -> Unit
 ) {
     val state by uiState.collectAsStateWithLifecycle()
     val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
@@ -111,7 +121,8 @@ private fun PokemonDetailScreen(
                 updateIsLike = updateIsLike,
                 saveLike = saveLike,
                 deleteLike = deleteLike,
-                checkIfRoomLike = checkIfRoomLike
+                checkIfRoomLike = checkIfRoomLike,
+                onClickEvolution = onClickEvolution
             )
         }
 
@@ -143,6 +154,7 @@ private fun PokemonDetailScreen(
     saveLike: suspend (LikeDetails) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
     checkIfRoomLike: suspend (Int) -> Unit,
+    onClickEvolution: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -150,18 +162,29 @@ private fun PokemonDetailScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Column {
-            Image(
-                imageVector = ImageVector.vectorResource(
-                    id = if (isSystemInDarkTheme()) R.drawable.arrow_back_fillf else R.drawable.arrow_back_fill0
-                ),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .clickable {
-                        onClickBackButton.invoke()
-                    }
-            )
+        Image(
+            imageVector = ImageVector.vectorResource(
+                id = if (isSystemInDarkTheme()) R.drawable.arrow_back_fillf else R.drawable.arrow_back_fill0
+            ),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.Start)
+                .clickable {
+                    onClickBackButton.invoke()
+                }
+        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxSize()
+                .padding(6.dp)
+                .verticalScroll(
+                    state = rememberScrollState(),
+                    reverseScrolling = false
+                )
+        ) {
             TitleImage(
                 pokemon = uiData,
                 type = uiData.type.firstOrNull() ?: "",
@@ -180,38 +203,48 @@ private fun PokemonDetailScreen(
                 modifier = modifier
                     .align(Alignment.CenterHorizontally)
             )
-        }
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
-                .fillMaxSize()
-                .padding(6.dp)
-                .verticalScroll(
-                    state = rememberScrollState(),
-                    reverseScrolling = true
-                )
-        ) {
             Text(
                 text = uiData.description,
                 fontSize = 15.sp,
                 modifier = modifier
+                    .padding(vertical = 5.dp)
                     .align(Alignment.CenterHorizontally),
                 color = MaterialTheme.colorScheme.onBackground
             )
-
-            BaseInfo(
-                uiData = uiData,
-                modifier = modifier
-                    .align(Alignment.CenterHorizontally)
-            )
-            Ability(
-                uiData = uiData,
-                modifier = modifier
-                    .align(Alignment.CenterHorizontally)
-            )
+            Column {
+                MenuTitle(
+                    title = "▼基本情報",
+                    modifier = modifier
+                )
+                BaseInfo(
+                    uiData = uiData,
+                    modifier = modifier
+                        .padding(top = 5.dp)
+                )
+            }
+            Column {
+                MenuTitle(
+                    title = "▼能力",
+                    modifier = modifier
+                )
+                Ability(
+                    uiData = uiData,
+                    modifier = modifier
+                        .padding(top = 5.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+            Column {
+                MenuTitle(
+                    title = "▼進化",
+                    modifier = modifier
+                )
+                EvolutionChain(
+                    onClickEvolution = onClickEvolution,
+                    modifier = modifier
+                        .padding(top = 5.dp)
+                )
+            }
         }
     }
 }
@@ -290,8 +323,7 @@ private fun BaseInfo(
     Card(
         modifier = modifier
             .padding(horizontal = 20.dp)
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp),
+            .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Text(
@@ -299,26 +331,22 @@ private fun BaseInfo(
                 stringResource(R.string.pokemon_genus), uiData.genus
             ),
             fontSize = 20.sp,
-            modifier = modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp)
+            modifier = modifier.padding(start = 10.dp, top = 5.dp)
         )
         TypeTag(typeList = uiData.type, modifier = modifier)
-        Row(
+
+        Text(
+            text = String.format(stringResource(R.string.pokemon_weight), uiData.weight),
+            fontSize = 20.sp,
             modifier = modifier
-                .padding(bottom = 10.dp)
-        ) {
-            Text(
-                text = String.format(stringResource(R.string.pokemon_weight), uiData.weight),
-                fontSize = 20.sp,
-                modifier = modifier
-                    .padding(start = 10.dp, end = 10.dp, top = 5.dp)
-            )
-            Text(
-                text = String.format(stringResource(R.string.pokemon_height), uiData.height),
-                fontSize = 20.sp,
-                modifier = modifier
-                    .padding(start = 10.dp, end = 10.dp, top = 5.dp)
-            )
-        }
+                .padding(start = 10.dp, top = 5.dp)
+        )
+        Text(
+            text = String.format(stringResource(R.string.pokemon_height), uiData.height),
+            fontSize = 20.sp,
+            modifier = modifier
+                .padding(start = 10.dp, top = 5.dp, bottom = 5.dp)
+        )
     }
 }
 
@@ -331,8 +359,7 @@ private fun Ability(
     Card(
         modifier = modifier
             .padding(start = 20.dp, end = 20.dp)
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp),
+            .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Row(
@@ -368,6 +395,156 @@ private fun Ability(
             )
         }
     }
+}
+
+/**
+ * 進化系譜
+ */
+@Composable
+private fun EvolutionChain(
+    uiData: ShowEvolution = createEvolutionChain().convertToShowEvolution(LocalContext.current),
+    onClickEvolution: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .padding(horizontal = 20.dp)
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Log.d("test", "uiData:$uiData")
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (uiData.basePokemonImageUrl.isNullOrEmpty()) {
+                Image(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.baseline_hide_image_24),
+                    modifier = Modifier
+                        .size(100.dp)
+                        .align(Alignment.CenterVertically),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null
+                )
+            } else {
+                AsyncImage(
+                    model = ImageRequest.Builder(context = LocalContext.current)
+                        .data(uiData.basePokemonImageUrl)
+                        .crossfade(true)
+                        .build(),
+                    modifier = Modifier
+                        .size(100.dp)
+                        .align(Alignment.CenterVertically)
+                        .clickable {
+                            // 名前検索
+                            uiData.basePokemonName?.let { name ->
+                                onClickEvolution.invoke(name)
+                            }
+                        },
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null
+                )
+            }
+            if (uiData.evolution?.isNotEmpty() == true) {
+                Text(
+                    text = "▶︎",
+                    fontSize = 20.sp,
+                    modifier = modifier
+                        .align(Alignment.CenterVertically)
+                )
+                Column {
+                    uiData.evolution.forEach {
+                        Row {
+                            if (it.nextPokemonImageUrl.isNullOrEmpty()) {
+                                Image(
+                                    imageVector = ImageVector.vectorResource(id = R.drawable.baseline_hide_image_24),
+                                    modifier = Modifier
+                                        .size(100.dp)
+                                        .align(Alignment.CenterVertically),
+                                    contentScale = ContentScale.Crop,
+                                    contentDescription = null
+                                )
+                            } else {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(context = LocalContext.current)
+                                        .data(it.nextPokemonImageUrl)
+                                        .crossfade(true)
+                                        .build(),
+                                    modifier = Modifier
+                                        .size(100.dp)
+                                        .align(Alignment.CenterVertically)
+                                        .clickable {
+                                            // 名前検索
+                                            it.nextPokemonName?.let { name ->
+                                                onClickEvolution.invoke(name)
+                                            }
+                                        },
+                                    contentScale = ContentScale.Crop,
+                                    contentDescription = null
+                                )
+                            }
+                            it.lastPokemonImageUrl?.let { item ->
+                                Text(
+                                    text = "︎︎▶︎",
+                                    fontSize = 20.sp,
+                                    modifier = modifier.align(Alignment.CenterVertically)
+                                )
+                                if (item.isEmpty()) {
+                                    Image(
+                                        imageVector = ImageVector.vectorResource(id = R.drawable.baseline_hide_image_24),
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .align(Alignment.CenterVertically),
+                                        contentScale = ContentScale.Crop,
+                                        contentDescription = null
+                                    )
+                                } else {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(context = LocalContext.current)
+                                            .data(item)
+                                            .crossfade(true)
+                                            .build(),
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .align(Alignment.CenterVertically)
+                                            .clickable {
+                                                // 名前検索
+                                                it.lastPokemonName?.let { name ->
+                                                    onClickEvolution.invoke(name)
+                                                }
+                                            },
+                                        contentScale = ContentScale.Crop,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * メニュー
+ */
+@Composable
+private fun MenuTitle(
+    title: String,
+    modifier: Modifier
+) {
+    Text(
+        text = title,
+        fontSize = 15.sp,
+        modifier = modifier
+            .padding(start = 20.dp)
+            .fillMaxWidth(),
+        color = MaterialTheme.colorScheme.onBackground
+    )
 }
 
 /**
@@ -411,3 +588,155 @@ fun AutoSizeableText(
         }
     )
 }
+
+/**
+ * 進化系譜サンプルデータ TODO API繋ぎ込んだら削除
+ */
+private fun createEvolutionChain(): EvolutionChain {
+    return EvolutionChain(
+        Chain(
+            evolves =
+//            null,
+            listOf(
+                Evolves(
+                    evolves = NextEvolves(
+                        lastGeneration = EvolvesSpecies(
+                            name = "charizard",
+                            url = "https://pokeapi.co/api/v2/pokemon-species/6/"
+                        )
+                    ),
+                    nextGeneration = EvolvesSpecies(
+                        name = "charmeleon",
+                        url = "https://pokeapi.co/api/v2/pokemon-species/5/"
+                    )
+                ),
+                Evolves(
+                    evolves = null,
+                    nextGeneration = EvolvesSpecies(
+                        name = "sylveon",
+                        url = "https://pokeapi.co/api/v2/pokemon-species/700/"
+                    )
+                ),
+                Evolves(
+                    evolves = null,
+                    nextGeneration = EvolvesSpecies(
+                        name = "glaceon",
+                        url = "https://pokeapi.co/api/v2/pokemon-species/471/"
+                    )
+                ),
+                Evolves(
+                    evolves = null,
+                    nextGeneration = EvolvesSpecies(
+                        name = "leafeon",
+                        url = "https://pokeapi.co/api/v2/pokemon-species/470/"
+                    )
+                ),
+                Evolves(
+                    evolves = null,
+                    nextGeneration = EvolvesSpecies(
+                        name = "umbreon",
+                        url = "https://pokeapi.co/api/v2/pokemon-species/197/"
+                    )
+                ),
+                Evolves(
+                    evolves = null,
+                    nextGeneration = EvolvesSpecies(
+                        name = "espeon",
+                        url = "https://pokeapi.co/api/v2/pokemon-species/196/"
+                    )
+                ),
+                Evolves(
+                    evolves = null,
+                    nextGeneration = EvolvesSpecies(
+                        name = "flareon",
+                        url = "https://pokeapi.co/api/v2/pokemon-species/136/"
+                    )
+                ),
+                Evolves(
+                    evolves = null,
+                    nextGeneration = EvolvesSpecies(
+                        name = "jolteon",
+                        url = "https://pokeapi.co/api/v2/pokemon-species/135/"
+                    )
+                ),
+                Evolves(
+                    evolves = null,
+                    nextGeneration = EvolvesSpecies(
+                        name = "vaporeon",
+                        url = "https://pokeapi.co/api/v2/pokemon-species/134/"
+                    )
+                ),
+            ),
+            basePokemon = EvolvesSpecies(
+                name = "eevee",
+                url = "https://pokeapi.co/api/v2/pokemon-species/133/"
+            )
+//        basePokemon = EvolvesSpecies(
+//            name = "kangaskhan",
+//            url = "https://pokeapi.co/api/v2/pokemon-species/115/"
+//        )
+        )
+    )
+}
+
+fun EvolutionChain.convertToShowEvolution(context: Context): ShowEvolution {
+    // ベースポケモンの情報
+    val basePokemonSpeciesNumber = this.chain.basePokemon?.let { Uri.parse(it.url).lastPathSegment }
+    val basePokemonImageUrl =
+        context.getString(R.string.nextPokemonImageUrl, basePokemonSpeciesNumber)
+
+    // 進化系ポケモンリスト
+    val evolutionList = this.chain.evolves?.mapNotNull { nextEvolves ->
+        val nextPokemonName = nextEvolves.nextGeneration?.name
+        val nextPokemonSpeciesNumber = Uri.parse(nextEvolves.nextGeneration?.url).lastPathSegment
+        val nextPokemonImageUrl =
+            context.getString(R.string.nextPokemonImageUrl, nextPokemonSpeciesNumber)
+        val lastPokemonName = nextEvolves.evolves?.lastGeneration?.name
+        val lastPokemonSpeciesNumber =
+            nextEvolves.evolves?.lastGeneration?.let {
+                Uri.parse(it.url).lastPathSegment
+            }
+        val lastPokemonImageUrl =
+            lastPokemonSpeciesNumber?.let {
+                context.getString(R.string.nextPokemonImageUrl, it)
+            }
+        if (!nextPokemonSpeciesNumber.isNullOrEmpty() || !lastPokemonSpeciesNumber.isNullOrEmpty()) {
+            Evolution(
+                nextPokemonName = nextPokemonName,
+                nextPokemonSpeciesNumber = nextPokemonSpeciesNumber,
+                nextPokemonImageUrl = nextPokemonImageUrl,
+                lastPokemonName = lastPokemonName,
+                lastPokemonSpeciesNumber = lastPokemonSpeciesNumber,
+                lastPokemonImageUrl = lastPokemonImageUrl
+            )
+        } else {
+            null
+        }
+    }
+
+    return ShowEvolution(
+        basePokemonName = this.chain.basePokemon?.name ?: "",
+        basePokemonSpeciesNumber = basePokemonSpeciesNumber,
+        basePokemonImageUrl = basePokemonImageUrl,
+        evolution = evolutionList
+    )
+}
+
+/**
+ * 進化系表示用クラス
+ */
+data class ShowEvolution(
+    val basePokemonName: String?,
+    val basePokemonSpeciesNumber: String?,
+    val basePokemonImageUrl: String?,
+    val evolution: List<Evolution>?
+)
+
+data class Evolution(
+    val nextPokemonName: String?,
+    val nextPokemonSpeciesNumber: String?,
+    val nextPokemonImageUrl: String?,
+    val lastPokemonName: String?,
+    val lastPokemonSpeciesNumber: String?,
+    val lastPokemonImageUrl: String?,
+)

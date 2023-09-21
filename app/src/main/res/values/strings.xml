@@ -53,4 +53,5 @@
     <string name="like_header_title">お気に入りのポケモン一覧</string>
     <string name="search_by_name_error_text">結果を取得できませんでした。\n検索ワードがカタカナで正しく入力されていることを\n確認して下さい。</string>
     <string name="search_by_id_error_text">結果を取得できませんでした。\n検索IDが正しいことを確認して下さい。</string>
+    <string name="nextPokemonImageUrl">https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/%s.png</string>
 </resources>
