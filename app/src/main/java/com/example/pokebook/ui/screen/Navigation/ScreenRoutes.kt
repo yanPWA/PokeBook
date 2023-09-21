@@ -6,6 +6,7 @@ package com.example.pokebook.ui.screen.Navigation
 sealed class HomeScreen(val route: String) {
     object PokemonListScreen : HomeScreen("home/pokemonListScreen")
     object PokemonDetailScreen : HomeScreen("home/pokemonDetailScreen")
+    object PokemonEvolutionDetailScreen:HomeScreen("home/pokemonEvolutionDetailScreen")
 }
 
 /**
@@ -17,6 +18,7 @@ sealed class SearchScreen(val route: String) {
     object PokemonNotFound : SearchScreen("search/pokemonNotFound")
     object PokemonDetailScreenByName : SearchScreen("search/pokemonDetailScreenByName")
     object PokemonDetailScreenByNumber : SearchScreen("search/pokemonDetailScreenByNumber")
+    object PokemonEvolutionDetailScreen:SearchScreen("search/pokemonEvolutionDetailScreen")
 }
 
 /**
@@ -24,7 +26,8 @@ sealed class SearchScreen(val route: String) {
  */
 sealed class LikeScreen(val route: String) {
     object LikeListScreen : LikeScreen("like/listScreen")
-    object LikeDetailScreen : LikeScreen("like/detailScreen")
+    object LikeDetailScreen : LikeScreen("like/pokemonDetailScreen")
+    object PokemonEvolutionDetailScreen:LikeScreen("like/pokemonEvolutionDetailScreen")
 }
 
 

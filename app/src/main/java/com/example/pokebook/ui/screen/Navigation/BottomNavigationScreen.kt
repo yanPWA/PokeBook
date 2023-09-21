@@ -78,7 +78,7 @@ private fun NavigationHost(
         homeGraph(
             navController = navController,
             likeEntryViewModel = likeEntryViewModel,
-            pokemonDetailViewModel = homeDetailViewModel
+            pokemonDetailViewModel = homeDetailViewModel,
         )
         searchGraph(
             navController = navController,
@@ -131,6 +131,23 @@ fun NavGraphBuilder.homeGraph(
             PokemonDetailScreen(
                 likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() },
+                onClickEvolution = { pokemonName ->
+                    navController.navigate(HomeScreen.PokemonEvolutionDetailScreen.route)
+                    pokemonDetailViewModel.getPokemonSpeciesByName(pokemonName)
+                },
+                pokemonDetailViewModel = pokemonDetailViewModel
+            )
+        }
+        composable(
+            route = HomeScreen.PokemonEvolutionDetailScreen.route
+        ) {
+            PokemonDetailScreen(
+                likeEntryViewModel = likeEntryViewModel,
+                onClickBackButton = { navController.navigate(HomeScreen.PokemonListScreen.route) }, // TODO 一旦TOPにタブのTOPに戻すが、遷移前の詳細画面を保持してそこに戻す処理に変更予定
+                onClickEvolution = { pokemonName ->
+                    navController.navigate(HomeScreen.PokemonEvolutionDetailScreen.route)
+                    pokemonDetailViewModel.getPokemonSpeciesByName(pokemonName)
+                },
                 pokemonDetailViewModel = pokemonDetailViewModel
             )
         }
@@ -199,7 +216,22 @@ fun NavGraphBuilder.searchGraph(
             PokemonDetailScreen(
                 likeEntryViewModel = likeEntryViewModel,
                 pokemonDetailViewModel = pokemonDetailViewModel,
-                onClickBackButton = { navController.navigateUp() }
+                onClickBackButton = { navController.navigateUp() },
+                onClickEvolution = { pokemonName ->
+                    navController.navigate(SearchScreen.PokemonEvolutionDetailScreen.route)
+                    pokemonDetailViewModel.getPokemonSpeciesByName(pokemonName)
+                }
+            )
+        }
+        composable(route = SearchScreen.PokemonEvolutionDetailScreen.route) {
+            PokemonDetailScreen(
+                likeEntryViewModel = likeEntryViewModel,
+                pokemonDetailViewModel = pokemonDetailViewModel,
+                onClickBackButton = { navController.navigate(SearchScreen.PokemonListScreen.route) }, // TODO 一旦タブのtopに戻す
+                onClickEvolution = { pokemonName ->
+                    navController.navigate(SearchScreen.PokemonEvolutionDetailScreen.route)
+                    pokemonDetailViewModel.getPokemonSpeciesByName(pokemonName)
+                },
             )
         }
     }
@@ -235,7 +267,22 @@ fun NavGraphBuilder.likeGraph(
             PokemonDetailScreen(
                 likeEntryViewModel = likeEntryViewModel,
                 pokemonDetailViewModel = pokemonDetailViewModel,
-                onClickBackButton = { navController.navigateUp() }
+                onClickBackButton = { navController.navigateUp() },
+                onClickEvolution = { pokemonName ->
+                    navController.navigate(LikeScreen.PokemonEvolutionDetailScreen.route)
+                    pokemonDetailViewModel.getPokemonSpeciesByName(pokemonName)
+                },
+            )
+        }
+        composable(route = LikeScreen.PokemonEvolutionDetailScreen.route) {
+            PokemonDetailScreen(
+                likeEntryViewModel = likeEntryViewModel,
+                pokemonDetailViewModel = pokemonDetailViewModel,
+                onClickBackButton = { navController.navigate(LikeScreen.LikeListScreen.route) }, // TODO 一旦タブのtopに戻す
+                onClickEvolution = { pokemonName ->
+                    navController.navigate(LikeScreen.PokemonEvolutionDetailScreen.route)
+                    pokemonDetailViewModel.getPokemonSpeciesByName(pokemonName)
+                }
             )
         }
     }
