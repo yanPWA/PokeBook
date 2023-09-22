@@ -3,7 +3,6 @@ package com.example.pokebook.ui.screen
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,7 +67,7 @@ import kotlinx.coroutines.launch
 fun PokemonDetailScreen(
     likeEntryViewModel: LikeEntryViewModel,
     pokemonDetailViewModel: PokemonDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    onClickEvolution: (String) -> Unit,
+    onClickEvolution: (String) -> Unit = {},
     onClickBackButton: () -> Unit
 ) {
     PokemonDetailScreen(
@@ -240,6 +240,9 @@ private fun PokemonDetailScreen(
                     modifier = modifier
                 )
                 EvolutionChain(
+                    resultEvolutionChain = uiData.resultEvolutionChain.convertToShowEvolution(
+                        LocalContext.current
+                    ),
                     onClickEvolution = onClickEvolution,
                     modifier = modifier
                         .padding(top = 5.dp)
@@ -402,7 +405,7 @@ private fun Ability(
  */
 @Composable
 private fun EvolutionChain(
-    uiData: ShowEvolution = createEvolutionChain().convertToShowEvolution(LocalContext.current),
+    resultEvolutionChain: ShowEvolution,
     onClickEvolution: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -412,7 +415,6 @@ private fun EvolutionChain(
             .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Log.d("test", "uiData:$uiData")
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -420,35 +422,15 @@ private fun EvolutionChain(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (uiData.basePokemonImageUrl.isNullOrEmpty()) {
-                Image(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.baseline_hide_image_24),
-                    modifier = Modifier
-                        .size(100.dp)
-                        .align(Alignment.CenterVertically),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = null
-                )
-            } else {
-                AsyncImage(
-                    model = ImageRequest.Builder(context = LocalContext.current)
-                        .data(uiData.basePokemonImageUrl)
-                        .crossfade(true)
-                        .build(),
-                    modifier = Modifier
-                        .size(100.dp)
-                        .align(Alignment.CenterVertically)
-                        .clickable {
-                            // 名前検索
-                            uiData.basePokemonName?.let { name ->
-                                onClickEvolution.invoke(name)
-                            }
-                        },
-                    contentScale = ContentScale.Crop,
-                    contentDescription = null
-                )
-            }
-            if (uiData.evolution?.isNotEmpty() == true) {
+            // ベースポケモン
+            EvolutionChainImage(
+                isImageUrl = !resultEvolutionChain.basePokemonImageUrl.isNullOrEmpty(),
+                imageUrl = resultEvolutionChain.basePokemonImageUrl,
+                pokemonName = resultEvolutionChain.basePokemonName,
+                onClickEvolution = onClickEvolution,
+                modifier = modifier.align(Alignment.CenterVertically)
+            )
+            if (resultEvolutionChain.evolution?.isNotEmpty() == true) {
                 Text(
                     text = "▶︎",
                     fontSize = 20.sp,
@@ -456,69 +438,36 @@ private fun EvolutionChain(
                         .align(Alignment.CenterVertically)
                 )
                 Column {
-                    uiData.evolution.forEach {
-                        Row {
-                            if (it.nextPokemonImageUrl.isNullOrEmpty()) {
-                                Image(
-                                    imageVector = ImageVector.vectorResource(id = R.drawable.baseline_hide_image_24),
-                                    modifier = Modifier
-                                        .size(100.dp)
-                                        .align(Alignment.CenterVertically),
-                                    contentScale = ContentScale.Crop,
-                                    contentDescription = null
-                                )
-                            } else {
-                                AsyncImage(
-                                    model = ImageRequest.Builder(context = LocalContext.current)
-                                        .data(it.nextPokemonImageUrl)
-                                        .crossfade(true)
-                                        .build(),
-                                    modifier = Modifier
-                                        .size(100.dp)
-                                        .align(Alignment.CenterVertically)
-                                        .clickable {
-                                            // 名前検索
-                                            it.nextPokemonName?.let { name ->
-                                                onClickEvolution.invoke(name)
-                                            }
-                                        },
-                                    contentScale = ContentScale.Crop,
-                                    contentDescription = null
-                                )
-                            }
-                            it.lastPokemonImageUrl?.let { item ->
-                                Text(
-                                    text = "︎︎▶︎",
-                                    fontSize = 20.sp,
-                                    modifier = modifier.align(Alignment.CenterVertically)
-                                )
-                                if (item.isEmpty()) {
-                                    Image(
-                                        imageVector = ImageVector.vectorResource(id = R.drawable.baseline_hide_image_24),
-                                        modifier = Modifier
-                                            .size(100.dp)
-                                            .align(Alignment.CenterVertically),
-                                        contentScale = ContentScale.Crop,
-                                        contentDescription = null
-                                    )
-                                } else {
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(context = LocalContext.current)
-                                            .data(item)
-                                            .crossfade(true)
-                                            .build(),
-                                        modifier = Modifier
-                                            .size(100.dp)
-                                            .align(Alignment.CenterVertically)
-                                            .clickable {
-                                                // 名前検索
-                                                it.lastPokemonName?.let { name ->
-                                                    onClickEvolution.invoke(name)
-                                                }
-                                            },
-                                        contentScale = ContentScale.Crop,
-                                        contentDescription = null
-                                    )
+                    resultEvolutionChain.evolution.forEach {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // 進化ポケモン
+                            EvolutionChainImage(
+                                isImageUrl = !it.nextPokemonImageUrl.isNullOrEmpty(),
+                                imageUrl = it.nextPokemonImageUrl,
+                                pokemonName = it.nextPokemonName,
+                                onClickEvolution = onClickEvolution,
+                                modifier = modifier.align(Alignment.CenterVertically)
+                            )
+                            Column {
+                                it.lastPokemonImageUrl?.forEachIndexed { index, item ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "︎︎▶︎",
+                                            fontSize = 20.sp,
+                                        )
+                                        // 最終進化ポケモン
+                                        EvolutionChainImage(
+                                            isImageUrl = item.isNotEmpty(),
+                                            imageUrl = item,
+                                            pokemonName = it.lastPokemonName?.get(index),
+                                            onClickEvolution = onClickEvolution,
+                                            modifier = modifier.align(Alignment.CenterVertically)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -545,6 +494,56 @@ private fun MenuTitle(
             .fillMaxWidth(),
         color = MaterialTheme.colorScheme.onBackground
     )
+}
+
+/**
+ *
+ */
+@Composable
+private fun EvolutionChainImage(
+    isImageUrl: Boolean,
+    imageUrl: String?,
+    pokemonName: String?,
+    onClickEvolution: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (isImageUrl) {
+        Box(
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(context = LocalContext.current)
+                    .data(imageUrl)
+                    .crossfade(true)
+                    .build(),
+                modifier = modifier
+                    .size(100.dp)
+                    .padding(bottom = 5.dp)
+                    .clickable {
+                        // 名前検索
+                        pokemonName?.let { name ->
+                            onClickEvolution.invoke(name)
+                        }
+                    },
+                contentScale = ContentScale.Fit,
+                contentDescription = null
+            )
+            Text(
+                text = "名前",
+                fontSize = 15.sp,
+                modifier = modifier
+            )
+        }
+
+    } else {
+        Image(
+            imageVector = ImageVector.vectorResource(id = R.drawable.baseline_hide_image_24),
+            modifier = modifier
+                .size(100.dp),
+            contentScale = ContentScale.Crop,
+            contentDescription = null
+        )
+    }
 }
 
 /**
@@ -590,7 +589,7 @@ fun AutoSizeableText(
 }
 
 /**
- * 進化系譜サンプルデータ TODO API繋ぎ込んだら削除
+ * 進化系譜サンプルデータ TODO API繋ぎ込んだら削除　完成するまでは一旦残す
  */
 private fun createEvolutionChain(): EvolutionChain {
     return EvolutionChain(
@@ -599,10 +598,18 @@ private fun createEvolutionChain(): EvolutionChain {
 //            null,
             listOf(
                 Evolves(
-                    evolves = NextEvolves(
-                        lastGeneration = EvolvesSpecies(
-                            name = "charizard",
-                            url = "https://pokeapi.co/api/v2/pokemon-species/6/"
+                    evolves = listOf(
+                        NextEvolves(
+                            lastGeneration = EvolvesSpecies(
+                                name = "charizard",
+                                url = "https://pokeapi.co/api/v2/pokemon-species/6/"
+                            )
+                        ),
+                        NextEvolves(
+                            lastGeneration = EvolvesSpecies(
+                                name = "kangaskhan",
+                                url = "https://pokeapi.co/api/v2/pokemon-species/115/"
+                            )
                         )
                     ),
                     nextGeneration = EvolvesSpecies(
@@ -671,34 +678,40 @@ private fun createEvolutionChain(): EvolutionChain {
                 name = "eevee",
                 url = "https://pokeapi.co/api/v2/pokemon-species/133/"
             )
-//        basePokemon = EvolvesSpecies(
-//            name = "kangaskhan",
-//            url = "https://pokeapi.co/api/v2/pokemon-species/115/"
-//        )
+////        basePokemon = EvolvesSpecies(
+////            name = "kangaskhan",
+////            url = "https://pokeapi.co/api/v2/pokemon-species/115/"
+////        )
         )
     )
 }
 
+/**
+ * 進化系譜の表示用コンバーター
+ */
 fun EvolutionChain.convertToShowEvolution(context: Context): ShowEvolution {
     // ベースポケモンの情報
-    val basePokemonSpeciesNumber = this.chain.basePokemon?.let { Uri.parse(it.url).lastPathSegment }
+    val basePokemonSpeciesNumber =
+        this.chain?.basePokemon?.let { Uri.parse(it.url).lastPathSegment }
     val basePokemonImageUrl =
         context.getString(R.string.nextPokemonImageUrl, basePokemonSpeciesNumber)
 
     // 進化系ポケモンリスト
-    val evolutionList = this.chain.evolves?.mapNotNull { nextEvolves ->
-        val nextPokemonName = nextEvolves.nextGeneration?.name
-        val nextPokemonSpeciesNumber = Uri.parse(nextEvolves.nextGeneration?.url).lastPathSegment
+    val evolutionList = this.chain?.evolves?.mapNotNull { nextEvolve ->
+        val nextPokemonName = nextEvolve.nextGeneration?.name
+        val nextPokemonSpeciesNumber = Uri.parse(nextEvolve.nextGeneration?.url).lastPathSegment
         val nextPokemonImageUrl =
             context.getString(R.string.nextPokemonImageUrl, nextPokemonSpeciesNumber)
-        val lastPokemonName = nextEvolves.evolves?.lastGeneration?.name
+        val lastPokemonName = nextEvolve.evolves?.mapNotNull { lastEvolve ->
+            lastEvolve.lastGeneration.name
+        }
         val lastPokemonSpeciesNumber =
-            nextEvolves.evolves?.lastGeneration?.let {
-                Uri.parse(it.url).lastPathSegment
+            nextEvolve.evolves?.mapNotNull { lastEvolve ->
+                Uri.parse(lastEvolve.lastGeneration.url).lastPathSegment
             }
         val lastPokemonImageUrl =
-            lastPokemonSpeciesNumber?.let {
-                context.getString(R.string.nextPokemonImageUrl, it)
+            lastPokemonSpeciesNumber?.map { lastEvolve ->
+                context.getString(R.string.nextPokemonImageUrl, lastEvolve)
             }
         if (!nextPokemonSpeciesNumber.isNullOrEmpty() || !lastPokemonSpeciesNumber.isNullOrEmpty()) {
             Evolution(
@@ -715,7 +728,7 @@ fun EvolutionChain.convertToShowEvolution(context: Context): ShowEvolution {
     }
 
     return ShowEvolution(
-        basePokemonName = this.chain.basePokemon?.name ?: "",
+        basePokemonName = this.chain?.basePokemon?.name ?: "",
         basePokemonSpeciesNumber = basePokemonSpeciesNumber,
         basePokemonImageUrl = basePokemonImageUrl,
         evolution = evolutionList
@@ -736,7 +749,7 @@ data class Evolution(
     val nextPokemonName: String?,
     val nextPokemonSpeciesNumber: String?,
     val nextPokemonImageUrl: String?,
-    val lastPokemonName: String?,
-    val lastPokemonSpeciesNumber: String?,
-    val lastPokemonImageUrl: String?,
+    val lastPokemonName: List<String>?,
+    val lastPokemonSpeciesNumber: List<String>?,
+    val lastPokemonImageUrl: List<String>?,
 )

@@ -1,6 +1,8 @@
 package com.example.pokebook.ui.viewModel.Detail
 
+import com.example.pokebook.model.EvolutionChain
 import com.example.pokebook.model.PokemonPersonalData
+import com.example.pokebook.ui.screen.ShowEvolution
 import java.util.UUID
 
 /**
@@ -47,7 +49,8 @@ data class PokemonDetailScreenUiData(
     val weight: Double = 0.0,
     val isLike: Boolean = false,
     val speciesNumber: String = "",
-    val evolutionChainNumber: String = ""
+    val evolutionChainNumber: String = "",
+    val resultEvolutionChain: EvolutionChain = EvolutionChain(null)
 )
 
 /**
