@@ -1,5 +1,6 @@
 package com.example.pokebook.network
 
+import com.example.pokebook.model.EvolutionChain
 import com.example.pokebook.model.Pokemon
 import com.example.pokebook.model.PokemonPersonalData
 import com.example.pokebook.model.PokemonSpecies
@@ -61,6 +62,12 @@ interface PokeApiService {
      */
     @GET("type/{path}")
     suspend fun getPokemonByType(@Path("path") typeNumber: String): PokemonTypeSearchResult
+
+    /**
+     * ポケモン進化系譜取得
+     */
+    @GET("evolution-chain/{path}")
+    suspend fun getPokemonEvolutionChain(@Path("path") evolutionNumber: String): EvolutionChain
 }
 
 object PokeApi {
