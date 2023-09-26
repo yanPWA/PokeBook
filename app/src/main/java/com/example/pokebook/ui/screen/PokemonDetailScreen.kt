@@ -482,6 +482,38 @@ private fun EvolutionChain(
 }
 
 /**
+ * 進化系譜読み込み中画面
+ */
+@Composable
+private fun EvolutionChainLoading(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier
+            .padding(horizontal = 20.dp)
+            .wrapContentHeight()
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = modifier
+                .padding(vertical = 20.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator()
+                Text(
+                    text = stringResource(R.string.evolution_chain_loading_text),
+                    modifier = modifier.padding(top = 5.dp)
+                )
+            }
+        }
+    }
+}
+
+/**
  * メニュー
  */
 @Composable

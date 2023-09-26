@@ -21,6 +21,15 @@ data class DetailUiCondition(
 )
 
 /**
+ * 進化系取得に関する状態
+ */
+sealed class EvolutionChainUiState {
+    object Loading : EvolutionChainUiState()
+    object InitialState : EvolutionChainUiState()
+    object Fetched : EvolutionChainUiState()
+}
+
+/**
  *　ID
  *　名前
  *　説明
