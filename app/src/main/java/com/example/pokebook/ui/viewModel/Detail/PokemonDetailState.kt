@@ -62,6 +62,29 @@ data class PokemonDetailScreenUiData(
 )
 
 /**
+ * 直前の詳細画面に関するデータを格納
+ */
+data class PreviousPokemonDetailScreenUiData(
+    val pokemonNumber: Int = 0,
+    val englishName: String = "",
+    val japaneseName: String = "",
+    val description: String = "",
+    val genus: String = "",
+    val type: List<String> = emptyList(),
+    val hp: Int = 0,
+    val attack: Int = 0,
+    val defense: Int = 0,
+    val speed: Int = 0,
+    val imageUri: String = "",
+    val height: Double = 0.0,
+    val weight: Double = 0.0,
+    val isLike: Boolean = false,
+    val speciesNumber: String = "",
+    val evolutionChainNumber: String = "",
+    val displayEvolution: DisplayEvolution = DisplayEvolution()
+)
+
+/**
  * エラー表示に関する情報
  */
 sealed class PokemonDetailUiEvent(
