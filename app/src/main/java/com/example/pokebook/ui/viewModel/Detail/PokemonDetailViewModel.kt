@@ -42,6 +42,8 @@ class PokemonDetailViewModel(
         MutableStateFlow(PokemonDetailScreenUiData())
     val conditionState = _conditionState.asStateFlow()
 
+    private var conditionStatePrevious = PreviousPokemonDetailScreenUiData()
+
     private var _pokemonListUiDataConditionState: MutableStateFlow<PokemonListUiData> =
         MutableStateFlow(PokemonListUiData())
 
@@ -567,6 +569,59 @@ class PokemonDetailViewModel(
             }
         }.onFailure {
             Log.d("error", "error：$it")
+        }
+    }
+
+    /**
+     * 別の詳細画面遷移前に詳細画面情報を格納
+     */
+    fun saveConditionState() {
+        conditionStatePrevious = PreviousPokemonDetailScreenUiData(
+            pokemonNumber = conditionState.value.pokemonNumber,
+            englishName = conditionState.value.englishName,
+            japaneseName = conditionState.value.japaneseName,
+            description = conditionState.value.description,
+            genus = conditionState.value.genus,
+            type = conditionState.value.type,
+            hp = conditionState.value.hp,
+            attack = conditionState.value.attack,
+            defense = conditionState.value.defense,
+            speed = conditionState.value.speed,
+            imageUri = conditionState.value.imageUri,
+            height = conditionState.value.height,
+            weight = conditionState.value.weight,
+            isLike = conditionState.value.isLike,
+            speciesNumber = conditionState.value.speciesNumber,
+            evolutionChainNumber = conditionState.value.evolutionChainNumber,
+            displayEvolution = conditionState.value.displayEvolution
+        )
+    }
+
+
+    /**
+     * 別の詳細画面から戻る時に表示する詳細画面
+     */
+    fun onClickBackButton() {
+        _conditionState.update { currentState ->
+            currentState.copy(
+                pokemonNumber = conditionStatePrevious.pokemonNumber,
+                englishName = conditionStatePrevious.englishName,
+                japaneseName = conditionStatePrevious.japaneseName,
+                description = conditionStatePrevious.description,
+                genus = conditionStatePrevious.genus,
+                type = conditionStatePrevious.type,
+                hp = conditionStatePrevious.hp,
+                attack = conditionStatePrevious.attack,
+                defense = conditionStatePrevious.defense,
+                speed = conditionStatePrevious.speed,
+                imageUri = conditionStatePrevious.imageUri,
+                height = conditionStatePrevious.height,
+                weight = conditionStatePrevious.weight,
+                isLike = conditionStatePrevious.isLike,
+                speciesNumber = conditionStatePrevious.speciesNumber,
+                evolutionChainNumber = conditionStatePrevious.evolutionChainNumber,
+                displayEvolution = conditionStatePrevious.displayEvolution
+            )
         }
     }
 }
