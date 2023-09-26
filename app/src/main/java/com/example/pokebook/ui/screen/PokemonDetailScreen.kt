@@ -3,33 +3,33 @@ package com.example.pokebook.ui.screen
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,6 +54,8 @@ import com.example.pokebook.model.EvolvesSpecies
 import com.example.pokebook.model.NextEvolves
 import com.example.pokebook.ui.AppViewModelProvider
 import com.example.pokebook.ui.screen.common.AutoSizeableText
+import com.example.pokebook.ui.viewModel.Detail.DisplayEvolution
+import com.example.pokebook.ui.viewModel.Detail.EvolutionChainUiState
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiEvent
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiState
@@ -75,6 +76,7 @@ fun PokemonDetailScreen(
 ) {
     PokemonDetailScreen(
         uiState = pokemonDetailViewModel.uiState,
+        uiStateEvolution = pokemonDetailViewModel.uiStateEvolution,
         uiEvent = pokemonDetailViewModel.uiEvent,
         consumeEvent = pokemonDetailViewModel::processed,
         conditionState = pokemonDetailViewModel.conditionState,
@@ -91,6 +93,7 @@ fun PokemonDetailScreen(
 @Composable
 private fun PokemonDetailScreen(
     uiState: StateFlow<PokemonDetailUiState>,
+    uiStateEvolution: StateFlow<EvolutionChainUiState>,
     uiEvent: Flow<PokemonDetailUiEvent?>,
     consumeEvent: (PokemonDetailUiEvent) -> Unit,
     conditionState: StateFlow<PokemonDetailScreenUiData>,
@@ -99,9 +102,10 @@ private fun PokemonDetailScreen(
     saveLike: suspend (LikeDetails) -> Unit,
     deleteLike: suspend (LikeDetails) -> Unit,
     checkIfRoomLike: suspend (Int) -> Unit,
-    onClickEvolution: (String) -> Unit
+    onClickEvolution: (String) -> Unit,
 ) {
     val state by uiState.collectAsStateWithLifecycle()
+    val uiStateEvolution by uiStateEvolution.collectAsStateWithLifecycle()
     val uiEvent by uiEvent.collectAsStateWithLifecycle(initialValue = null)
 
     when (uiEvent) {
@@ -115,10 +119,10 @@ private fun PokemonDetailScreen(
         null -> {}
     }
 
-
     when (state) {
         is PokemonDetailUiState.Fetched -> {
             PokemonDetailScreen(
+                uiStateEvolution = uiStateEvolution,
                 uiData = conditionState.value,
                 onClickBackButton = onClickBackButton,
                 updateIsLike = updateIsLike,
@@ -151,6 +155,7 @@ private fun PokemonDetailScreen(
 
 @Composable
 private fun PokemonDetailScreen(
+    uiStateEvolution: EvolutionChainUiState,
     uiData: PokemonDetailScreenUiData,
     onClickBackButton: () -> Unit,
     updateIsLike: (Boolean, Int) -> Unit,
@@ -242,14 +247,25 @@ private fun PokemonDetailScreen(
                     title = "▼進化",
                     modifier = modifier
                 )
-                EvolutionChain(
-                    resultEvolutionChain = uiData.resultEvolutionChain.convertToShowEvolution(
-                        LocalContext.current
-                    ),
-                    onClickEvolution = onClickEvolution,
-                    modifier = modifier
-                        .padding(top = 5.dp)
-                )
+                when (uiStateEvolution) {
+                    // 読み込みに時間がかかることがあるため、進化系譜部分だけ別Loadingを設定
+                    is EvolutionChainUiState.Loading -> {
+                        EvolutionChainLoading()
+                    }
+
+                    is EvolutionChainUiState.Fetched -> {
+                        EvolutionChain(
+                            displayEvolution = uiData.displayEvolution,
+                            onClickEvolution = onClickEvolution,
+                            modifier = modifier
+                                .padding(vertical = 3.dp)
+                        )
+                    }
+
+                    else -> {
+                        EvolutionChainLoading()
+                    }
+                }
             }
         }
     }
@@ -406,9 +422,10 @@ private fun Ability(
 /**
  * 進化系譜
  */
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 private fun EvolutionChain(
-    resultEvolutionChain: ShowEvolution,
+    displayEvolution: DisplayEvolution,
     onClickEvolution: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -421,56 +438,84 @@ private fun EvolutionChain(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(5.dp),
+                .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val englishName = displayEvolution.basePokemonData.englishName
+            val basePokemonImageUrl = String.format(
+                stringResource(R.string.nextPokemonImageUrl),
+                displayEvolution.basePokemonData.speciesNumber
+            )
+
             // ベースポケモン
             EvolutionChainImage(
-                isImageUrl = !resultEvolutionChain.basePokemonImageUrl.isNullOrEmpty(),
-                imageUrl = resultEvolutionChain.basePokemonImageUrl,
-                pokemonName = resultEvolutionChain.basePokemonName,
+                isImageUrl = displayEvolution.basePokemonData.speciesNumber?.isNotEmpty() ?: false,
+                imageUrl = basePokemonImageUrl,
+                englishName = englishName,
+                japaneseName = displayEvolution.basePokemonData.japaneseName ?: "NoName",
                 onClickEvolution = onClickEvolution,
                 modifier = modifier.align(Alignment.CenterVertically)
             )
-            if (resultEvolutionChain.evolution?.isNotEmpty() == true) {
+            if (displayEvolution.nextPokemonData.isNotEmpty()) {
+                Spacer(modifier = modifier.size(5.dp))
                 Text(
                     text = "▶︎",
                     fontSize = 20.sp,
                     modifier = modifier
                         .align(Alignment.CenterVertically)
                 )
+                Spacer(modifier = modifier.size(5.dp))
                 Column {
-                    resultEvolutionChain.evolution.forEach {
+                    displayEvolution.nextPokemonData.forEach { parent ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            val englishName = parent.nextPokemonData.englishName
+                            val nextPokemonImageUrl = String.format(
+                                stringResource(R.string.nextPokemonImageUrl),
+                                parent.nextPokemonData.speciesNumber
+                            )
                             // 進化ポケモン
                             EvolutionChainImage(
-                                isImageUrl = !it.nextPokemonImageUrl.isNullOrEmpty(),
-                                imageUrl = it.nextPokemonImageUrl,
-                                pokemonName = it.nextPokemonName,
+                                isImageUrl = parent.nextPokemonData.speciesNumber?.isNotEmpty()
+                                    ?: false,
+                                imageUrl = nextPokemonImageUrl,
+                                englishName = englishName,
+                                japaneseName = parent.nextPokemonData.japaneseName ?: "NoName",
                                 onClickEvolution = onClickEvolution,
                                 modifier = modifier.align(Alignment.CenterVertically)
                             )
-                            Column {
-                                it.lastPokemonImageUrl?.forEachIndexed { index, item ->
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = "︎︎▶︎",
-                                            fontSize = 20.sp,
+
+                            if (parent.lastPokemonData.isEmpty()) {
+                                // 何もしない
+                            } else {
+                                Spacer(modifier = modifier.size(5.dp))
+                                Text(
+                                    text = "︎︎▶︎",
+                                    fontSize = 20.sp,
+                                )
+                                Spacer(modifier = modifier.size(5.dp))
+
+                                Column {
+                                    parent.lastPokemonData.forEach { child ->
+                                        Spacer(modifier = modifier.size(10.dp))
+                                        val englishName = child.englishName
+                                        val lastPokemonImageUrl = String.format(
+                                            stringResource(R.string.nextPokemonImageUrl),
+                                            child.speciesNumber
                                         )
                                         // 最終進化ポケモン
                                         EvolutionChainImage(
-                                            isImageUrl = item.isNotEmpty(),
-                                            imageUrl = item,
-                                            pokemonName = it.lastPokemonName?.get(index),
+                                            isImageUrl = child.speciesNumber?.isNotEmpty()
+                                                ?: false,
+                                            imageUrl = lastPokemonImageUrl,
+                                            englishName = englishName,
+                                            japaneseName = child.japaneseName ?: "NoName",
                                             onClickEvolution = onClickEvolution,
-                                            modifier = modifier.align(Alignment.CenterVertically)
                                         )
                                     }
+                                    Spacer(modifier = modifier.size(10.dp))
                                 }
                             }
                         }
@@ -538,7 +583,8 @@ private fun MenuTitle(
 private fun EvolutionChainImage(
     isImageUrl: Boolean,
     imageUrl: String?,
-    pokemonName: String?,
+    englishName: String?,
+    japaneseName: String,
     onClickEvolution: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -553,20 +599,21 @@ private fun EvolutionChainImage(
                     .build(),
                 modifier = modifier
                     .size(100.dp)
-                    .padding(bottom = 5.dp)
+                    .padding(bottom = 10.dp)
                     .clickable {
                         // 名前検索
-                        pokemonName?.let { name ->
+                        englishName?.let { name ->
                             onClickEvolution.invoke(name)
                         }
                     },
                 contentScale = ContentScale.Fit,
                 contentDescription = null
             )
-            Text(
-                text = "名前",
-                fontSize = 15.sp,
-                modifier = modifier
+            AutoSizeableText(
+                text = japaneseName,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxTextSize = 15,
+                minTextSize = 10,
             )
         }
 
@@ -578,13 +625,19 @@ private fun EvolutionChainImage(
             contentScale = ContentScale.Crop,
             contentDescription = null
         )
+        AutoSizeableText(
+            text = japaneseName,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxTextSize = 15,
+            minTextSize = 10,
+        )
     }
 }
 
 /**
  * 進化系譜サンプルデータ TODO API繋ぎ込んだら削除　完成するまでは一旦残す
  */
-private fun createEvolutionChain(): EvolutionChain {
+fun createEvolutionChain(): EvolutionChain {
     return EvolutionChain(
         Chain(
             evolves =
@@ -682,19 +735,15 @@ private fun createEvolutionChain(): EvolutionChain {
 /**
  * 進化系譜の表示用コンバーター
  */
-fun EvolutionChain.convertToShowEvolution(context: Context): ShowEvolution {
+fun EvolutionChain.convertToShowEvolution(): ShowEvolution {
     // ベースポケモンの情報
     val basePokemonSpeciesNumber =
         this.chain?.basePokemon?.let { Uri.parse(it.url).lastPathSegment }
-    val basePokemonImageUrl =
-        context.getString(R.string.nextPokemonImageUrl, basePokemonSpeciesNumber)
 
     // 進化系ポケモンリスト
     val evolutionList = this.chain?.evolves?.mapNotNull { nextEvolve ->
         val nextPokemonName = nextEvolve.nextGeneration?.name
         val nextPokemonSpeciesNumber = Uri.parse(nextEvolve.nextGeneration?.url).lastPathSegment
-        val nextPokemonImageUrl =
-            context.getString(R.string.nextPokemonImageUrl, nextPokemonSpeciesNumber)
         val lastPokemonName = nextEvolve.evolves?.mapNotNull { lastEvolve ->
             lastEvolve.lastGeneration.name
         }
@@ -702,18 +751,12 @@ fun EvolutionChain.convertToShowEvolution(context: Context): ShowEvolution {
             nextEvolve.evolves?.mapNotNull { lastEvolve ->
                 Uri.parse(lastEvolve.lastGeneration.url).lastPathSegment
             }
-        val lastPokemonImageUrl =
-            lastPokemonSpeciesNumber?.map { lastEvolve ->
-                context.getString(R.string.nextPokemonImageUrl, lastEvolve)
-            }
         if (!nextPokemonSpeciesNumber.isNullOrEmpty() || !lastPokemonSpeciesNumber.isNullOrEmpty()) {
             Evolution(
                 nextPokemonName = nextPokemonName,
                 nextPokemonSpeciesNumber = nextPokemonSpeciesNumber,
-                nextPokemonImageUrl = nextPokemonImageUrl,
                 lastPokemonName = lastPokemonName,
                 lastPokemonSpeciesNumber = lastPokemonSpeciesNumber,
-                lastPokemonImageUrl = lastPokemonImageUrl
             )
         } else {
             null
@@ -723,26 +766,22 @@ fun EvolutionChain.convertToShowEvolution(context: Context): ShowEvolution {
     return ShowEvolution(
         basePokemonName = this.chain?.basePokemon?.name ?: "",
         basePokemonSpeciesNumber = basePokemonSpeciesNumber,
-        basePokemonImageUrl = basePokemonImageUrl,
         evolution = evolutionList
     )
 }
 
 /**
- * 進化系表示用クラス
+ * APIデータを使いやすいよう変換
  */
 data class ShowEvolution(
-    val basePokemonName: String?,
-    val basePokemonSpeciesNumber: String?,
-    val basePokemonImageUrl: String?,
-    val evolution: List<Evolution>?
+    val basePokemonName: String? = "",
+    val basePokemonSpeciesNumber: String? = "",
+    val evolution: List<Evolution>? = emptyList()
 )
 
 data class Evolution(
-    val nextPokemonName: String?,
-    val nextPokemonSpeciesNumber: String?,
-    val nextPokemonImageUrl: String?,
-    val lastPokemonName: List<String>?,
-    val lastPokemonSpeciesNumber: List<String>?,
-    val lastPokemonImageUrl: List<String>?,
+    val nextPokemonName: String? = "",
+    val nextPokemonSpeciesNumber: String? = "",
+    val lastPokemonName: List<String>? = emptyList(),
+    val lastPokemonSpeciesNumber: List<String>? = emptyList(),
 )
