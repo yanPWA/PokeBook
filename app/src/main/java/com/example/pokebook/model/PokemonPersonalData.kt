@@ -80,7 +80,10 @@ data class PokemonSpecies(
     /** ポケモンID */
     val id: Int,
     /** 属性 */
-    val genera: List<Genera>
+    val genera: List<Genera>,
+    /** 進化系 */
+    @SerialName("evolution_chain")
+    val evolutionChain: EvolutionChainUrl
 )
 
 @Serializable
@@ -106,6 +109,11 @@ data class FlavorTextEntries(
 data class Genera(
     val genus: String,
     val language: Language
+)
+
+@Serializable
+data class EvolutionChainUrl(
+    val url: String
 )
 
 enum class StatType(val type: String) {

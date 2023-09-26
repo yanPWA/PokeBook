@@ -1,10 +1,11 @@
 package com.example.pokebook.ui.viewModel.Detail
 
-import com.example.pokebook.model.PokemonPersonalData
+import com.example.pokebook.model.EvolutionChain
+import com.example.pokebook.ui.screen.ShowEvolution
 import java.util.UUID
 
 /**
- * 詳細画面の状態に関する情報
+ * 詳細画面の状態に関する状態
  */
 sealed class PokemonDetailUiState {
     object Loading : PokemonDetailUiState()
@@ -17,6 +18,15 @@ sealed class PokemonDetailUiState {
 data class DetailUiCondition(
     val isLike: Boolean = false
 )
+
+/**
+ * 進化系取得に関する状態
+ */
+sealed class EvolutionChainUiState {
+    object Loading : EvolutionChainUiState()
+    object InitialState : EvolutionChainUiState()
+    object Fetched : EvolutionChainUiState()
+}
 
 /**
  *　ID
@@ -46,7 +56,9 @@ data class PokemonDetailScreenUiData(
     val height: Double = 0.0,
     val weight: Double = 0.0,
     val isLike: Boolean = false,
-    val speciesNumber: String = ""
+    val speciesNumber: String = "",
+    val evolutionChainNumber: String = "",
+    val displayEvolution: DisplayEvolution = DisplayEvolution()
 )
 
 /**
@@ -58,3 +70,22 @@ sealed class PokemonDetailUiEvent(
 ) {
     data class Error(val e: Throwable) : PokemonDetailUiEvent()
 }
+
+/**
+ * 進化系表示用クラス　新
+ */
+data class DisplayEvolution(
+    val basePokemonData: EvolutionPokemonDataState = EvolutionPokemonDataState(),
+    val nextPokemonData: List<NextPokemonData> = emptyList(),
+)
+
+data class NextPokemonData(
+    val nextPokemonData: EvolutionPokemonDataState = EvolutionPokemonDataState(),
+    var lastPokemonData: List<EvolutionPokemonDataState> = emptyList()
+)
+
+data class EvolutionPokemonDataState(
+    val japaneseName: String? = "",
+    val speciesNumber: String? = "",
+    val englishName: String? = "",
+)

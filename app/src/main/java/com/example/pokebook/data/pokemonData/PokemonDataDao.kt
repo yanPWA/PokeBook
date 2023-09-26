@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.TypeConverters
 import androidx.room.Update
-import com.example.pokebook.data.pokemonData.PokemonData
 
 @Dao
 @TypeConverters(StringListTypeConverter::class)
@@ -27,9 +26,9 @@ interface PokemonDataDao {
     @Query("SELECT * from pokemonData ORDER BY japaneseName ASC")
     fun getAllItems(): List<PokemonData>
 
-    // japaneseName完全一致の検索
-    @Query("SELECT * FROM pokemonData WHERE japaneseName = :keyword")
-    fun searchByJapaneseName(keyword: String): PokemonData
+    // japaneseName or englishName　の検索（大文字小文字区別なし）
+    @Query("SELECT * FROM pokemonData WHERE LOWER(japaneseName) = LOWER(:keyword) OR LOWER(englishName) = LOWER(:keyword)")
+    fun searchPokemonByKeyword(keyword: String): PokemonData
 
     // id完全一致の検索
     @Query("SELECT * FROM pokemonData WHERE id = :id")
@@ -44,7 +43,7 @@ interface PokemonDataDao {
     suspend fun updatePokemonData(id: Int, imageUrl: String, speciesNumber: String?)
 
     // 指定したpokemonNumberの必要なカラムを更新
-    @Query("UPDATE pokemonData SET englishName = :englishName, japaneseName = :japaneseName, description = :description,hp = :hp, attack = :attack, defense = :defense, speed = :speed, imageUrl = :imageUrl,speciesNumber = :speciesNumber,genus=:genus,type=:type WHERE id = :pokemonNumber")
+    @Query("UPDATE pokemonData SET englishName = :englishName, japaneseName = :japaneseName, description = :description,hp = :hp, attack = :attack, defense = :defense, speed = :speed, imageUrl = :imageUrl,speciesNumber = :speciesNumber,genus=:genus,type=:type,evolutionChainNumber=:evolutionChainNumber WHERE id = :pokemonNumber")
     suspend fun updatePokemonAllData(
         pokemonNumber: Int? = null,
         englishName: String? = null,
@@ -57,6 +56,7 @@ interface PokemonDataDao {
         imageUrl: String? = null,
         genus: String?,
         type: List<String>?,
-        speciesNumber: String?
+        speciesNumber: String?,
+        evolutionChainNumber: String?
     )
 }

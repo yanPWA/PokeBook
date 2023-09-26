@@ -42,9 +42,9 @@ object AppViewModelProvider {
         initializer {
             PokemonDetailViewModel(
                 pokemonApplication().container.pokemonDetailRepository,
-                pokemonApplication().container.pokemonDataRepository,
                 pokemonApplication().container.likesRepository,
-                pokemonApplication().container.pokemonDataRepository
+                pokemonApplication().container.pokemonDataRepository,
+                pokemonApplication().container.evolutionChainRepository
             )
         }
     }

@@ -13,6 +13,8 @@ import com.example.pokebook.repository.DefaultSearchRepository
 import com.example.pokebook.repository.HomeRepository
 import com.example.pokebook.repository.PokemonDetailRepository
 import com.example.pokebook.repository.ApiSearchRepository
+import com.example.pokebook.repository.DefaultEvolutionChainRepository
+import com.example.pokebook.repository.EvolutionChainRepository
 
 /**
  * 依存性注入のためのアプリコンテナ
@@ -24,6 +26,7 @@ interface AppContainer {
     val pokemonDetailRepository: PokemonDetailRepository
     val homeRepository: HomeRepository
     val searchTypeListRepository: SearchTypeListRepository
+    val evolutionChainRepository: EvolutionChainRepository
 }
 
 /**
@@ -50,5 +53,8 @@ class AppDataContainer(private val context: Context) : AppContainer {
     }
     override val searchTypeListRepository: SearchTypeListRepository by lazy {
         OfflineSearchTypeListRepository(PokemonDatabase.getDatabase(context).searchTypeListDao())
+    }
+    override val evolutionChainRepository: EvolutionChainRepository by lazy {
+        DefaultEvolutionChainRepository()
     }
 }

@@ -30,7 +30,8 @@ data class PokemonData(
     val defense: Int? = 0,
     val speed: Int? = 0,
     val imageUrl: String? = "",
-    val speciesNumber: String? = ""
+    val speciesNumber: String? = "",
+    val evolutionChainNumber:String? = ""
 )
 
 /**

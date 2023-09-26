@@ -35,12 +35,12 @@ fun TypeTag(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .padding(top = 5.dp)
     ) {
         Text(
             text = stringResource(R.string.pokemon_type),
             fontSize = 20.sp,
-            modifier = modifier,
+            modifier = modifier
+                .padding(start = 10.dp),
             color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
         )
         typeList.forEach { type ->
