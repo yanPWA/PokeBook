@@ -12,10 +12,8 @@ import com.example.pokebook.model.PokemonSpecies
 import com.example.pokebook.model.StatType
 import com.example.pokebook.repository.EvolutionChainRepository
 import com.example.pokebook.repository.PokemonDetailRepository
-import com.example.pokebook.ui.screen.Evolution
 import com.example.pokebook.ui.screen.ShowEvolution
 import com.example.pokebook.ui.screen.convertToShowEvolution
-import com.example.pokebook.ui.screen.createEvolutionChain
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -434,9 +432,9 @@ class PokemonDetailViewModel(
                     if (name.isNotEmpty()) {
                         if (parent.lastPokemonSpeciesNumber == null) return@withContext
                         //DB検索
-                        val result =
+                        val roomResult =
                             pokemonDataRepository.searchPokemonByKeyword(name)
-                        if (result == null && parent.lastPokemonSpeciesNumber.size <= index.plus(
+                        if (roomResult == null && parent.lastPokemonSpeciesNumber.size >= index.plus(
                                 1
                             )
                         ) {
@@ -453,7 +451,7 @@ class PokemonDetailViewModel(
                                 japaneseName = lastPokemonJapaneseName,
                                 speciesNumber = lastPokemonSpeciesNumber
                             )
-                        } else if (result.speciesNumber.isNullOrEmpty() && parent.lastPokemonSpeciesNumber.size <= index.plus(
+                        } else if (roomResult.speciesNumber.isNullOrEmpty() && parent.lastPokemonSpeciesNumber.size >= index.plus(
                                 1
                             )
                         ) {
@@ -472,8 +470,8 @@ class PokemonDetailViewModel(
                                 speciesNumber = lastPokemonSpeciesNumber
                             )
                         } else {
-                            lastPokemonJapaneseName = result.japaneseName
-                            lastPokemonSpeciesNumber = result.speciesNumber ?: ""
+                            lastPokemonJapaneseName = roomResult.japaneseName
+                            lastPokemonSpeciesNumber = roomResult.speciesNumber ?: ""
                         }
                         // 進化ポケモンが所持する最終進化ポケモンList
                         lastPokemonDataList += EvolutionPokemonDataState(
