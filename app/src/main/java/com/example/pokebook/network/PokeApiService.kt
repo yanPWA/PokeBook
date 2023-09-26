@@ -46,10 +46,16 @@ interface PokeApiService {
     ): Pokemon
 
     /**
-     * ポケモン個体情報取得
+     * ポケモン個体情報取得(ID検索)
      */
     @GET("pokemon/{path}")
     suspend fun getPokemonPersonalData(@Path("path") number: Int): PokemonPersonalData
+
+    /**
+     * ポケモン個体情報取得(name検索)
+     */
+    @GET("pokemon/{path}")
+    suspend fun getPokemonPersonalData(@Path("path") name: String): PokemonPersonalData
 
     /**
      * ポケモン個体説明取得
