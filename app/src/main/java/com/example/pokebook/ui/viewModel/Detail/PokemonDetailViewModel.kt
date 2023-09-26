@@ -28,7 +28,6 @@ import kotlinx.coroutines.withContext
 
 class PokemonDetailViewModel(
     private val detailRepository: PokemonDetailRepository,
-    private val dataRepository: PokemonDataRepository,
     private val likesRepository: LikesRepository,
     private val pokemonDataRepository: PokemonDataRepository,
     private val evolutionChainRepository: EvolutionChainRepository
