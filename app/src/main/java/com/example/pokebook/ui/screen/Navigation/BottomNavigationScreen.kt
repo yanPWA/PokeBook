@@ -13,6 +13,7 @@ import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,6 +39,7 @@ import com.example.pokebook.ui.viewModel.Home.HomeViewModel
 import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
 import com.example.pokebook.ui.viewModel.Search.SearchViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.launch
 
 /**
  * NavHost に宛先を設定する
@@ -213,12 +215,15 @@ fun NavGraphBuilder.searchGraph(
             )
         }
         composable(route = SearchScreen.PokemonDetailScreenByNumber.route) {
+            val coroutine = rememberCoroutineScope()
             PokemonDetailScreen(
                 likeEntryViewModel = likeEntryViewModel,
                 pokemonDetailViewModel = pokemonDetailViewModel,
                 onClickBackButton = { navController.navigateUp() },
                 onClickEvolution = { pokemonName ->
-                    pokemonDetailViewModel.getPokemonSpeciesByName(pokemonName)
+                    coroutine.launch {
+                        pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
+                    }
                     navController.navigate(SearchScreen.PokemonEvolutionDetailScreen.route)
                 }
             )
