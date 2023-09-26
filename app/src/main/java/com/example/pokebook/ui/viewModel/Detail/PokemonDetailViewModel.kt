@@ -78,16 +78,19 @@ class PokemonDetailViewModel(
                 } else {
                     pokemonDataRepository.searchPokemonByKeyword(englishName)
                 }
-                // DBにデータが存在していなければAPIを叩く
-                if (roomResult == null) {
-                    val result = if (englishName.isEmpty()) {
-                        getApiPokemonData(
-                            pokemonNumber = pokemonNumber,
-                            speciesNumber = speciesNumber
-                        )
-                    } else {
-                        getApiPokemonData(englishName = englishName)
-                    }
+
+                // APIからポケモン情報取得
+                val result = if (englishName.isEmpty()) {
+                    getApiPokemonData(
+                        pokemonNumber = pokemonNumber,
+                        speciesNumber = speciesNumber
+                    )
+                } else {
+                    getApiPokemonData(englishName = englishName)
+                }
+
+                // DBにデータが存在していなければAPIの情報で更新
+                if (roomResult == null || roomResult.description.isNullOrEmpty()) {
                     // 必要情報を取得してconditionStateを更新
                     updateCondition(
                         apiResult = result.personalData,
@@ -98,28 +101,7 @@ class PokemonDetailViewModel(
                         roomResult = roomResult,
                         pokemonNumber = result.species.id
                     )
-
                     // DBにdescriptionがない場合
-                } else if (roomResult.description.isNullOrEmpty()) {
-                    val result = if (englishName.isEmpty()) {
-                        getApiPokemonData(
-                            pokemonNumber = pokemonNumber,
-                            speciesNumber = speciesNumber
-                        )
-                    } else {
-                        getApiPokemonData(englishName = englishName)
-                    }
-                    // 必要情報を取得してconditionStateを更新
-                    updateCondition(
-                        roomResult = roomResult,
-                        apiResult = result.personalData,
-                        species = result.species
-                    )
-                    // pokemonNumberに該当するDBの情報を更新
-                    saveDataBase(
-                        roomResult = roomResult,
-                        pokemonNumber = result.species.id
-                    )
                 } else {
                     //conditionStateを更新
                     _conditionState.update { currentState ->
@@ -135,6 +117,8 @@ class PokemonDetailViewModel(
                             imageUri = roomResult.imageUrl ?: "",
                             type = roomResult.type ?: emptyList(),
                             genus = roomResult.genus ?: "",
+                            height = result.personalData.height / 10.0,
+                            weight = result.personalData.weight / 10.0,
                             speciesNumber = roomResult.speciesNumber ?: "",
                             evolutionChainNumber = roomResult.evolutionChainNumber ?: ""
                         )
