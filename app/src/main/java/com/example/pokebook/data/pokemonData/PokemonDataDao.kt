@@ -26,7 +26,7 @@ interface PokemonDataDao {
     @Query("SELECT * from pokemonData ORDER BY japaneseName ASC")
     fun getAllItems(): List<PokemonData>
 
-    // japaneseName完全一致の検索
+    // japaneseName or englishName　の検索（大文字小文字区別なし）
     @Query("SELECT * FROM pokemonData WHERE LOWER(japaneseName) = LOWER(:keyword) OR LOWER(englishName) = LOWER(:keyword)")
     fun searchPokemonByKeyword(keyword: String): PokemonData
 
