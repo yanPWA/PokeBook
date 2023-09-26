@@ -10,6 +10,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,6 +54,7 @@ import com.example.pokebook.model.Evolves
 import com.example.pokebook.model.EvolvesSpecies
 import com.example.pokebook.model.NextEvolves
 import com.example.pokebook.ui.AppViewModelProvider
+import com.example.pokebook.ui.screen.common.AutoSizeableText
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailScreenUiData
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiEvent
 import com.example.pokebook.ui.viewModel.Detail.PokemonDetailUiState
@@ -544,48 +547,6 @@ private fun EvolutionChainImage(
             contentDescription = null
         )
     }
-}
-
-/**
- * 文字サイズの自動調整
- */
-@Composable
-fun AutoSizeableText(
-    text: String,
-    color: Color,
-    maxTextSize: Int = 50,
-    minTextSize: Int = 40,
-    modifier: Modifier
-) {
-    var textSize by remember { mutableStateOf(maxTextSize) }
-    val checked = remember(text) { mutableMapOf<Int, Boolean?>() }
-    var overflow by remember { mutableStateOf(TextOverflow.Clip) }
-
-    androidx.compose.material.Text(
-        text = text,
-        color = color,
-        fontSize = textSize.sp,
-        maxLines = 1,
-        overflow = overflow,
-        modifier = modifier,
-        onTextLayout = {
-            if (it.hasVisualOverflow) {
-                checked[textSize] = true
-                if (textSize > minTextSize) {
-                    textSize -= 1
-                } else {
-                    overflow = TextOverflow.Ellipsis
-                }
-            } else {
-                checked[textSize] = false
-                if (textSize < maxTextSize) {
-                    if (checked[textSize + 1] == null) {
-                        textSize += 1
-                    }
-                }
-            }
-        }
-    )
 }
 
 /**
