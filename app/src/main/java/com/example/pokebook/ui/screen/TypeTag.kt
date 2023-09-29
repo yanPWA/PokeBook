@@ -38,16 +38,16 @@ fun TypeTag(
     ) {
         Text(
             text = stringResource(R.string.pokemon_type),
-            fontSize = 20.sp,
+            fontSize = 15.sp,
             modifier = modifier
-                .padding(start = 10.dp),
+                .padding(start = 15.dp),
             color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
         )
         typeList.forEach { type ->
             Text(
                 text = type.convertToJaTypeNameByTypeName(),
                 modifier = modifier
-                    .padding(1.dp)
+                    .padding(start = 5.dp)
                     .background(
                         color = type.convertToColorCodeByTypeName(),
                         shape = RoundedCornerShape(5.dp)

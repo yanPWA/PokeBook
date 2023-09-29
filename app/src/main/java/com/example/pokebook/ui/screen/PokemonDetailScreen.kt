@@ -1,9 +1,7 @@
 package com.example.pokebook.ui.screen
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -38,10 +37,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
@@ -63,9 +61,18 @@ import com.example.pokebook.ui.viewModel.Detail.PokemonDetailViewModel
 import com.example.pokebook.ui.viewModel.Like.LikeDetails
 import com.example.pokebook.ui.viewModel.Like.LikeEntryViewModel
 import com.example.pokebook.ui.viewModel.Like.toLikeDetails
+import com.github.mikephil.charting.charts.HorizontalBarChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+
+const val DURATION_MILLIS = 2000
 
 @Composable
 fun PokemonDetailScreen(
@@ -235,11 +242,9 @@ private fun PokemonDetailScreen(
                     title = "▼能力",
                     modifier = modifier
                 )
-                Ability(
+                MPAndroidChart(
                     uiData = uiData,
                     modifier = modifier
-                        .padding(top = 5.dp)
-                        .align(Alignment.CenterHorizontally)
                 )
             }
             Column {
@@ -352,70 +357,112 @@ private fun BaseInfo(
             text = String.format(
                 stringResource(R.string.pokemon_genus), uiData.genus
             ),
-            fontSize = 20.sp,
-            modifier = modifier.padding(start = 10.dp, top = 5.dp)
+            fontSize = 15.sp,
+            modifier = modifier.padding(start = 15.dp, top = 5.dp)
         )
         TypeTag(typeList = uiData.type, modifier = modifier)
 
         Text(
             text = String.format(stringResource(R.string.pokemon_weight), uiData.weight),
-            fontSize = 20.sp,
+            fontSize = 15.sp,
             modifier = modifier
-                .padding(start = 10.dp, top = 5.dp)
+                .padding(start = 15.dp, top = 5.dp)
         )
         Text(
             text = String.format(stringResource(R.string.pokemon_height), uiData.height),
-            fontSize = 20.sp,
+            fontSize = 15.sp,
             modifier = modifier
-                .padding(start = 10.dp, top = 5.dp, bottom = 5.dp)
+                .padding(start = 15.dp, top = 5.dp, bottom = 10.dp)
         )
     }
 }
 
+/**
+ * MPAndroidChartで能力値表示
+ */
 @Composable
-private fun Ability(
+private fun MPAndroidChart(
     uiData: PokemonDetailScreenUiData,
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ) {
-    // TODO ゆくゆくはグラフ表示させたい
     Card(
         modifier = modifier
             .padding(start = 20.dp, end = 20.dp)
             .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp),
     ) {
-        Row(
-            modifier = modifier
-                .padding(horizontal = 10.dp)
-        ) {
-            Text(
-                text = String.format(stringResource(R.string.pokemo_hp), uiData.hp),
-                fontSize = 20.sp,
-                modifier = modifier
-                    .padding(start = 10.dp, end = 10.dp, top = 5.dp),
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = String.format(stringResource(R.string.pokemon_attack), uiData.attack),
-                fontSize = 20.sp,
-                modifier = modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp)
-            )
-        }
-        Row(
-            modifier = modifier
-                .padding(bottom = 10.dp)
-        ) {
-            Text(
-                text = String.format(stringResource(R.string.pokemon_defense), uiData.defense),
-                fontSize = 20.sp,
-                modifier = modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp)
-            )
-            Text(
-                text = String.format(stringResource(R.string.pokemon_speed), uiData.speed),
-                fontSize = 20.sp,
-                modifier = modifier.padding(start = 10.dp, end = 10.dp, top = 5.dp)
-            )
-        }
+        val abilityColor = MaterialTheme.colorScheme.onSurfaceVariant.hashCode()
+        AndroidView(
+            factory = { context ->
+                val chart = HorizontalBarChart(context)
+                //グラフのデータを設定
+                val value: ArrayList<BarEntry> = ArrayList()
+                value.add(BarEntry(0f, uiData.hp.toFloat())) // HP
+                value.add(BarEntry(1f, uiData.attack.toFloat())) // 攻撃
+                value.add(BarEntry(2f, uiData.defense.toFloat())) // 防御
+                value.add(BarEntry(3f, uiData.speed.toFloat())) // スピード
+
+                //chartに設定
+                val dataSet = BarDataSet(
+                    value,
+                    context.resources.getString(R.string.mp_android_chart_label_name)
+                ).apply {
+                    setDrawValues(true)
+                    color = Color.Green.hashCode()
+                    valueTextColor = abilityColor
+                    isHighlightEnabled = false                           //ハイライト表示無効
+                    valueFormatter = BarValueFormatter()
+                }
+
+                chart.apply {
+                    data = BarData(dataSet)                              //チャートのデータをセット
+                    isEnabled = true
+                    isDoubleTapToZoomEnabled = false                     //ズーム無効
+                    isClickable = false                                  //タッチ無効
+                    legend.isEnabled = false                             //凡例の削除
+                    description.isEnabled = false                        //説明の削除
+                    setDrawBorders(false)                                //チャートの境界線削除
+                    animateXY(DURATION_MILLIS, DURATION_MILLIS)          //アニメーション
+                    invalidate()                                         // refresh
+
+                    // ------- x軸 -------
+                    xAxis.apply {
+                        setDrawAxisLine(false)                           //x軸に沿った線 (軸線) 削除
+                        setDrawGridLines(false)                          //グリッド線削除
+                        xOffset = 10f                                    //ラベルからの距離
+                        position = XAxis.XAxisPosition.BOTTOM            //ラベルの位置設定
+                        textColor = abilityColor                         //ラベルの色設定
+                        textSize = 15f                                   //ラベルのテキストサイズ設定
+                        labelCount = value.size                          //ラベル数設定
+                        valueFormatter =                                 //ラベルフォーマット設定
+                            IndexAxisValueFormatter(resources.getStringArray(R.array.ability))
+                    }
+
+                    // ------- y軸(左) -------
+                    axisLeft.apply {
+                        setDrawLabels(false)                             //y軸ラベルの削除
+                        setDrawAxisLine(false)                           //y軸に沿った線 (軸線) 削除
+                        setDrawGridLines(false)                          //グリッド線削除
+                    }
+                    // ------- y軸(右) -------
+                    axisRight.apply {
+                        isEnabled = true
+                        textColor = abilityColor                         //ラベルの色設定
+                        valueFormatter = BarValueFormatter()             //ラベルフォーマット設定
+                    }
+                }
+            },
+            modifier = Modifier
+                .padding(end = 10.dp)
+                .height(100.dp)
+                .width(350.dp)
+        )
+    }
+}
+
+class BarValueFormatter : ValueFormatter() {
+    override fun getFormattedValue(value: Float): String {
+        return value.toInt().toString()
     }
 }
 

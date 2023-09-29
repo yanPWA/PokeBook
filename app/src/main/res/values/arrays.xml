@@ -30,7 +30,11 @@
         <item>@string/type_name_unknown</item>
     </string-array>
 
-
-
+    <array name="ability">
+        <item>@string/ability_hp</item>
+        <item>@string/ability_attack</item>
+        <item>@string/ability_defense</item>
+        <item>@string/ability_speed</item>
+    </array>
 
 </resources>
