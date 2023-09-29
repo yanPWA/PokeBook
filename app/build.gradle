@@ -94,4 +94,6 @@ dependencies {
     implementation "androidx.core:core-splashscreen:1.0.0-alpha01"
     // ImmutableList
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
+    // MPAndroidChart
+    implementation "com.github.PhilJay:MPAndroidChart:v3.1.0"
 }
