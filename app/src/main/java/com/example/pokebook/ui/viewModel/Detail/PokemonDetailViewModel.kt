@@ -16,6 +16,7 @@ import com.example.pokebook.ui.screen.ShowEvolution
 import com.example.pokebook.ui.screen.convertToShowEvolution
 import com.example.pokebook.ui.viewModel.Home.PokemonListUiData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -623,6 +624,13 @@ class PokemonDetailViewModel(
                 displayEvolution = conditionStatePrevious.displayEvolution
             )
         }
+    }
+
+    /**
+     * 初期化
+     */
+    fun initState() = viewModelScope.launch {
+        _uiState.emit(PokemonDetailUiState.InitialState)
     }
 }
 

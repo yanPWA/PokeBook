@@ -132,8 +132,9 @@ fun NavGraphBuilder.homeGraph(
                 likeEntryViewModel = likeEntryViewModel,
                 onClickBackButton = { navController.navigateUp() },
                 onClickEvolution = { pokemonName ->
-                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     pokemonDetailViewModel.saveConditionState()
+                    pokemonDetailViewModel.initState()
+                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     navController.navigate(HomeScreen.PokemonEvolutionDetailScreen.route)
                 },
                 pokemonDetailViewModel = pokemonDetailViewModel
@@ -147,8 +148,9 @@ fun NavGraphBuilder.homeGraph(
                     navController.navigateUp()
                 },
                 onClickEvolution = { pokemonName ->
-                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     pokemonDetailViewModel.saveConditionState()
+                    pokemonDetailViewModel.initState()
+                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     navController.navigate(HomeScreen.PokemonEvolutionDetailScreen.route)
                 },
                 pokemonDetailViewModel = pokemonDetailViewModel
@@ -214,8 +216,9 @@ fun NavGraphBuilder.searchGraph(
                 pokemonDetailViewModel = pokemonDetailViewModel,
                 onClickBackButton = { navController.navigateUp() },
                 onClickEvolution = { pokemonName ->
-                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     pokemonDetailViewModel.saveConditionState()
+                    pokemonDetailViewModel.initState()
+                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     navController.navigate(SearchScreen.PokemonEvolutionDetailScreen.route)
                 }
             )
@@ -226,8 +229,9 @@ fun NavGraphBuilder.searchGraph(
                 pokemonDetailViewModel = pokemonDetailViewModel,
                 onClickBackButton = { navController.navigateUp() },
                 onClickEvolution = { pokemonName ->
-                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     pokemonDetailViewModel.saveConditionState()
+                    pokemonDetailViewModel.initState()
+                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     navController.navigate(SearchScreen.PokemonEvolutionDetailScreen.route)
                 }
             )
@@ -241,10 +245,11 @@ fun NavGraphBuilder.searchGraph(
                     navController.navigateUp()
                 },
                 onClickEvolution = { pokemonName ->
-                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     pokemonDetailViewModel.saveConditionState()
+                    pokemonDetailViewModel.initState()
+                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     navController.navigate(SearchScreen.PokemonEvolutionDetailScreen.route)
-                },
+                }
             )
         }
     }
@@ -282,8 +287,9 @@ fun NavGraphBuilder.likeGraph(
                 pokemonDetailViewModel = pokemonDetailViewModel,
                 onClickBackButton = { navController.navigateUp() },
                 onClickEvolution = { pokemonName ->
-                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     pokemonDetailViewModel.saveConditionState()
+                    pokemonDetailViewModel.initState()
+                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     navController.navigate(LikeScreen.PokemonEvolutionDetailScreen.route)
                 },
             )
@@ -297,8 +303,9 @@ fun NavGraphBuilder.likeGraph(
                     navController.navigateUp()
                 },
                 onClickEvolution = { pokemonName ->
-                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     pokemonDetailViewModel.saveConditionState()
+                    pokemonDetailViewModel.initState()
+                    pokemonDetailViewModel.getPokemonSpeciesById(englishName = pokemonName)
                     navController.navigate(LikeScreen.PokemonEvolutionDetailScreen.route)
                 }
             )
