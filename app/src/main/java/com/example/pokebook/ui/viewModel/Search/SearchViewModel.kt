@@ -49,6 +49,8 @@ const val TYPE_DARK = "17"
 const val TYPE_FAIRY = "18"
 const val TYPE_UNKNOWN = "10001"
 const val TYPE_SHADOW = "10002"
+const val INI_PAGE_POSITION = 0
+const val CLICK_PAGE_POSITION = 1
 
 class SearchViewModel(
     private val searchRepository: ApiSearchRepository,
@@ -169,10 +171,11 @@ class SearchViewModel(
     private fun getPokemonTypeList(typeNumber: Int) = viewModelScope.launch {
         _uiState.emit(SearchUiState.Loading)
         updateIsFirst(true)
-        // タイトル名の更新
+        // タイトル名の更新,pagePositionの初期化
         _conditionState.update { currentState ->
             currentState.copy(
-                pokemonTypeName = typeNumber.toString().convertToJaTypeName()
+                pokemonTypeName = typeNumber.toString().convertToJaTypeName(),
+                pagePosition = INI_PAGE_POSITION
             )
         }
         runCatching {
@@ -319,11 +322,13 @@ class SearchViewModel(
     override fun onClickNext() {
         updateIsFirst(true)
         val pagePosition = conditionState.value.pagePosition
-        if (pagePosition < responseUiDataList.size.minus(1)) showPokemonTypeList(
-            conditionState.value.pagePosition.plus(
-                1
+        if (pagePosition < conditionState.value.maxPage.toInt().minus(1)) {
+            showPokemonTypeList(
+                conditionState.value.pagePosition.plus(
+                    CLICK_PAGE_POSITION
+                )
             )
-        )
+        }
     }
 
     override fun onClickBack() {
