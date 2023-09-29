@@ -352,22 +352,22 @@ private fun BaseInfo(
             text = String.format(
                 stringResource(R.string.pokemon_genus), uiData.genus
             ),
-            fontSize = 20.sp,
-            modifier = modifier.padding(start = 10.dp, top = 5.dp)
+            fontSize = 15.sp,
+            modifier = modifier.padding(start = 15.dp, top = 5.dp)
         )
         TypeTag(typeList = uiData.type, modifier = modifier)
 
         Text(
             text = String.format(stringResource(R.string.pokemon_weight), uiData.weight),
-            fontSize = 20.sp,
+            fontSize = 15.sp,
             modifier = modifier
-                .padding(start = 10.dp, top = 5.dp)
+                .padding(start = 15.dp, top = 5.dp)
         )
         Text(
             text = String.format(stringResource(R.string.pokemon_height), uiData.height),
-            fontSize = 20.sp,
+            fontSize = 15.sp,
             modifier = modifier
-                .padding(start = 10.dp, top = 5.dp, bottom = 5.dp)
+                .padding(start = 15.dp, top = 5.dp, bottom = 10.dp)
         )
     }
 }
