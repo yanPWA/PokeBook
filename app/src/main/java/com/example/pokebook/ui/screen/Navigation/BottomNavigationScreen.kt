@@ -266,11 +266,11 @@ fun NavGraphBuilder.likeGraph(
             likeEntryViewModel.getAllList()
             LikeEntryScreen(
                 onClickCard = { speciesNumber, pokemonNumber ->
-                    navController.navigate(LikeScreen.LikeDetailScreen.route)
                     pokemonDetailViewModel.getPokemonSpeciesById(
                         pokemonNumber = pokemonNumber,
                         speciesNumber = speciesNumber
                     )
+                    navController.navigate(LikeScreen.LikeDetailScreen.route)
                 },
                 onClickBackButton = { navController.navigateUp() },
                 likeEntryViewModel = likeEntryViewModel

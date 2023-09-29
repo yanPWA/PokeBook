@@ -99,7 +99,7 @@ class PokemonDetailViewModel(
                     // 新規でDBに保存
                     saveDataBase(
                         roomResult = roomResult,
-                        pokemonNumber = result.species.id
+                        pokemonNumber = pokemonNumber
                     )
                     // DBにdescriptionがない場合
                 } else {
@@ -180,7 +180,7 @@ class PokemonDetailViewModel(
                         flavorTextEntries.language.name == "ja"
                     }?.flavorText ?: "日本語の説明が存在しません...",
                     imageUri = apiResult.sprites.other.officialArtwork.imgUrl ?: "",
-                    speciesNumber = apiResult.id.toString(),
+                    speciesNumber = Uri.parse(apiResult.species.url)?.lastPathSegment ?: "",
                     evolutionChainNumber = Uri.parse(species.evolutionChain.url).lastPathSegment
                         ?: ""
                 )
